@@ -1,0 +1,359 @@
+/* ============================================================
+   ADMIN FEATURES: PROFILE UPLOAD, SOCIAL LINKS, CV, SETTINGS, GALLERY
+   ============================================================ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('adminDashboard')) return;
+    initProfileSettings();
+    loadAllSettings();
+    ensureSaveButton();
+});
+
+function initProfileSettings() {
+    const profileInput = document.getElementById('profileImageInput');
+    const profilePreview = document.getElementById('profilePreview');
+    const removeBtn = document.getElementById('removeProfileBtn');
+    const heroInput = document.getElementById('heroImageInput');
+    const heroPreview = document.getElementById('heroImagePreview');
+    const removeHeroBtn = document.getElementById('removeHeroImageBtn');
+    const cvInput = document.getElementById('cvFileInput');
+    const cvFileName = document.getElementById('cvFileName');
+
+    const settings = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+
+    // ── Navbar avatar ────────────────────────────────────────
+    if (settings.profileImage && profilePreview) {
+        profilePreview.innerHTML = `<img src="${settings.profileImage}" alt="Profile">`;
+        profilePreview.classList.add('has-image');
+    }
+    if (settings.cvFileName && cvFileName) {
+        cvFileName.textContent = settings.cvFileName;
+    }
+
+    profileInput?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { Utils.showToast('Image must be under 2MB', 'error'); return; }
+        try {
+            const dataUrl = await Utils.readFileAsDataURL(file);
+            profilePreview.innerHTML = `<img src="${dataUrl}" alt="Profile">`;
+            profilePreview.classList.add('has-image');
+            const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+            s.profileImage = dataUrl;
+            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+            Utils.showToast('Navbar avatar updated', 'success');
+        } catch { Utils.showToast('Failed to upload image', 'error'); }
+    });
+
+    removeBtn?.addEventListener('click', () => {
+        profilePreview.innerHTML = '<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>';
+        profilePreview.classList.remove('has-image');
+        const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+        delete s.profileImage;
+        Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+        Utils.showToast('Navbar avatar removed', 'success');
+    });
+
+    // ── Hero terminal picture ────────────────────────────────
+    if (settings.heroImage && heroPreview) {
+        heroPreview.innerHTML = `<img src="${settings.heroImage}" alt="Hero">`;
+        heroPreview.classList.add('has-image');
+    }
+
+    heroInput?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 3 * 1024 * 1024) { Utils.showToast('Hero image must be under 3MB', 'error'); return; }
+        try {
+            const dataUrl = await Utils.readFileAsDataURL(file);
+            heroPreview.innerHTML = `<img src="${dataUrl}" alt="Hero">`;
+            heroPreview.classList.add('has-image');
+            const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+            s.heroImage = dataUrl;
+            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+            Utils.showToast('Hero picture updated', 'success');
+        } catch { Utils.showToast('Failed to upload image', 'error'); }
+    });
+
+    removeHeroBtn?.addEventListener('click', () => {
+        heroPreview.innerHTML = '<i class="fas fa-user-circle"></i>';
+        heroPreview.classList.remove('has-image');
+        const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+        delete s.heroImage;
+        Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+        Utils.showToast('Hero picture removed', 'success');
+    });
+
+    // ── CV upload ────────────────────────────────────────────
+    cvInput?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) { Utils.showToast('CV must be under 5MB', 'error'); return; }
+        try {
+            const dataUrl = await Utils.readFileAsDataURL(file);
+            cvFileName.textContent = file.name;
+            const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+            s.cvFile = dataUrl;
+            s.cvFileName = file.name;
+            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+            Utils.showToast('CV uploaded', 'success');
+        } catch { Utils.showToast('Failed to upload CV', 'error'); }
+    });
+}
+
+function loadAllSettings() {
+    const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+    // Load visibility toggles
+    ['about','experience','technical','projects','certifications','education','learning','gallery','contact'].forEach(sec => {
+        const el = document.getElementById('vis_' + sec);
+        if (el) el.checked = (s.visibility || {})[sec] !== false;   // default true
+    });
+    const map = {
+        settingSiteTitle: s.siteTitle || 'Shadat Hossain',
+        settingSiteDesc: s.siteDesc || 'Network & Security Engineer Portfolio',
+        settingDisplayName: s.displayName || 'Shadat Hossain',
+        settingTitle: s.title || 'Network & Security Engineer',
+        settingTagline: s.tagline || 'Available for opportunities',
+        settingCvButtonText: s.cvButtonText || 'View CV',
+        settingGithub: s.github || '',
+        settingLinkedin: s.linkedin || '',
+        settingTwitter: s.twitter || '',
+        settingFacebook: s.facebook || '',
+        settingWhatsapp: s.whatsapp || '',
+        settingEmail: s.email || 'sahadat.bda35@gmail.com',
+        settingPhone: s.phone || '+880 1575 382663',
+        settingNotifyEmail: s.notifyEmail || 'sahadat.bda35@gmail.com'
+    };
+    Object.entries(map).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    });
+    const autoReply = document.getElementById('settingAutoReply');
+    if (autoReply) autoReply.checked = s.autoReply !== false;
+}
+
+function ensureSaveButton() {
+    if (document.getElementById('saveSettingsBtn')) return;
+    const container = document.querySelector('.settings-container');
+    if (!container) return;
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.id = 'saveSettingsBtn';
+    btn.style.marginTop = 'var(--space-xl)';
+    btn.innerHTML = '<i class="fas fa-save"></i> Save All Settings';
+    btn.addEventListener('click', saveAllSettings);
+    container.appendChild(btn);
+}
+
+function saveAllSettings() {
+    const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+
+    // Save visibility
+    s.visibility = s.visibility || {};
+    ['about','experience','technical','projects','certifications','education','learning','gallery','contact'].forEach(sec => {
+        const el = document.getElementById('vis_' + sec);
+        if (el) s.visibility[sec] = el.checked;
+    });
+
+    const fields = [
+        'settingSiteTitle', 'settingSiteDesc', 'settingDisplayName', 'settingTitle',
+        'settingTagline', 'settingCvButtonText', 'settingGithub', 'settingLinkedin',
+        'settingTwitter', 'settingFacebook', 'settingWhatsapp', 'settingEmail',
+        'settingPhone', 'settingNotifyEmail'
+    ];
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const key = id.replace('setting', '').replace(/^./, c => c.toLowerCase());
+        s[key] = el.value;
+    });
+    const autoReply = document.getElementById('settingAutoReply');
+    if (autoReply) s.autoReply = autoReply.checked;
+    Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+    Utils.showToast('All settings saved successfully', 'success');
+}
+
+/* ============================================================
+   ADMIN GALLERY & POC VIDEOS
+   ============================================================ */
+
+const GALLERY_KEY = 'sh_gallery';
+
+// Wrap existing navigateToPage
+(function hookNavigation() {
+    const orig = window.navigateToPage;
+    if (typeof orig !== 'function') return;
+    window.navigateToPage = function(page) {
+        orig(page);
+        if (page === 'gallery') renderAdminGallery();
+        if (page === 'videos')  renderAdminVideos();
+    };
+})();
+
+// ── Gallery ──────────────────────────────────────────────────
+function renderAdminGallery() {
+    const c = document.getElementById('galleryContainer');
+    if (!c) return;
+    const items = Utils.getItems(GALLERY_KEY).sort((a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!items.length) {
+        c.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
+            <i class="fas fa-images"></i>
+            <h3>No gallery items</h3>
+            <p>Click "New Item" to add a photo or video.</p>
+        </div>`;
+    } else {
+        c.innerHTML = items.map(item => `
+            <div class="admin-item-card">
+                <div class="admin-item-header">
+                    <div class="admin-item-icon">
+                        ${item.type === 'video' ? '<i class="fas fa-video"></i>' : '<i class="fas fa-image"></i>'}
+                    </div>
+                    <div class="admin-item-actions">
+                        <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <h4 class="admin-item-title">${Utils.esc(item.caption || 'Untitled')}</h4>
+                <p class="admin-item-desc">${item.type === 'video' ? 'Video' : 'Image'} • ${Utils.formatDate(item.createdAt)}</p>
+            </div>
+        `).join('');
+    }
+
+    // Wire "New Item" button
+    const btn = document.getElementById('newGalleryBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => openGalleryForm());
+    }
+}
+
+function openGalleryForm(item = null) {
+    const isEdit = !!item;
+    Utils.openModal(isEdit ? 'Edit Gallery Item' : 'New Gallery Item', `
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="galType">Type *</label>
+                <select id="galType">
+                    <option value="image" ${item?.type === 'image' ? 'selected' : ''}>Image</option>
+                    <option value="video" ${item?.type === 'video' ? 'selected' : ''}>Video (YouTube/Vimeo URL or direct link)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="galCaption">Caption</label>
+                <input type="text" id="galCaption" value="${item ? Utils.esc(item.caption || '') : ''}" placeholder="Short description">
+            </div>
+            <div class="form-group">
+                <label for="galUrl">URL (for videos) or Upload Image *</label>
+                <input type="url" id="galUrl" value="${item && item.type === 'video' ? Utils.esc(item.src) : ''}" placeholder="https://youtube.com/watch?v=...">
+                <input type="file" id="galFile" accept="image/*" style="margin-top:0.5rem;">
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">
+                    ${isEdit ? 'Leave blank to keep current media.' : 'Upload an image OR paste a video URL.'}
+                </p>
+            </div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveGalleryItem('${item?.id || ''}')">
+                    <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Create'}
+                </button>
+            </div>
+        </div>
+    `);
+}
+
+window.editGalleryItem = function(id) {
+    const item = Utils.getItems(GALLERY_KEY).find(i => i.id === id);
+    if (item) openGalleryForm(item);
+};
+
+window.deleteGalleryItem = function(id) {
+    if (!confirm('Delete this gallery item?')) return;
+    Utils.saveItems(GALLERY_KEY, Utils.getItems(GALLERY_KEY).filter(i => i.id !== id));
+    Utils.showToast('Deleted', 'success');
+    renderAdminGallery();
+};
+
+window.saveGalleryItem = async function(id) {
+    const type = document.getElementById('galType').value;
+    const caption = document.getElementById('galCaption').value.trim();
+    const url = document.getElementById('galUrl').value.trim();
+    const fileInput = document.getElementById('galFile');
+    const file = fileInput.files[0];
+
+    let src = url;
+    if (file) {
+        if (file.size > 4 * 1024 * 1024) { Utils.showToast('Image must be under 4MB', 'error'); return; }
+        try { src = await Utils.readFileAsDataURL(file); }
+        catch { Utils.showToast('Failed to read file', 'error'); return; }
+    }
+
+    if (!src) { Utils.showToast('Please provide a URL or upload a file', 'error'); return; }
+
+    const items = Utils.getItems(GALLERY_KEY);
+    if (id) {
+        const idx = items.findIndex(i => i.id === id);
+        if (idx > -1) items[idx] = { ...items[idx], type, caption, src };
+    } else {
+        items.unshift({
+            id: Utils.uid(), type, caption, src,
+            createdAt: new Date().toISOString()
+        });
+    }
+    Utils.saveItems(GALLERY_KEY, items);
+    Utils.closeModal();
+    Utils.showToast(id ? 'Updated' : 'Created', 'success');
+    renderAdminGallery();
+};
+
+// ── POC Videos (uses same store, filtered to type=video) ─────
+function renderAdminVideos() {
+    const c = document.getElementById('videosContainer');
+    if (!c) return;
+    const items = Utils.getItems(GALLERY_KEY)
+        .filter(i => i.type === 'video')
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!items.length) {
+        c.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
+            <i class="fas fa-video"></i>
+            <h3>No POC videos</h3>
+            <p>Click "New Video" to add a bug bounty proof of concept.</p>
+        </div>`;
+    } else {
+        c.innerHTML = items.map(item => `
+            <div class="admin-item-card">
+                <div class="admin-item-header">
+                    <div class="admin-item-icon"><i class="fas fa-video"></i></div>
+                    <div class="admin-item-actions">
+                        <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}'); renderAdminVideos();" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <h4 class="admin-item-title">${Utils.esc(item.caption || 'Untitled')}</h4>
+                <p class="admin-item-desc">${Utils.esc(item.src)}</p>
+            </div>
+        `).join('');
+    }
+
+    const btn = document.getElementById('newVideoBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.addEventListener('click', () => {
+            // Force type=video by pre-opening form
+            openGalleryForm({ type: 'video', caption: '', src: '' });
+            setTimeout(() => {
+                const sel = document.getElementById('galType');
+                if (sel) sel.value = 'video';
+            }, 50);
+        });
+    }
+}
