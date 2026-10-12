@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Shadat Hossain - Network & System Administration Professional | MikroTik Certified | Cybersecurity Researcher">
+    <meta name="keywords" content="Network Engineer, System Administrator, MikroTik, Cisco, Linux, Windows Server, Cybersecurity, Bug Bounty">
+    <meta name="author" content="Shadat Hossain">
+    <title>Shadat Hossain | Network & Security Engineer</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader" class="preloader">
+        <div class="preloader-content">
+            <div class="terminal-loader">
+                <span class="terminal-prompt">shadat@portfolio:~$</span>
+                <span class="terminal-text" id="loaderText">Initializing system...</span>
+                <span class="cursor">_</span>
+            </div>
+            <div class="loader-progress">
+                <div class="loader-bar" id="loaderBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="grid-overlay"></div>
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div class="glow-orb glow-orb-3"></div>
+        <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo" id="navLogo">
+                <div class="nav-avatar" id="navAvatar">
+                    <span class="nav-avatar-logo">
+                        <span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span>
+                    </span>
+                </div>
+                <div class="logo-info">
+                    <span class="logo-name">Shadat Hossain</span>
+                    <span class="logo-role">Network & Security</span>
+                </div>
+            </a>
+
+            <div class="nav-menu" id="navMenu">
+                <a href="#home" class="nav-link active" data-section="home">Home</a>
+                <a href="#experience" class="nav-link" data-section="experience">Experience</a>
+                <a href="#technical" class="nav-link" data-section="technical">Technical</a>
+                <a href="#projects" class="nav-link" data-section="projects">Projects</a>
+                <a href="#certifications" class="nav-link" data-section="certifications">Certifications</a>
+                <a href="#education" class="nav-link" data-section="education">Education</a>
+                <a href="#learning" class="nav-link" data-section="learning">Learning</a>
+                <a href="gallery.html" class="nav-link">Gallery</a>
+                <a href="#about" class="nav-link" data-section="about">About</a>
+            </div>
+
+            <div class="nav-actions">
+                <div class="nav-social">
+                    <a href="mailto:sahadat.bda35@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+                    <a href="https://facebook.com/" title="Facebook" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://linkedin.com/" title="LinkedIn" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://twitter.com/" title="Twitter" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                    <a href="https://github.com/sohanatrana" title="GitHub" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+                </div>
+                <button class="search-trigger" id="searchTrigger" title="Search (Ctrl+K)">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="admin.html" class="admin-btn" title="Admin Panel">
+                    <i class="fas fa-shield-alt"></i>
+                </a>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- THEME SWITCHER (NEW)                         -->
+    <!-- ============================================ -->
+    <div class="theme-switcher" id="themeSwitcher">
+        <button class="theme-switcher-toggle" id="themeSwitcherToggle" aria-label="Toggle theme switcher">
+            <i class="fas fa-palette"></i>
+        </button>
+        <div class="theme-swatches">
+            <div class="theme-swatch" data-theme="dark" title="Dark"></div>
+            <div class="theme-swatch" data-theme="light" title="Light"></div>
+            <div class="theme-swatch" data-theme="ocean" title="Ocean"></div>
+            <div class="theme-swatch" data-theme="forest" title="Forest"></div>
+            <div class="theme-swatch" data-theme="sunset" title="Sunset"></div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- GLOBAL SEARCH MODAL (NEW)                    -->
+    <!-- ============================================ -->
+    <div class="global-search" id="globalSearch">
+        <div class="global-search-container">
+            <div class="global-search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="globalSearchInput" placeholder="Search across the website..." autocomplete="off">
+                <kbd>ESC</kbd>
+            </div>
+            <div class="global-search-results" id="globalSearchResults"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        <span>Available for opportunities</span>
+                    </div>
+                    
+                    <h1 class="hero-title">
+                        <span class="title-line">Building resilient</span>
+                        <span class="title-line gradient-text">infrastructure.</span>
+                        <span class="title-line">Thinking like a defender.</span>
+                    </h1>
+                    
+                    <p class="hero-description">
+                        Network & System Administration professional with hands-on expertise in 
+                        enterprise networking, MikroTik, Cisco, Red Hat Enterprise Linux, and 
+                        Windows Server infrastructure — ready to build, secure, and scale your IT operations.
+                    </p>
+
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" data-count="100">0</span>
+                            <span class="stat-suffix">+</span>
+                            <span class="stat-label">Vulnerabilities Discovered</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" data-count="788">0</span>
+                            <span class="stat-suffix"></span>
+                            <span class="stat-label">Hours Training</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" data-count="5">0</span>
+                            <span class="stat-suffix"></span>
+                            <span class="stat-label">Projects Completed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" data-count="3">0</span>
+                            <span class="stat-suffix"></span>
+                            <span class="stat-label">MikroTik Certifications</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-actions">
+                        <a href="#contact" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Get in Touch</span>
+                        </a>
+                        <a href="#projects" class="btn btn-secondary">
+                            <i class="fas fa-folder-open"></i>
+                            <span>View Projects</span>
+                        </a>
+                        <button class="btn btn-outline" id="viewCvBtn">
+                            <i class="fas fa-file-pdf"></i>
+                            <span id="cvBtnText">View CV</span>
+                        </button>
+                    </div>
+
+                    <div class="hero-social">
+                        <a href="mailto:sahadat.bda35@gmail.com" class="social-link" title="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <a href="https://wa.me/8801575382663" class="social-link" title="WhatsApp" target="_blank" rel="noopener">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="https://github.com/sohanatrana" class="social-link" title="GitHub" target="_blank" rel="noopener">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" title="LinkedIn" target="_blank" rel="noopener">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-terminal">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-buttons">
+                                <span class="terminal-btn close"></span>
+                                <span class="terminal-btn minimize"></span>
+                                <span class="terminal-btn maximize"></span>
+                            </div>
+                            <span class="terminal-title">shadat@system:~$</span>
+                        </div>
+                        <div class="terminal-body" id="heroTerminal">
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-command">whoami</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-label">name:</span>
+                                <span class="output-value">Shadat Hossain</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-label">role:</span>
+                                <span class="output-value">Network & Security Engineer</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-label">location:</span>
+                                <span class="output-value">Dhaka, Bangladesh</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-command">cat certifications.txt</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-success">→</span>
+                                <span class="output-value">MTCNA (MikroTik) ✓</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-success">→</span>
+                                <span class="output-value">MTCRE (MikroTik) ✓</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-success">→</span>
+                                <span class="output-value">MTCSE (MikroTik) ✓</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="output-success">→</span>
+                                <span class="output-value">CCNA (Cisco) ✓ Training</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-command">ping goals</span>
+                            </div>
+                            <div class="terminal-output typing">
+                                <span class="output-info">// Ready to contribute</span>
+                            </div>
+                            <div class="terminal-cursor"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-scroll">
+                <a href="#about" class="scroll-indicator">
+                    <span>Scroll Down</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section about-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">01</span>
+                    <h2 class="section-title">About Me</h2>
+                    <p class="section-subtitle">A systems-first technical profile</p>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-content">
+                        <div class="about-card">
+                            <div class="about-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <h3>From Packets to Servers</h3>
+                            <p>
+                                Aspiring IT professional with hands-on training in Network Solution & 
+                                System Administration from the IsDB-BISEW IT Scholarship Programme, 
+                                combined with practical network operations and cybersecurity research experience.
+                            </p>
+                        </div>
+
+                        <div class="about-card">
+                            <div class="about-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Security-First Mindset</h3>
+                            <p>
+                                Current work includes customer network troubleshooting, VLAN tagging/untagging, 
+                                ONU/ONT signal checks, router/PPPoE/DHCP/Wi-Fi troubleshooting, and escalation 
+                                of complex faults. Security work focuses on authorized vulnerability research.
+                            </p>
+                        </div>
+
+                        <div class="about-domains">
+                            <div class="domain-item primary">
+                                <span class="domain-label">PRIMARY</span>
+                                <span class="domain-name">Network Operations</span>
+                            </div>
+                            <div class="domain-item secondary">
+                                <span class="domain-label">SECONDARY</span>
+                                <span class="domain-name">Systems Administration</span>
+                            </div>
+                            <div class="domain-item security">
+                                <span class="domain-label">SECURITY</span>
+                                <span class="domain-name">Web & API Security Research</span>
+                            </div>
+                            <div class="domain-item labs">
+                                <span class="domain-label">LABS</span>
+                                <span class="domain-name">VMware • Hyper-V • Linux • Windows Server</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-sidebar">
+                        <div class="info-card">
+                            <h4><i class="fas fa-user-circle"></i> Personal Info</h4>
+                            <ul class="info-list">
+                                <li>
+                                    <span class="info-label">Name:</span>
+                                    <span class="info-value">Shadat Hossain</span>
+                                </li>
+                                <li>
+                                    <span class="info-label">Location:</span>
+                                    <span class="info-value">Dhaka, Bangladesh</span>
+                                </li>
+                                <li>
+                                    <span class="info-label">Email:</span>
+                                    <a href="mailto:sahadat.bda35@gmail.com" class="info-link">sahadat.bda35@gmail.com</a>
+                                </li>
+                                <li>
+                                    <span class="info-label">Phone:</span>
+                                    <a href="tel:+8801575382663" class="info-link">+880 1575 382663</a>
+                                </li>
+                                <li>
+                                    <span class="info-label">Status:</span>
+                                    <span class="info-value status-available">
+                                        <span class="status-dot"></span>
+                                        Open to opportunities
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-language"></i> Languages</h4>
+                            <div class="language-list">
+                                <div class="language-item">
+                                    <span class="language-name">Bengali</span>
+                                    <div class="language-bar">
+                                        <div class="language-progress" style="width: 100%"></div>
+                                    </div>
+                                    <span class="language-level">Native</span>
+                                </div>
+                                <div class="language-item">
+                                    <span class="language-name">English</span>
+                                    <div class="language-bar">
+                                        <div class="language-progress" style="width: 75%"></div>
+                                    </div>
+                                    <span class="language-level">Professional</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <h4><i class="fas fa-heart"></i> Interests</h4>
+                            <div class="interests-tags">
+                                <span class="interest-tag">Network Security</span>
+                                <span class="interest-tag">Bug Bounty</span>
+                                <span class="interest-tag">Cloud Infrastructure</span>
+                                <span class="interest-tag">CTF Challenges</span>
+                                <span class="interest-tag">Open Source</span>
+                                <span class="interest-tag">Travel</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="section experience-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">02</span>
+                    <h2 class="section-title">Professional Experience</h2>
+                    <p class="section-subtitle">Career journey and achievements</p>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item current">
+                        <div class="timeline-marker">
+                            <div class="marker-dot"></div>
+                            <div class="marker-line"></div>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-date">July 2026 – Present</span>
+                                <span class="timeline-badge current">Current</span>
+                            </div>
+                            <h3 class="timeline-title">Junior NOC Engineer</h3>
+                            <p class="timeline-company">
+                                <i class="fas fa-building"></i>
+                                Duronto Internet | Nikunjo, Khilkhet
+                            </p>
+                            <ul class="timeline-list">
+                                <li>Provided professional customer support and managed core network operations.</li>
+                                <li>Troubleshot latency, packet loss, intermittent connection, and high ping issues.</li>
+                                <li>Configured VLAN tagging/untagging, ONU/ONT signal checks, and customer PPPoE/Wi-Fi routers.</li>
+                                <li>Used Ping and Traceroute for diagnosis and escalated complex faults to senior NOC teams.</li>
+                            </ul>
+                            <div class="timeline-tags">
+                                <span class="tag">NOC Operations</span>
+                                <span class="tag">VLAN</span>
+                                <span class="tag">PPPoE</span>
+                                <span class="tag">Troubleshooting</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            <div class="marker-dot"></div>
+                            <div class="marker-line"></div>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-date">2024 – 2025</span>
+                                <span class="timeline-badge">Research</span>
+                            </div>
+                            <h3 class="timeline-title">Independent Security Researcher</h3>
+                            <p class="timeline-company">
+                                <i class="fas fa-bug"></i>
+                                HackerOne • Bugcrowd • Intigriti • YesWeHack
+                            </p>
+                            <ul class="timeline-list">
+                                <li>Reported 100+ Low–Critical vulnerabilities through bug bounty and responsible disclosure.</li>
+                                <li>Tested Web/API security covering XSS, IDOR, SSRF, CSRF, and Authentication Bypasses.</li>
+                                <li>Leveraged Burp Suite, Nmap, Nuclei, SQLMap, and ffuf for advanced vulnerability validation.</li>
+                                <li>Developed proof-of-concept exploits and remediation recommendations.</li>
+                            </ul>
+                            <div class="timeline-tags">
+                                <span class="tag">Bug Bounty</span>
+                                <span class="tag">Web Security</span>
+                                <span class="tag">API Testing</span>
+                                <span class="tag">Vulnerability Research</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Skills Section -->
+        <section id="technical" class="section technical-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">03</span>
+                    <h2 class="section-title">Technical Expertise</h2>
+                    <p class="section-subtitle">A layered skill set spanning infrastructure, systems and security</p>
+                </div>
+
+                <div class="skills-grid" id="skillsGrid">
+                    <!-- Skills will be dynamically loaded -->
+                </div>
+
+                <div class="skills-matrix">
+                    <h3 class="matrix-title">Skill Proficiency Matrix</h3>
+                    <div class="matrix-container">
+                        <div class="matrix-item">
+                            <div class="matrix-header">
+                                <span class="matrix-name">Cisco Networking</span>
+                                <span class="matrix-percent">85%</span>
+                            </div>
+                            <div class="matrix-bar">
+                                <div class="matrix-progress" data-width="85"></div>
+                            </div>
+                        </div>
+                        <div class="matrix-item">
+                            <div class="matrix-header">
+                                <span class="matrix-name">MikroTik RouterOS</span>
+                                <span class="matrix-percent">90%</span>
+                            </div>
+                            <div class="matrix-bar">
+                                <div class="matrix-progress" data-width="90"></div>
+                            </div>
+                        </div>
+                        <div class="matrix-item">
+                            <div class="matrix-header">
+                                <span class="matrix-name">Windows Server Administration</span>
+                                <span class="matrix-percent">85%</span>
+                            </div>
+                            <div class="matrix-bar">
+                                <div class="matrix-progress" data-width="85"></div>
+                            </div>
+                        </div>
+                        <div class="matrix-item">
+                            <div class="matrix-header">
+                                <span class="matrix-name">Linux Administration</span>
+                                <span class="matrix-percent">80%</span>
+                            </div>
+                            <div class="matrix-bar">
+                                <div class="matrix-progress" data-width="80"></div>
+                            </div>
+                        </div>
+                        <div class="matrix-item">
+                            <div class="matrix-header">
+                                <span class="matrix-name">Cybersecurity</span>
+                                <span class="matrix-percent">75%</span>
+                            </div>
+                            <div class="matrix-bar">
+                                <div class="matrix-progress" data-width="75"></div>
+                            </div>
+                        </div>
+                        <div class="matrix-item">
+                            <div class="matrix-header">
+                                <span class="matrix-name">Virtualization</span>
+                                <span class="matrix-percent">80%</span>
+                            </div>
+                            <div class="matrix-bar">
+                                <div class="matrix-progress" data-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section projects-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">04</span>
+                    <h2 class="section-title">Infrastructure Projects</h2>
+                    <p class="section-subtitle">Hands-on labs demonstrating configuration, integration, redundancy and security</p>
+                </div>
+
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- Projects will be dynamically loaded -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Certifications Section -->
+        <section id="certifications" class="section certifications-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">05</span>
+                    <h2 class="section-title">Certifications & Training</h2>
+                    <p class="section-subtitle">Vendor certifications and professional development</p>
+                </div>
+
+                <div class="certifications-grid" id="certificationsGrid">
+                    <!-- Certifications will be dynamically loaded -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section id="education" class="section education-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">06</span>
+                    <h2 class="section-title">Education</h2>
+                    <p class="section-subtitle">Academic background and qualifications</p>
+                </div>
+
+                <div class="education-grid">
+                    <div class="education-card featured">
+                        <div class="education-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="education-content">
+                            <span class="education-year">2025 - 2026</span>
+                            <h3>Diploma in Network Solution & System Administration</h3>
+                            <p class="education-institution">IsDB-BISEW IT Scholarship Programme</p>
+                            <p class="education-duration">788 Hours</p>
+                            <div class="education-modules">
+                                <span class="module-tag">Hardware Fundamentals</span>
+                                <span class="module-tag">Data Communication I & II</span>
+                                <span class="module-tag">Windows 11 & Server 2019</span>
+                                <span class="module-tag">Networking & Identity</span>
+                                <span class="module-tag">Red Hat Linux I-III</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="education-card">
+                        <div class="education-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="education-content">
+                            <span class="education-year">2024</span>
+                            <h3>Master's (MA) in Islamic Studies</h3>
+                            <p class="education-institution">Govt. Titumir College</p>
+                            <p class="education-grade">CGPA: 3.31</p>
+                        </div>
+                    </div>
+
+                    <div class="education-card">
+                        <div class="education-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="education-content">
+                            <span class="education-year">2023</span>
+                            <h3>Bachelor's (BA) in Islamic Studies</h3>
+                            <p class="education-institution">Govt. Titumir College</p>
+                            <p class="education-grade">CGPA: 3.28</p>
+                        </div>
+                    </div>
+
+                    <div class="education-card">
+                        <div class="education-icon">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <div class="education-content">
+                            <span class="education-year">2019</span>
+                            <h3>HSC (Alim)</h3>
+                            <p class="education-institution">M.U.M.I.B.K Madrasah</p>
+                            <p class="education-grade">GPA: 3.64</p>
+                        </div>
+                    </div>
+
+                    <div class="education-card">
+                        <div class="education-icon">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <div class="education-content">
+                            <span class="education-year">2017</span>
+                            <h3>SSC (Dakhil)</h3>
+                            <p class="education-institution">M.U.M.I.B.K Madrasah</p>
+                            <p class="education-grade">GPA: 4.39</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning/Blog Section -->
+        <section id="learning" class="section learning-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">07</span>
+                    <h2 class="section-title">Learning & Knowledge Base</h2>
+                    <p class="section-subtitle">Documenting the journey through networking, systems and security</p>
+                </div>
+
+                <div class="learning-filters">
+                    <button class="filter-btn active" data-category="all">
+                        <i class="fas fa-th-large"></i>
+                        All
+                    </button>
+                    <button class="filter-btn" data-category="network">
+                        <i class="fas fa-network-wired"></i>
+                        Network
+                    </button>
+                    <button class="filter-btn" data-category="system">
+                        <i class="fas fa-server"></i>
+                        System
+                    </button>
+                    <button class="filter-btn" data-category="cloud">
+                        <i class="fas fa-cloud"></i>
+                        Cloud
+                    </button>
+                    <button class="filter-btn" data-category="cybersecurity">
+                        <i class="fas fa-shield-alt"></i>
+                        Cybersecurity
+                    </button>
+                </div>
+
+                <div class="learning-grid" id="learningGrid">
+                    <!-- Blog posts will be dynamically loaded -->
+                </div>
+
+                <div class="learning-cta">
+                    <p>Want to read more articles?</p>
+                    <button class="btn btn-outline" id="loadMorePosts">
+                        <i class="fas fa-plus"></i>
+                        Load More Posts
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-number">09</span>
+                    <h2 class="section-title">Get in Touch</h2>
+                    <p class="section-subtitle">Have an infrastructure or security challenge? Let's talk.</p>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <a href="mailto:sahadat.bda35@gmail.com" class="contact-card">
+                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="contact-details">
+                                <div class="contact-label">Email</div>
+                                <div class="contact-value">sahadat.bda35@gmail.com</div>
+                            </div>
+                        </a>
+
+                        <a href="tel:+8801575382663" class="contact-card">
+                            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                            <div class="contact-details">
+                                <div class="contact-label">Phone</div>
+                                <div class="contact-value">+880 1575 382663</div>
+                            </div>
+                        </a>
+
+                        <a href="https://wa.me/8801575382663" class="contact-card" target="_blank" rel="noopener">
+                            <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+                            <div class="contact-details">
+                                <div class="contact-label">WhatsApp</div>
+                                <div class="contact-value">+880 1575 382663</div>
+                            </div>
+                        </a>
+
+                        <div class="contact-card">
+                            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="contact-details">
+                                <div class="contact-label">Location</div>
+                                <div class="contact-value">Tejgaon, Dhaka 1215, Bangladesh</div>
+                            </div>
+                        </div>
+
+                        <!-- NEW: Dynamic contact links (populated by JS from admin settings) -->
+                        <div id="dynamicContactLinks" style="display: flex; flex-direction: column; gap: var(--space-md);"></div>
+                    </div>
+
+                    <div class="contact-form-container">
+                        <form class="contact-form" id="contactForm">
+                            <h3>Send a Message</h3>
+                            <p>Create a support ticket and I'll get back to you as soon as possible.</p>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contactName">Your Name *</label>
+                                    <input type="text" id="contactName" name="name" required placeholder="John Doe">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactEmail">Email Address *</label>
+                                    <input type="email" id="contactEmail" name="email" required placeholder="john@example.com">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactSubject">Subject *</label>
+                                <input type="text" id="contactSubject" name="subject" required placeholder="How can I help you?">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactCategory">Category</label>
+                                <select id="contactCategory" name="category">
+                                    <option value="general">General Inquiry</option>
+                                    <option value="project">Project Discussion</option>
+                                    <option value="job">Job Opportunity</option>
+                                    <option value="collaboration">Collaboration</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactPriority">Priority</label>
+                                <select id="contactPriority" name="priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactMessage">Message *</label>
+                                <textarea id="contactMessage" name="message" rows="6" required placeholder="Describe your inquiry in detail..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-full" id="submitTicket">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Submit Ticket</span>
+                            </button>
+                        </form>
+
+                        <!-- NEW: Ticket tracker -->
+                        <div class="ticket-tracker-section" style="margin-top: var(--space-xl); padding-top: var(--space-xl); border-top: 1px solid var(--border-color);">
+                            <h4 style="margin-bottom: var(--space-sm);"><i class="fas fa-search"></i> Track Your Ticket</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--space-md);">
+                                Enter your ticket ID to check the status of your inquiry.
+                            </p>
+                            <div class="ticket-tracker">
+                                <input type="text" id="ticketTrackInput" placeholder="TKT-XXXXXXXX-XXXX">
+                                <button class="btn btn-primary" id="trackTicketBtn">
+                                    <i class="fas fa-search"></i> Track
+                                </button>
+                            </div>
+                            <div id="ticketTrackResult"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#home" class="footer-logo">
+                        <span class="logo-bracket">&lt;</span>
+                        <span class="logo-text">SH</span>
+                        <span class="logo-bracket">/&gt;</span>
+                    </a>
+                    <p>Building resilient infrastructure. Thinking like a defender.</p>
+                    <div class="footer-social">
+                        <a href="mailto:sahadat.bda35@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+                        <a href="https://wa.me/8801575382663" title="WhatsApp" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://github.com/sohanatrana" title="GitHub" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+                        <a href="#" title="LinkedIn" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#experience">Experience</a></li>
+                        <li><a href="#technical">Technical Skills</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#certifications">Certifications</a></li>
+                        <li><a href="#education">Education</a></li>
+                        <li><a href="#learning">Learning Blog</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-newsletter">
+                    <h4>Stay Updated</h4>
+                    <p>Subscribe to get notified about new articles and projects.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="your@email.com" required>
+                        <button type="submit"><i class="fas fa-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Shadat Hossain. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="admin.html">Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle"></h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/tickets.js"></script>
+    <script src="js/blog.js"></script>
+    <script src="js/features.js"></script>
+</body>
+</html>
