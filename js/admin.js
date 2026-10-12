@@ -90,68 +90,67 @@ function initLogin() {
 
 async function handleLogin(e) {
     e.preventDefault();
-    
-    const username = document.getElementById('username').value.trim();
+
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
-    const rememberMe = document.getElementById('rememberMe').checked;
     const loginBtn = document.getElementById('loginBtn');
-    
-    if (!username || !password) {
-        Utils.showToast('Please enter username and password', 'error');
+
+    if (!email || !password) {
+        Utils.showToast('Please enter email and password', 'error');
         return;
     }
-    
+
     loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
     loginBtn.disabled = true;
-    
-    // Hash inputs and compare — plaintext never stored in JS
-    const [userHash, passHash] = await Promise.all([
-        sha256(username),
-        sha256(password)
-    ]);
-    
-    // Optional: hash stored in localStorage overrides the default
-    const overrideHashes = Utils.getStorage('sh_admin_hashes', null);
-    const expected = overrideHashes || ADMIN_HASH;
-    
-    // Constant-time-ish comparison delay (mild mitigation)
-    await new Promise(r => setTimeout(r, 600));
-    
-    if (userHash === expected.username && passHash === expected.password) {
+
+    try {
+        const data = await window.SupabaseAuth.signIn(email, password);
+        const user = data.user;
+
         const session = {
-            username,
+            uid: user.id,
+            email: user.email,
             loginAt: Date.now(),
-            expiresAt: Date.now() + (rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000)
+            expiresAt: data.session.expires_at * 1000
         };
-        
+
         Utils.setStorage(Utils.STORAGE_KEYS.ADMIN_SESSION, session);
         adminState.isAuthenticated = true;
         adminState.user = session;
-        
-        Utils.logActivity('admin_login', { username });
+
+        Utils.logActivity('admin_login', { email });
         Utils.showToast('Welcome back!', 'success');
         showDashboard();
-    } else {
-        Utils.showToast('Invalid credentials', 'error');
+    } catch (err) {
+        console.error('Login error:', err);
+        let msg = 'Login failed';
+        if (err.message?.includes('Invalid login credentials')) msg = 'Invalid email or password';
+        else if (err.message?.includes('Email not confirmed')) msg = 'Please confirm your email';
+        else if (err.message?.includes('Failed to fetch')) msg = 'Network error — check console';
+        Utils.showToast(msg, 'error');
         loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
         loginBtn.disabled = false;
     }
 }
 
 // ── Logout ───────────────────────────────────────────────────
-document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    if (confirm('Are you sure you want to logout?')) {
-        Utils.removeStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
-        adminState.isAuthenticated = false;
-        adminState.user = null;
-        
-        Utils.logActivity('admin_logout');
-        Utils.showToast('Logged out successfully', 'info');
-        
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to logout?')) return;
+
+    try {
+        await window.SupabaseAuth.signOut();
+    } catch (e) {
+        console.warn('Sign-out error:', e);
     }
+
+    Utils.removeStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
+    adminState.isAuthenticated = false;
+    adminState.user = null;
+
+    Utils.logActivity('admin_logout');
+    Utils.showToast('Logged out successfully', 'info');
+
+    setTimeout(() => window.location.href = 'index.html', 1000);
 });
 
 // ── Password Toggle ──────────────────────────────────────────
