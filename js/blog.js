@@ -233,13 +233,16 @@ function formatBlogContent(content) {
 
 // ── Blog Filters ─────────────────────────────────────────────
 function setupBlogFilters() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    
+    // Only wire buttons inside the Learning section
+    const learningSection = document.getElementById('learning');
+    if (!learningSection) return;
+
+    const filterButtons = learningSection.querySelectorAll('.filter-btn');
+
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             filterButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             blogState.currentFilter = btn.dataset.category;
             blogState.currentPage = 1;
             renderBlogPosts();
