@@ -96,3 +96,5 @@ window.SupabaseSecrets = {
 };
 
 window.initSupabase = initSupabase;
+window.SupabaseAuth = SupabaseAuth;
+window.SupabaseSecrets = SupabaseSecrets;
