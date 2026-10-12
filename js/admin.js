@@ -11,22 +11,6 @@ const adminState = {
     editingType: null
 };
 
-// ── Credentials (SHA-256 hashed — never store plaintext) ─────
-// Default: username "admin", password "admin123"
-// You can CHANGE these by editing the hashes below.
-// To generate a new hash, open browser console and run:
-//   crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword'))
-//     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')));
-const ADMIN_HASH = {
-    username: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',  // sha256("admin")
-    password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'   // sha256("admin123")
-};
-
-async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
-}
-
 // ── Initialize ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     // Force dashboard page on load
@@ -39,12 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Session Check ────────────────────────────────────────────
-function checkSession() {
-    const session = Utils.getStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
-    
-    if (session && session.expiresAt > Date.now()) {
+async function checkSession() {
+    try {
+        const supaSession = await window.SupabaseAuth.getSession();
+        if (supaSession) {
+            const session = {
+                uid: supaSession.user.id,
+                email: supaSession.user.email,
+                loginAt: Date.now(),
+                expiresAt: supaSession.expires_at * 1000
+            };
+            Utils.setStorage(Utils.STORAGE_KEYS.ADMIN_SESSION, session);
+            adminState.isAuthenticated = true;
+            adminState.user = session;
+            showDashboard();
+            return;
+        }
+    } catch (e) {
+        console.warn('Supabase session check failed:', e);
+    }
+
+    const local = Utils.getStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
+    if (local && local.expiresAt > Date.now()) {
         adminState.isAuthenticated = true;
-        adminState.user = session;
+        adminState.user = local;
         showDashboard();
     } else {
         showLogin();
