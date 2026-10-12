@@ -128,7 +128,7 @@ function initGlobalSearch() {
     function goTo(sectionId) {
         closeSearch();
         if (sectionId === 'gallery') {
-            window.location.href = 'gallery.html';
+            window.location.href = 'gallery/';
             return;
         }
         const target = document.getElementById(sectionId);
