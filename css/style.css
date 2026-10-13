@@ -3365,8 +3365,10 @@ input, textarea, select {
     }
 }
 
-/* ── Hero Terminal Floating Avatar — Animated Ring ─────────── */
-/* ── Hero Terminal Floating Avatar — Premium Animated Ring ─ */
+/* ============================================================
+   HERO AVATAR + CINEMATIC ROCKET LAUNCH
+   ============================================================ */
+
 #heroProfileImg {
     position: absolute;
     top: -32px;
@@ -3383,7 +3385,6 @@ input, textarea, select {
     transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Ring layer 1 — the sharp rotating conic gradient */
 #heroProfileImg::before {
     content: '';
     position: absolute;
@@ -3399,9 +3400,7 @@ input, textarea, select {
         var(--accent-primary) 300deg,
         transparent 360deg
     );
-    -webkit-mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
             mask-composite: exclude;
     animation: heroRingSpin 4s linear infinite;
@@ -3410,25 +3409,21 @@ input, textarea, select {
     will-change: transform;
 }
 
-/* Ring layer 2 — soft outer glow that pulses */
 #heroProfileImg::after {
     content: '';
     position: absolute;
     inset: -14px;
     border-radius: 50%;
-    background: radial-gradient(
-        circle,
+    background: radial-gradient(circle,
         rgba(59, 130, 246, 0.35) 0%,
         rgba(139, 92, 246, 0.18) 40%,
-        transparent 70%
-    );
+        transparent 70%);
     filter: blur(14px);
     z-index: 0;
     pointer-events: none;
     animation: heroGlowPulse 3s ease-in-out infinite;
 }
 
-/* Picture itself */
 #heroProfileImg > img {
     position: absolute;
     inset: 8px;
@@ -3443,32 +3438,19 @@ input, textarea, select {
     transition: transform 0.35s ease;
 }
 
-/* Hover — subtle lift */
-#heroProfileImg:hover {
-    transform: scale(1.04);
-}
-#heroProfileImg:hover > img {
-    transform: scale(1.02);
-}
+#heroProfileImg:hover { transform: scale(1.04); }
+#heroProfileImg:hover > img { transform: scale(1.02); }
 
-@keyframes heroRingSpin {
-    to { transform: rotate(360deg); }
-}
-
+@keyframes heroRingSpin { to { transform: rotate(360deg); } }
 @keyframes heroGlowPulse {
-    0%, 100% {
-        opacity: 0.9;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.06);
-    }
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
 }
 
-/* ── Rocket Launch Animation ─────────────────────────────── */
+/* ── Cinematic rocket container ────────────────────────────── */
 #heroProfileImg.rocket-mode {
     pointer-events: none;
+    will-change: transform, filter;
 }
 
 #heroProfileImg.rocket-mode::before,
@@ -3476,103 +3458,182 @@ input, textarea, select {
     display: none;
 }
 
-#heroProfileImg.rocket-mode > img {
-    opacity: 0;
-    transform: scale(0.4);
-}
+#heroProfileImg.rocket-mode > img { opacity: 0; }
 
-#heroProfileImg.rocket-mode .rocket-icon {
+/* ── The rocket itself (inline SVG injected by JS) ─────────── */
+.rocket-craft {
     position: absolute;
     inset: 0;
+    z-index: 6;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 60px;
+    filter:
+        drop-shadow(0 0 8px rgba(255, 180, 80, 0.7))
+        drop-shadow(0 0 20px rgba(255, 90, 30, 0.5));
+    will-change: transform;
+}
+
+.rocket-craft svg {
+    width: 90%;
+    height: 90%;
+    transform: rotate(-20deg); /* default tilt — overridden dynamically */
+    transition: transform 0.1s linear;
+}
+
+/* ── Exhaust flame (attached below rocket) ─────────────────── */
+.rocket-flame {
+    position: absolute;
+    left: 50%;
+    bottom: -14px;
+    width: 14px;
+    height: 40px;
+    transform: translateX(-50%);
     z-index: 5;
-    filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.8))
-            drop-shadow(0 0 24px rgba(255, 60, 0, 0.5));
-    animation: rocketWobble 0.35s ease-in-out infinite;
-}
-
-/* Whole container takes off */
-#heroProfileImg.rocket-mode {
-    animation: rocketOrbit 2.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
-}
-
-@keyframes rocketOrbit {
-    /* Fly from current position, loop around screen twice, return */
-    0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-    }
-    8% {
-        transform: translate(-40vw, -30vh) scale(1.1);
-    }
-    25% {
-        transform: translate(40vw, -30vh) scale(1.2);
-    }
-    42% {
-        transform: translate(40vw, 30vh) scale(1.15);
-    }
-    60% {
-        transform: translate(-40vw, 30vh) scale(1.1);
-    }
-    75% {
-        transform: translate(-40vw, -20vh) scale(1.05);
-    }
-    90% {
-        transform: translate(20vw, 10vh) scale(1);
-    }
-    100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes rocketWobble {
-    0%, 100% { transform: rotate(-4deg); }
-    50%      { transform: rotate(4deg); }
-}
-
-/* Flame trail element (injected by JS) */
-.rocket-trail {
-    position: fixed;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        rgba(255, 220, 100, 0.95) 0%,
-        rgba(255, 140, 40, 0.7) 40%,
-        rgba(255, 60, 0, 0.35) 70%,
-        transparent 100%
-    );
     pointer-events: none;
-    z-index: 99998;
+    background: linear-gradient(to bottom,
+        #fff 0%,
+        #ffe680 15%,
+        #ff9f2a 40%,
+        #ff4d00 70%,
+        transparent 100%);
+    border-radius: 50% 50% 40% 40%;
+    filter: blur(1px);
+    animation: flameFlicker 0.08s steps(2) infinite alternate;
+    transform-origin: top center;
+}
+
+.rocket-flame::before,
+.rocket-flame::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.rocket-flame::before {
+    bottom: -18px;
+    width: 8px;
+    height: 34px;
+    background: linear-gradient(to bottom, #ffd54a, #ff6a00, transparent);
     filter: blur(2px);
-    animation: trailFade 0.7s ease-out forwards;
+    animation: flameFlicker 0.06s steps(2) infinite alternate-reverse;
 }
 
-@keyframes trailFade {
-    0% {
-        transform: scale(0.6) translateY(0);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(2.2) translateY(-18px);
-        opacity: 0;
-    }
+.rocket-flame::after {
+    bottom: -28px;
+    width: 4px;
+    height: 40px;
+    background: linear-gradient(to bottom, #fff, #ff4500, transparent);
+    filter: blur(1px);
+    animation: flameFlicker 0.1s steps(3) infinite alternate;
 }
 
-.gallery-loading {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 4rem 1rem;
-    color: var(--text-secondary);
+@keyframes flameFlicker {
+    0%   { transform: translateX(-50%) scaleY(1)    scaleX(1); }
+    100% { transform: translateX(-50%) scaleY(1.25) scaleX(0.85); }
 }
 
-.gallery-loading i {
-    font-size: 2.5rem;
-    color: var(--accent-primary);
-    margin-bottom: 1rem;
+/* ── Ignition flash (a bright burst before liftoff) ────────── */
+.rocket-ignition-flash {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    z-index: 4;
+    pointer-events: none;
+    background: radial-gradient(circle,
+        rgba(255,255,255,1) 0%,
+        rgba(255,220,120,0.9) 25%,
+        rgba(255,120,20,0.5) 55%,
+        transparent 80%);
+    opacity: 0;
+    animation: ignitionPulse 0.7s ease-out forwards;
+}
+
+@keyframes ignitionPulse {
+    0%   { opacity: 0;    transform: scale(0.4); }
+    20%  { opacity: 1;    transform: scale(1); }
+    60%  { opacity: 0.9;  transform: scale(1.15); }
+    100% { opacity: 0;    transform: scale(1.4); }
+}
+
+/* ── Fire particles (spawned by JS) ────────────────────────── */
+.rocket-particle {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 99998;
+    will-change: transform, opacity;
+    mix-blend-mode: screen;
+}
+
+/* ── Smoke particles ──────────────────────────────────────── */
+.rocket-smoke {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+        rgba(200, 200, 200, 0.55) 0%,
+        rgba(120, 120, 120, 0.35) 40%,
+        transparent 75%);
+    filter: blur(8px);
+    z-index: 99997;
+    will-change: transform, opacity;
+}
+
+/* ── Debris particles ─────────────────────────────────────── */
+.rocket-debris {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background: #ff8a3d;
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 99999;
+    box-shadow: 0 0 6px #ff5500;
+    will-change: transform, opacity;
+}
+
+/* ── Launchpad smoke ring (grows during ignition) ──────────── */
+.rocket-pad-smoke {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    border: 2px solid rgba(180, 180, 180, 0.5);
+    z-index: 99996;
+    animation: padSmoke 1.6s ease-out forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes padSmoke {
+    0%   { transform: scale(0.2); opacity: 0.9; }
+    100% { transform: scale(3);   opacity: 0;   }
+}
+
+/* ── Screen shake ─────────────────────────────────────────── */
+@keyframes screenShake {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    10% { transform: translate(-3px, 2px)  rotate(-0.2deg); }
+    20% { transform: translate(3px, -2px)  rotate(0.2deg); }
+    30% { transform: translate(-4px, 1px)  rotate(-0.3deg); }
+    40% { transform: translate(4px, -1px)  rotate(0.3deg); }
+    50% { transform: translate(-2px, 3px)  rotate(-0.15deg); }
+    60% { transform: translate(2px, -3px)  rotate(0.15deg); }
+    70% { transform: translate(-3px, 1px)  rotate(-0.2deg); }
+    80% { transform: translate(3px, -1px)  rotate(0.2deg); }
+    90% { transform: translate(-1px, 1px)  rotate(-0.1deg); }
+}
+
+body.rocket-shaking {
+    animation: screenShake 0.9s ease-in-out;
+}
+
+/* Reduced motion safety */
+@media (prefers-reduced-motion: reduce) {
+    .rocket-flame,
+    .rocket-flame::before,
+    .rocket-flame::after { animation: none; }
+    body.rocket-shaking { animation: none; }
 }
