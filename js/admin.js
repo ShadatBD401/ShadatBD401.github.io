@@ -405,8 +405,34 @@ function formatActivityText(activity) {
 }
 
 // ── Tickets Page ─────────────────────────────────────────────
-function loadTicketsPage() {
-    TicketSystem.loadTickets();
+async function loadTicketsPage() {
+    // Load from Supabase
+    try {
+        if (window.SupabaseTickets) {
+            const rows = await window.SupabaseTickets.listAll();
+            // Convert Supabase rows to the shape TicketSystem expects
+            ticketState.tickets = rows.map(r => ({
+                id: r.ticket_id,
+                name: r.name,
+                email: r.email,
+                subject: r.subject,
+                message: r.message,
+                status: r.status,
+                priority: r.priority,
+                category: r.category,
+                createdAt: r.created_at,
+                updatedAt: r.updated_at,
+                replies: r.replies || [],
+                history: []
+            }));
+        } else {
+            TicketSystem.loadTickets();
+        }
+    } catch (err) {
+        console.warn('Supabase ticket load failed, using localStorage:', err);
+        TicketSystem.loadTickets();
+    }
+
     updateTicketStats();
     renderTicketsList();
     
