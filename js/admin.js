@@ -605,20 +605,44 @@ window.changeTicketStatus = function(ticketId) {
     `);
 };
 
-window.confirmStatusChange = function(ticketId) {
+window.confirmStatusChange = async function(ticketId) {
     const newStatus = document.getElementById('newStatus').value;
     const note = document.getElementById('statusNote').value;
-    
-    if (TicketSystem.updateTicketStatus(ticketId, newStatus, note)) {
+
+    try {
+        if (window.SupabaseTickets) {
+            await window.SupabaseTickets.updateStatus(ticketId, newStatus, note);
+        } else {
+            TicketSystem.updateTicketStatus(ticketId, newStatus, note);
+        }
         Utils.closeModal();
         Utils.showToast('Ticket status updated', 'success');
-        renderTicketsList();
-        updateTicketStats();
-        loadDashboardData();
-    } else {
-        Utils.showToast('Failed to update ticket', 'error');
+        loadTicketsPage();
+    } catch (err) {
+        Utils.showToast('Failed to update status', 'error');
     }
 };
+
+window.submitReply = async function(ticketId) {
+    const message = document.getElementById('replyMessage').value.trim();
+    if (!message) { Utils.showToast('Please enter a reply', 'error'); return; }
+
+    try {
+        if (window.SupabaseTickets) {
+            await window.SupabaseTickets.addReply(ticketId, message, true);
+        } else {
+            TicketSystem.addTicketReply(ticketId, message, true);
+        }
+        Utils.closeToast?.();
+        Utils.closeModal();
+        Utils.showToast('Reply sent', 'success');
+        loadTicketsPage();
+    } catch (err) {
+        Utils.showToast('Failed to send reply', 'error');
+    }
+};
+
+
 
 // ── Delete Ticket ────────────────────────────────────────────
 window.deleteTicketConfirm = function(ticketId) {
