@@ -78,6 +78,89 @@ const SupabaseSecrets = {
     }
 };
 
+// ── Tickets (Supabase-backed) ─────────────────────────────────
+window.SupabaseTickets = {
+    async create(ticket) {
+        const client = await initSupabase();
+        const row = {
+            ticket_id: ticket.id,
+            name: ticket.name,
+            email: ticket.email,
+            subject: ticket.subject,
+            message: ticket.message,
+            status: ticket.status || 'open',
+            priority: ticket.priority || 'medium',
+            category: ticket.category || 'general',
+            replies: ticket.replies || []
+        };
+        const { data, error } = await client
+            .from('tickets').insert(row).select().single();
+        if (error) throw error;
+        return data;
+    },
+
+    async findByTicketId(ticketId) {
+        const client = await initSupabase();
+        const { data, error } = await client
+            .from('tickets')
+            .select('*')
+            .eq('ticket_id', ticketId.toUpperCase())
+            .maybeSingle();
+        if (error) throw error;
+        return data;
+    },
+
+    async listAll() {
+        const client = await initSupabase();
+        const { data, error } = await client
+            .from('tickets')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+    },
+
+    async updateStatus(ticketId, status, note = '') {
+        const client = await initSupabase();
+        const { data, error } = await client
+            .from('tickets')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('ticket_id', ticketId)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    async addReply(ticketId, message, isAdmin = false) {
+        const client = await initSupabase();
+        const { data: current, error: readErr } = await client
+            .from('tickets')
+            .select('replies')
+            .eq('ticket_id', ticketId)
+            .single();
+        if (readErr) throw readErr;
+
+        const replies = current.replies || [];
+        replies.push({
+            id: Date.now().toString(36),
+            message,
+            isAdmin,
+            timestamp: new Date().toISOString()
+        });
+
+        const { data, error } = await client
+            .from('tickets')
+            .update({ replies, updated_at: new Date().toISOString() })
+            .eq('ticket_id', ticketId)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    }
+};
+
+
 // ── Expose to window (needed for admin.js and inline console) ─
 window.initSupabase = initSupabase;
 window.SupabaseAuth = SupabaseAuth;
