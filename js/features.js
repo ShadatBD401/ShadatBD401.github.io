@@ -585,48 +585,327 @@ function contactCard(label, icon, url) {
     </a>`;
 }
 
-// ── Rocket Launch 🚀 ─────────────────────────────────────────
+/* ============================================================
+   CINEMATIC ROCKET LAUNCH
+   Physics-driven, particle-rich, with screen shake + turbulence
+   ============================================================ */
+
 function launchRocket() {
     const avatar = document.getElementById('heroProfileImg');
-    if (!avatar) return;
-    if (avatar.classList.contains('rocket-mode')) return;   // already flying
+    if (!avatar || avatar.classList.contains('rocket-mode')) return;
 
-    // Save any existing image
-    const img = avatar.querySelector('img');
+    // ── 1. Ignition phase (0.6s) — build tension ────────────
+    const flash = document.createElement('div');
+    flash.className = 'rocket-ignition-flash';
+    avatar.appendChild(flash);
 
-    // Replace inner content with rocket icon
-    avatar.innerHTML = `<span class="rocket-icon">🚀</span>`;
+    // Flame element
+    const flame = document.createElement('div');
+    flame.className = 'rocket-flame';
+    avatar.appendChild(flame);
 
-    // Enter rocket mode
+    // Pad smoke ring
+    const padSmoke = document.createElement('div');
+    padSmoke.className = 'rocket-pad-smoke';
+    const avatarRect = avatar.getBoundingClientRect();
+    padSmoke.style.left = (avatarRect.left + avatarRect.width / 2 - 60) + 'px';
+    padSmoke.style.top  = (avatarRect.top + avatarRect.height + 10) + 'px';
+    padSmoke.style.width = '120px';
+    padSmoke.style.height = '120px';
+    document.body.appendChild(padSmoke);
+    setTimeout(() => padSmoke.remove(), 1700);
+
+    // Screen shake at ignition
+    document.body.classList.add('rocket-shaking');
+    setTimeout(() => document.body.classList.remove('rocket-shaking'), 900);
+
+    // Swap avatar inner: hide old image, insert rocket craft
+    const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
     avatar.classList.add('rocket-mode');
+    avatar.dataset.originalInner = avatar.innerHTML;
 
-    // Spawn flame trail dots along the rocket's flight path
-    const trailInterval = setInterval(() => {
-        const rect = avatar.getBoundingClientRect();
-        const dot = document.createElement('div');
-        dot.className = 'rocket-trail';
-        // Random offset for organic look
-        const offsetX = (Math.random() - 0.5) * 30;
-        const offsetY = (Math.random() - 0.5) * 30;
-        dot.style.left = (rect.left + rect.width / 2 + offsetX) + 'px';
-        dot.style.top  = (rect.top  + rect.height / 2 + offsetY) + 'px';
-        document.body.appendChild(dot);
-        setTimeout(() => dot.remove(), 700);
-    }, 30);
+    // SVG rocket — sharper than emoji, with fins + window
+    avatar.innerHTML = `
+        <div class="rocket-craft">
+            <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#e5e7eb"/>
+                        <stop offset="50%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#9ca3af"/>
+                    </linearGradient>
+                    <linearGradient id="finGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#ef4444"/>
+                        <stop offset="100%" stop-color="#7f1d1d"/>
+                    </linearGradient>
+                </defs>
+                <!-- Body -->
+                <path d="M50 10 C 65 40, 68 90, 60 140 L 40 140 C 32 90, 35 40, 50 10 Z"
+                      fill="url(#bodyGrad)" stroke="#374151" stroke-width="1.5"/>
+                <!-- Nose cone -->
+                <path d="M50 10 C 58 28, 60 42, 58 50 L 42 50 C 40 42, 42 28, 50 10 Z"
+                      fill="#ef4444" opacity="0.9"/>
+                <!-- Window -->
+                <circle cx="50" cy="80" r="9" fill="#1e3a8a" stroke="#e5e7eb" stroke-width="2"/>
+                <circle cx="47" cy="77" r="3" fill="#93c5fd" opacity="0.7"/>
+                <!-- Left fin -->
+                <path d="M40 110 L 20 155 L 40 145 Z" fill="url(#finGrad)"/>
+                <!-- Right fin -->
+                <path d="M60 110 L 80 155 L 60 145 Z" fill="url(#finGrad)"/>
+                <!-- Bottom nozzle -->
+                <rect x="42" y="140" width="16" height="10" rx="2" fill="#4b5563"/>
+            </svg>
+        </div>
+    `;
 
-    // End animation after 2.6s
-    setTimeout(() => {
-        clearInterval(trailInterval);
-        avatar.classList.remove('rocket-mode');
-        // Restore the picture
-        const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
-        if (s.heroImage) {
-            avatar.innerHTML = `<img src="${s.heroImage}" alt="Profile">`;
+    // ── 2. Liftoff phase (after ignition) ────────────────────
+    const startTime = performance.now();
+    const duration = 3200; // ms total flight
+    const startRect = avatar.getBoundingClientRect();
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    // Pre-compute a flight path with bezier-like control
+    // Phase 1: 0-15%  — rise straight up with wobble
+    // Phase 2: 15-55% — arc left, climb above viewport top
+    // Phase 3: 55-90% — re-enter from right, descend
+    // Phase 4: 90-100% — land back at origin
+    function getFlightPos(t) {
+        // t: 0..1
+        const startX = 0, startY = 0;
+
+        if (t < 0.15) {
+            const p = t / 0.15;
+            return {
+                x: Math.sin(p * Math.PI * 4) * 8,   // subtle left-right wobble
+                y: -p * 120,                         // rise 120px up
+                rot: -20 + p * 20,                    // tilt from -20deg to 0deg
+                scale: 1 + p * 0.1,
+                blur: p * 1.2
+            };
+        } else if (t < 0.55) {
+            const p = (t - 0.15) / 0.4;
+            // Ease-out-quint for smooth acceleration to peak
+            const eased = 1 - Math.pow(1 - p, 5);
+            return {
+                x: eased * (viewportW * 0.9),        // sweep right
+                y: -120 - eased * (viewportH * 0.9), // climb high
+                rot: eased * 45,
+                scale: 1.1 - eased * 0.4,
+                blur: 1.2 + eased * 2
+            };
+        } else if (t < 0.9) {
+            const p = (t - 0.55) / 0.35;
+            const eased = p * p;
+            return {
+                x: viewportW * 0.9 - eased * (viewportW * 1.1),
+                y: -(viewportH * 0.9) + 120 + eased * (viewportH * 0.6),
+                rot: 45 - eased * 30,
+                scale: 0.7 + eased * 0.3,
+                blur: 3.2 - eased * 2.5
+            };
         } else {
-            avatar.remove();
+            const p = (t - 0.9) / 0.1;
+            const eased = 1 - Math.pow(1 - p, 3);
+            return {
+                x: (viewportW * -0.2) * (1 - eased),
+                y: -120 * (1 - eased),
+                rot: 15 - eased * 35,
+                scale: 1 - eased * 0.05,
+                blur: 0.7 - eased * 0.7
+            };
         }
-    }, 2600);
+    }
+
+    // Rocket tilt based on velocity
+    let lastPos = getFlightPos(0);
+
+    function flightLoop(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        const pos = getFlightPos(t);
+
+        // Transform the whole avatar
+        avatar.style.transform =
+            `translate(${pos.x}px, ${pos.y}px) ` +
+            `rotate(${pos.rot}deg) scale(${pos.scale})`;
+
+        // Apply motion blur to SVG
+        const craft = avatar.querySelector('.rocket-craft');
+        if (craft) craft.style.filter =
+            `drop-shadow(0 0 8px rgba(255,180,80,0.7)) ` +
+            `drop-shadow(0 0 20px rgba(255,90,30,0.5)) ` +
+            `blur(${pos.blur}px)`;
+
+        // Spawn particles continuously during flight
+        spawnExhaustParticles(avatar, pos, lastPos);
+        lastPos = pos;
+
+        if (t < 1) {
+            requestAnimationFrame(flightLoop);
+        } else {
+            // ── Landing cleanup ─────────────────────────────
+            avatar.style.transform = '';
+            avatar.classList.remove('rocket-mode');
+
+            // Restore original avatar
+            const s2 = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+            if (s2.heroImage) {
+                avatar.innerHTML = `<img src="${s2.heroImage}" alt="Profile">`;
+            } else {
+                avatar.innerHTML = `<i class="fas fa-user-circle"></i>`;
+            }
+
+            // Re-enable double-click (remove old listener, reattach)
+            avatar.removeEventListener('dblclick', launchRocket);
+            setTimeout(() => avatar.addEventListener('dblclick', launchRocket), 100);
+        }
+    }
+    requestAnimationFrame(flightLoop);
 }
+
+/**
+ * Spawn the visual magic — fire, smoke, debris
+ * Called every frame during flight.
+ */
+function spawnExhaustParticles(avatar, pos, lastPos) {
+    const rect = avatar.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height;   // bottom of avatar
+
+    // Velocity from last position → determines emission direction
+    const vx = pos.x - lastPos.x;
+    const vy = pos.y - lastPos.y;
+    const speed = Math.hypot(vx, vy) || 1;
+    const dirX = -vx / speed;
+    const dirY = -vy / speed;
+
+    // ── 1. Fire particles (2-3 per frame) ──────────────────
+    const fireCount = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < fireCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'rocket-particle';
+
+        const size = 6 + Math.random() * 14;
+        const hue  = 20 + Math.random() * 40;  // orange→yellow
+        const light = 50 + Math.random() * 30;
+
+        p.style.cssText = `
+            left: ${cx + (Math.random() - 0.5) * 12}px;
+            top:  ${cy + (Math.random() - 0.5) * 12}px;
+            width: ${size}px;
+            height: ${size}px;
+            background: radial-gradient(circle,
+                hsl(${hue}, 100%, 95%) 0%,
+                hsl(${hue}, 100%, ${light}%) 40%,
+                hsla(${hue}, 100%, 50%, 0.4) 75%,
+                transparent 100%);
+            filter: blur(1px);
+            opacity: 1;
+        `;
+        document.body.appendChild(p);
+
+        // Physics: initial velocity opposite to rocket + slight spread
+        const vMag = 3 + Math.random() * 5;
+        const angleJitter = (Math.random() - 0.5) * 0.8;
+        const angle = Math.atan2(dirY, dirX) + angleJitter;
+
+        animateParticle(p, {
+            vx: Math.cos(angle) * vMag,
+            vy: Math.sin(angle) * vMag,
+            gravity: 0.15,
+            life: 500 + Math.random() * 400,
+            expand: 0.04,
+            fadeStart: 0.3
+        });
+    }
+
+    // ── 2. Smoke trail (1 every 3 frames during first phase) ─
+    if (Math.random() < 0.35) {
+        const smoke = document.createElement('div');
+        smoke.className = 'rocket-smoke';
+        const size = 40 + Math.random() * 60;
+        smoke.style.cssText = `
+            left: ${cx - size / 2}px;
+            top:  ${cy - size / 2}px;
+            width: ${size}px;
+            height: ${size}px;
+            opacity: ${0.6 + Math.random() * 0.3};
+        `;
+        document.body.appendChild(smoke);
+
+        animateParticle(smoke, {
+            vx: (Math.random() - 0.5) * 2 + dirX,
+            vy: (Math.random() - 0.5) * 2 + dirY - 0.5,
+            gravity: -0.05,
+            life: 1200 + Math.random() * 800,
+            expand: 0.15,
+            fadeStart: 0.1
+        });
+    }
+
+    // ── 3. Debris during high-speed sections ────────────────
+    if (speed > 6 && Math.random() < 0.3) {
+        const debris = document.createElement('div');
+        debris.className = 'rocket-debris';
+        debris.style.left = cx + 'px';
+        debris.style.top  = cy + 'px';
+        document.body.appendChild(debris);
+
+        const angle = Math.atan2(dirY, dirX) + (Math.random() - 0.5) * 1.6;
+        const vMag = 4 + Math.random() * 6;
+        animateParticle(debris, {
+            vx: Math.cos(angle) * vMag,
+            vy: Math.sin(angle) * vMag,
+            gravity: 0.35,
+            life: 700 + Math.random() * 400,
+            expand: 0,
+            fadeStart: 0.5,
+            rotate: (Math.random() - 0.5) * 720
+        });
+    }
+}
+
+/**
+ * Generic particle animator — updates every rAF frame.
+ */
+function animateParticle(el, opts) {
+    const start = performance.now();
+    let x = 0, y = 0, rotation = 0, scale = 1;
+
+    function tick(now) {
+        const elapsed = now - start;
+        const t = elapsed / opts.life;
+
+        if (t >= 1) { el.remove(); return; }
+
+        // Euler physics
+        opts.vy += opts.gravity;
+        x += opts.vx;
+        y += opts.vy;
+
+        // Scale up (for flames / smoke)
+        if (opts.expand) scale = 1 + opts.expand * elapsed;
+
+        // Rotation
+        if (opts.rotate) rotation += opts.rotate * 0.016;
+
+        // Opacity: full until fadeStart, then linear fade to 0
+        let opacity = 1;
+        if (t > opts.fadeStart) {
+            opacity = 1 - (t - opts.fadeStart) / (1 - opts.fadeStart);
+        }
+        // Ease-in the fade
+        opacity = Math.max(0, opacity * opacity);
+
+        el.style.transform =
+            `translate(${x}px, ${y}px) rotate(${rotation}deg) scale(${scale})`;
+        el.style.opacity = opacity;
+
+        requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+}
+
 
 // ── Init on DOM ready ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
