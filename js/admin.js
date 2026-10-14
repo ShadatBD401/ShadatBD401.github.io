@@ -106,9 +106,26 @@ function showDashboard() {
     document.querySelectorAll('.admin-page').forEach(p => {
         p.classList.toggle('active', p.id === 'page-dashboard');
     });
-    
+   
     loadDashboardData();
     setupPageNavigation();
+    syncAllContentFromGitHub();   // ← add this line
+}
+
+// ── Sync every content file from GitHub into localStorage ────
+async function syncAllContentFromGitHub() {
+    if (!window.GitHubContent) return;
+    const sections = ['posts', 'projects', 'certifications', 'skills'];
+    for (const s of sections) {
+        try {
+            const data = await window.GitHubContent.read(`data/${s}.json`);
+            if (data && Array.isArray(data.json) && data.json.length) {
+                const key = Utils.STORAGE_KEYS[s.toUpperCase()];
+                if (key) Utils.saveItems(key, data.json);
+                console.log(`⬇️ synced ${s}.json from GitHub`);
+            }
+        } catch (e) { /* file may not exist yet */ }
+    }
 }
 
 // ── Login Handling ───────────────────────────────────────────
