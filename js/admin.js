@@ -1357,6 +1357,7 @@ window.saveSkill = function(skillId) {
     }
     
     Utils.saveItems(Utils.STORAGE_KEYS.SKILLS, skills);
+    saveContentToGitHub('skills', skills, skillId ? `Update skill: ${title}` : `New skill: ${title}`);
     Utils.closeModal();
     Utils.showToast(skillId ? 'Skill updated' : 'Skill created', 'success');
     renderSkillsList();
