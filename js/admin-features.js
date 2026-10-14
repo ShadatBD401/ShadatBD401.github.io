@@ -277,7 +277,22 @@ function saveAllSettings() {
     });
     const autoReply = document.getElementById('settingAutoReply');
     if (autoReply) s.autoReply = autoReply.checked;
+
     Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+    // Persist to public table so visitors can read
+    (async () => {
+        try {
+            const client = await initSupabase();
+            await client.from('site_settings').upsert(
+                { key: 'main', value: s, updated_at: new Date().toISOString() },
+                { onConflict: 'key' }
+            );
+            console.log('✅ Settings published to public table');
+        } catch (e) {
+            console.warn('Public settings save failed:', e);
+        }
+    })();
+
     Utils.showToast('All settings saved successfully', 'success');
 }
 
