@@ -375,11 +375,17 @@ window.editGalleryItem = function(id) {
     if (item) openGalleryForm(item);
 };
 
-window.deleteGalleryItem = function(id) {
+window.deleteGalleryItem = async function(id) {
     if (!confirm('Delete this gallery item?')) return;
-    Utils.saveItems(GALLERY_KEY, Utils.getItems(GALLERY_KEY).filter(i => i.id !== id));
+    const items = Utils.getItems(GALLERY_KEY);
+    const item = items.find(i => i.id === id);
+    if (item?.driveId) {
+        try { await window.GDrive.delete(item.driveId); } catch (e) { console.warn(e); }
+    }
+    Utils.saveItems(GALLERY_KEY, items.filter(i => i.id !== id));
     Utils.showToast('Deleted', 'success');
     renderAdminGallery();
+    renderAdminVideos();
 };
 
 window.saveGalleryItem = async function(id) {
