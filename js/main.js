@@ -970,17 +970,15 @@ function initContactForm() {
                 </div>
             `);
         } catch (err) {
-            console.error('Ticket submission failed:', err);
-            Utils.showToast('Failed to submit ticket — please try again', 'error');
+            console.error('❌ Ticket submission failed:', err);
+            const detail = err?.message || err?.error_description || err?.details || JSON.stringify(err);
+            Utils.showToast('Failed: ' + detail, 'error', 8000);       
         } finally {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     });
 }
-
-
-
 
 // ── Modal Handlers ───────────────────────────────────────────
 function initModals() {
