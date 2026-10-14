@@ -342,9 +342,13 @@ function loadDashboardData() {
     loadRecentActivity();
 }
 
-function createStatCard(label, value, icon, color) {
+function createStatCard(label, value, icon, color, targetPage = null, targetStatus = null) {
+    const clickable = targetPage ? 'style="cursor:pointer"' : '';
+    const dataAttrs = targetPage
+        ? `data-target-page="${targetPage}" data-target-status="${targetStatus || ''}"`
+        : '';
     return `
-        <div class="stat-card">
+        <div class="stat-card" ${clickable} ${dataAttrs}>
             <div class="stat-card-header">
                 <div class="stat-card-icon ${color}">
                     <i class="fas ${icon}"></i>
