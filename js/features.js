@@ -2,9 +2,6 @@
    FEATURES: THEMES, GLOBAL SEARCH, CUSTOM CURSOR,
              TICKET TRACKING, CV, GALLERY
    ============================================================ */
-
-const THEMES = ['dark', 'light', 'ocean', 'forest', 'sunset'];
-
 /* ══════════════════════════════════════════════════════════════
    THEME SYSTEM — Bulletproof
    ══════════════════════════════════════════════════════════════ */
