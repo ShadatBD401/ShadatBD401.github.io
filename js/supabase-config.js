@@ -84,21 +84,31 @@ window.SupabaseTickets = {
         const client = await initSupabase();
         const row = {
             ticket_id: ticket.id,
-            name: ticket.name,
-            email: ticket.email,
-            subject: ticket.subject,
-            message: ticket.message,
-            status: ticket.status || 'open',
-            priority: ticket.priority || 'medium',
-            category: ticket.category || 'general',
-            replies: ticket.replies || []
+            name:      ticket.name,
+            email:     ticket.email,
+            subject:   ticket.subject,
+            message:   ticket.message,
+            status:    ticket.status   || 'open',
+            priority:  ticket.priority || 'medium',
+            category:  ticket.category || 'general'
         };
+        console.log('📤 Inserting ticket to Supabase:', row);
         const { data, error } = await client
             .from('tickets').insert(row).select().single();
-        if (error) throw error;
+
+        if (error) {
+            console.error('❌ Supabase insert error:', {
+                message: error.message,
+                details: error.details,
+                hint:    error.hint,
+                code:    error.code
+            });
+            throw error;
+        }
+        console.log('✅ Ticket inserted:', data);
         return data;
     },
-
+   
     async findByTicketId(ticketId) {
         const client = await initSupabase();
         const { data, error } = await client
