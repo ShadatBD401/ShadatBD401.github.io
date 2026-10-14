@@ -3460,6 +3460,41 @@ input, textarea, select {
 
 #heroProfileImg.rocket-mode > img { opacity: 0; }
 
+/* Mobile — smaller hero avatar */
+@media (max-width: 991px) {
+    #heroProfileImg {
+        width: 100px;
+        height: 100px;
+        top: -20px;
+        right: -20px;
+    }
+}
+
+@media (max-width: 767px) {
+    #heroProfileImg {
+        width: 80px;
+        height: 80px;
+        top: -14px;
+        right: -14px;
+        padding: 4px;
+    }
+    #heroProfileImg > img {
+        inset: 6px;
+        width: calc(100% - 12px);
+        height: calc(100% - 12px);
+    }
+}
+
+@media (max-width: 575px) {
+    #heroProfileImg {
+        width: 68px;
+        height: 68px;
+        top: -10px;
+        right: -10px;
+    }
+    .rocket-craft svg { width: 85%; height: 85%; }
+}
+
 /* ── The rocket itself (inline SVG injected by JS) ─────────── */
 .rocket-craft {
     position: absolute;
