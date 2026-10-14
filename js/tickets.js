@@ -250,6 +250,7 @@ function deleteTicket(ticketId) {
         subject: ticket.subject
     });
     
+    deleteTicketFromSupabase(ticketId);
     return true;
 }
 
