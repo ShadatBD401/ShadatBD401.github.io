@@ -3773,4 +3773,122 @@ body.rocket-shaking {
 .gallery-overlay { display: none !important; 
 }
 
+/* ============================================================
+   THEME READABILITY OVERRIDES
+   Ensure text inside cards is ALWAYS readable in every theme
+   ============================================================ */
 
+/* Card headings — force high-contrast */
+.skill-card h3,
+.project-card h3,
+.cert-card h3,
+.learning-card h3,
+.education-card h3,
+.about-card h3,
+.timeline-title,
+.info-card h4,
+.contact-card h4,
+.hero-title,
+.section-title,
+.stat-value,
+.timeline-date,
+.education-year,
+.project-number,
+.domain-label,
+.matrix-name,
+.matrix-percent,
+.info-value,
+.info-label,
+.stat-label,
+.gallery-caption-title {
+    color: var(--text-primary) !important;
+}
+
+/* Force all paragraph text inside cards to readable color */
+.skill-card p,
+.project-card p,
+.cert-card p,
+.learning-card p,
+.about-card p,
+.education-institution,
+.education-duration,
+.education-grade,
+.timeline-list li,
+.timeline-company,
+.info-list li,
+.info-list span,
+.info-list a,
+.contact-card span,
+.contact-value,
+.hero-description,
+.section-subtitle,
+.stat-label,
+.matrix-name,
+.domain-name,
+.gallery-caption-desc,
+.gallery-caption-meta {
+    color: var(--text-secondary) !important;
+}
+
+/* Links inside cards */
+.info-link,
+.project-link,
+.cert-link,
+.learning-meta,
+.learning-date,
+.learning-category {
+    color: var(--accent-primary) !important;
+}
+
+/* Muted text stays muted but readable */
+.text-muted,
+.info-label,
+.domain-label,
+.stat-label,
+.gallery-caption-meta,
+.education-duration,
+.education-grade {
+    color: var(--text-muted) !important;
+}
+
+/* Tags — keep readable in every theme */
+.skill-tags .tag,
+.project-tags .tag,
+.timeline-tags .tag,
+.tag {
+    color: var(--text-secondary) !important;
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Section numbers + subtitles */
+.section-number { color: var(--accent-primary) !important; }
+.section-subtitle { color: var(--text-secondary) !important; }
+
+/* Nav links */
+.nav-link { color: var(--text-secondary); }
+.nav-link:hover { color: var(--text-primary); }
+.nav-link.active { color: var(--accent-primary); }
+
+/* Buttons */
+.btn-outline,
+.btn-secondary {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color);
+}
+.btn-outline:hover,
+.btn-secondary:hover {
+    color: var(--accent-primary) !important;
+    border-color: var(--accent-primary);
+}
+
+/* Inputs always readable */
+input, textarea, select {
+    color: var(--text-primary) !important;
+    background: var(--bg-tertiary);
+}
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
