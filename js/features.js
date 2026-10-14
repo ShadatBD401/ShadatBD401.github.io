@@ -908,11 +908,33 @@ function animateParticle(el, opts) {
 
 
 // ── Init on DOM ready ────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initThemeSwitcher();
     initGlobalSearch();
     initCustomCursor();
     initTicketTracking();
+
+    // Load fresh settings from Supabase before applying
+    await loadRemoteSettings();
+
     initCvViewer();
     applySiteSettings();
 });
+
+// ── Load site settings from Supabase → localStorage ──────────
+async function loadRemoteSettings() {
+    try {
+        if (!window.SupabaseSecrets) return;
+        const remote = await window.SupabaseSecrets.get('site_settings');
+        if (!remote) return;
+        const parsed = typeof remote === 'string' ? JSON.parse(remote) : remote;
+        if (parsed && typeof parsed === 'object') {
+            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, parsed);
+            console.log('⬇️ Loaded site settings from Supabase');
+        }
+    } catch (e) {
+        console.warn('Could not load remote settings:', e);
+    }
+}
+
+
