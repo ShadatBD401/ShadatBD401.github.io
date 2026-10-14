@@ -959,7 +959,7 @@ window.savePost = function(postId) {
         });
         Utils.logActivity('post_created', { title });
     }
-    
+
     // Update order
     posts.forEach((p, i) => p.order = i);
     
