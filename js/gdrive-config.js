@@ -166,7 +166,10 @@ const GDrive = {
     },
 
     directUrl(fid)   { return `https://drive.google.com/uc?export=view&id=${fid}`; },
-    previewUrl(fid)  { return `https://drive.google.com/thumbnail?id=${fid}&sz=w1600`; },
+    previewUrl(fid) {
+        // lh3.googleusercontent.com is Google's public CDN — always works for public files
+        return `https://lh3.googleusercontent.com/d/${fid}=w1600`;
+    },
     embedUrl(fid)    { return `https://drive.google.com/file/d/${fid}/preview`; },
     downloadUrl(fid) { return `https://drive.google.com/uc?export=download&id=${fid}`; },
 
