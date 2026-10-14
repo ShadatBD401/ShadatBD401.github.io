@@ -924,17 +924,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ── Load site settings from Supabase → localStorage ──────────
 async function loadRemoteSettings() {
     try {
-        if (!window.SupabaseSecrets) return;
-        const remote = await window.SupabaseSecrets.get('site_settings');
-        if (!remote) return;
-        const parsed = typeof remote === 'string' ? JSON.parse(remote) : remote;
-        if (parsed && typeof parsed === 'object') {
-            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, parsed);
-            console.log('⬇️ Loaded site settings from Supabase');
-        }
+        const client = await initSupabase();
+        const { data, error } = await client
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'main')
+            .maybeSingle();
+
+        if (error) throw error;
+        if (!data?.value) return;
+
+        Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, data.value);
+        console.log('⬇️ Loaded public settings from Supabase');
     } catch (e) {
-        console.warn('Could not load remote settings:', e);
+        console.warn('Could not load public settings:', e);
     }
 }
-
-
