@@ -268,7 +268,7 @@ function saveAllSettings() {
         'settingSiteTitle', 'settingSiteDesc', 'settingDisplayName', 'settingTitle',
         'settingTagline', 'settingCvButtonText', 'settingGithub', 'settingLinkedin',
         'settingTwitter', 'settingFacebook', 'settingWhatsapp', 'settingEmail',
-        'settingPhone', 'settingNotifyEmail'
+        'settingPhone', 'settingNotifyEmail', 'settingDefaultTheme'
     ];
     fields.forEach(id => {
         const el = document.getElementById(id);
