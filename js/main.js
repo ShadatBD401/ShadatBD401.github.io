@@ -140,7 +140,7 @@ function initNavigation() {
         });
     }
     
-    // Nav link clicks
+       // Nav link clicks
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -152,7 +152,7 @@ function initNavigation() {
             }
         });
     });
-    
+   
     // Close mobile menu on outside click
     document.addEventListener('click', (e) => {
         if (navMenu?.classList.contains('open') && 
