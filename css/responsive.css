@@ -362,18 +362,6 @@
     }
 }
 
-/* Dark Mode Preference */
-@media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-        --bg-primary: #f8fafc;
-        --bg-secondary: #f1f5f9;
-        --bg-tertiary: #e2e8f0;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-muted: #94a3b8;
-    }
-}
-
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
     :root {
