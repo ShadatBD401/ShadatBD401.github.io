@@ -139,17 +139,23 @@ function initNavigation() {
             navMenu?.classList.toggle('open');
         });
     }
-    
-       // Nav link clicks
+
+    // Nav link clicks
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             const section = link.dataset.section;
-            if (section) {
-                Utils.scrollToSection(section);
+
+            // Links with no data-section (e.g., Gallery) should navigate normally
+            if (!section) {
                 navMenu?.classList.remove('open');
                 mobileMenuBtn?.classList.remove('active');
+                return;   // ← do NOT call preventDefault — let the browser navigate
             }
+
+            e.preventDefault();
+            Utils.scrollToSection(section);
+            navMenu?.classList.remove('open');
+            mobileMenuBtn?.classList.remove('active');
         });
     });
    
