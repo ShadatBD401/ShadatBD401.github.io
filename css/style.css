@@ -83,6 +83,18 @@
 }
 
 /* ============================================================
+   THEME-BASED PAGE BACKGROUND — DO NOT OVERRIDE
+   ============================================================ */
+html {
+    background: var(--bg-primary);
+}
+
+body {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary);
+}
+
+/* ============================================================
    RESET & BASE STYLES
    ============================================================ */
 *, *::before, *::after {
