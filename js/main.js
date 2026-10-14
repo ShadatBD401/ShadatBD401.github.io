@@ -15,18 +15,17 @@ const state = {
 };
 
 // ── Initialization ───────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    // Always start at the top on every page load/refresh.
-    // Prevents browser restore-scroll from landing on a deep section.
+document.addEventListener('DOMContentLoaded', async () => {
     if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
-
-    // Clear any deep-link hash so reload always shows Home
     if (window.location.hash) {
         history.replaceState(null, '', window.location.pathname);
     }
+
+    // ⬇️ Fetch latest content from GitHub's public raw endpoint FIRST
+    await fetchPublicContent();
 
     initTheme();
     initPreloader();
@@ -41,6 +40,30 @@ document.addEventListener('DOMContentLoaded', () => {
     initModals();
     initScrollReveal();
 });
+
+// ── Fetch content JSON from GitHub raw (no token needed) ─────
+async function fetchPublicContent() {
+    const OWNER  = 'shadatbd401';
+    const REPO   = 'shadatbd401.github.io';
+    const BRANCH = 'main';
+    const sections = ['posts', 'projects', 'certifications', 'skills'];
+
+    for (const s of sections) {
+        try {
+            const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/data/${s}.json`;
+            const res = await fetch(url + '?t=' + Date.now());   // cache-bust
+            if (!res.ok) continue;
+            const json = await res.json();
+            if (Array.isArray(json) && json.length) {
+                const key = Utils.STORAGE_KEYS[s.toUpperCase()];
+                if (key) Utils.saveItems(key, json);
+                console.log(`⬇️ public: loaded ${s}.json from GitHub`);
+            }
+        } catch (e) {
+            console.warn(`public: could not load ${s}.json`, e);
+        }
+    }
+}
 
 // ── Theme Initialization ─────────────────────────────────────
 function initTheme() {
