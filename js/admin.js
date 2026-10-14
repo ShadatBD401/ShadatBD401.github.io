@@ -11,25 +11,26 @@ const adminState = {
     editingType: null
 };
 
-// ── GitHub-backed content persistence ─────────────────────────
+// ── GitHub-backed content helpers ────────────────────────────
 async function saveContentToGitHub(section, items, commitMsg) {
     if (!window.GitHubContent) {
-        console.warn('GitHubContent not loaded — falling back to localStorage');
-        Utils.saveItems(Utils.STORAGE_KEYS[section.toUpperCase()] || `sh_${section}`, items);
+        console.warn('[GitHub] not loaded — saving locally');
+        const key = Utils.STORAGE_KEYS[section.toUpperCase()];
+        if (key) Utils.saveItems(key, items);
         return;
     }
+    const key = Utils.STORAGE_KEYS[section.toUpperCase()];
+    if (key) Utils.saveItems(key, items);   // always update local cache
     try {
         await window.GitHubContent.write(
             `data/${section}.json`,
             items,
             commitMsg || `Update ${section}`
         );
-        Utils.saveItems(Utils.STORAGE_KEYS[section.toUpperCase()] || `sh_${section}`, items);
-        console.log(`✅ ${section} saved to GitHub`);
+        console.log(`✅ ${section}.json pushed to GitHub`);
     } catch (err) {
-        console.error('GitHub save failed:', err);
-        Utils.saveItems(Utils.STORAGE_KEYS[section.toUpperCase()] || `sh_${section}`, items);
-        Utils.showToast('Saved locally (GitHub sync failed)', 'warning');
+        console.error(`GitHub save failed for ${section}:`, err);
+        Utils.showToast(`${section} saved locally (GitHub sync failed)`, 'warning');
     }
 }
 
