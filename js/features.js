@@ -425,8 +425,7 @@ function initTicketTracking() {
     trackInput.addEventListener('keypress', e => { if (e.key === 'Enter') track(); });
 }
 
-
-// ── CV Viewer (Preview + Download) ───────────────────────────
+// ── CV Viewer (Full-page preview + Download) ─────────────────
 function initCvViewer() {
     const btn = document.getElementById('viewCvBtn');
     const btnText = document.getElementById('cvBtnText');
@@ -442,8 +441,23 @@ function initCvViewer() {
         const fileName = s.cvFileName || 'CV.pdf';
         const isPdf = fileName.toLowerCase().endsWith('.pdf');
 
+        // Build a preview URL that Google Drive can serve for embedding
+        let previewSrc = s.cvFile;
+
+        // If it's a Drive file, use the /preview endpoint (better embedding)
+        if (s.cvFileId) {
+            previewSrc = `https://drive.google.com/file/d/${s.cvFileId}/preview`;
+        } else if (s.cvFile?.includes('drive.google.com')) {
+            // extract file id
+            const m = s.cvFile.match(/[-\w]{25,}/);
+            if (m) previewSrc = `https://drive.google.com/file/d/${m[0]}/preview`;
+        }
+
         const previewHtml = isPdf
-            ? `<iframe src="${s.cvFile}" style="width:100%;height:75vh;border:none;border-radius:var(--radius-md);background:#fff;" title="CV Preview"></iframe>`
+            ? `<iframe src="${previewSrc}"
+                       style="width:100%;height:80vh;border:none;border-radius:var(--radius-md);background:#fff;"
+                       title="CV Preview"
+                       allow="autoplay"></iframe>`
             : `<div style="text-align:center;padding:3rem 1rem;">
                 <i class="fas fa-file-alt" style="font-size:4rem;color:var(--accent-primary);margin-bottom:1rem;"></i>
                 <p style="color:var(--text-secondary);">Preview not available for this file type.</p>
@@ -451,26 +465,37 @@ function initCvViewer() {
               </div>`;
 
         Utils.openModal('Curriculum Vitae', `
-            <div style="position:relative;">
-                ${previewHtml}
-                <div style="position:absolute;top:-8px;right:-8px;display:flex;gap:0.5rem;">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;justify-content:flex-end;gap:8px;">
+                    <a href="${previewSrc}" target="_blank" rel="noopener"
+                       class="btn btn-outline btn-sm" title="Open in new tab">
+                        <i class="fas fa-external-link-alt"></i> Open in new tab
+                    </a>
                     <a href="${s.cvFile}" download="${Utils.esc(fileName)}"
-                       class="btn btn-primary btn-sm"
-                       style="box-shadow:var(--shadow-lg);"
-                       title="Download CV">
+                       class="btn btn-primary btn-sm" title="Download CV">
                         <i class="fas fa-download"></i> Download
                     </a>
                 </div>
+                <div style="width:100%;">${previewHtml}</div>
             </div>
         `);
 
+        // Expand modal to a wide layout for CV
         const modal = document.getElementById('modal');
         if (modal) {
-            modal.style.maxWidth = '900px';
+            modal.style.maxWidth = '95vw';
+            modal.style.width = '95vw';
+            modal.style.height = '95vh';
+            const body = modal.querySelector('.modal-body');
+            if (body) body.style.padding = '16px';
+
             const closeBtn = document.getElementById('modalClose');
             if (closeBtn) {
                 closeBtn.addEventListener('click', () => {
                     modal.style.maxWidth = '';
+                    modal.style.width = '';
+                    modal.style.height = '';
+                    if (body) body.style.padding = '';
                 }, { once: true });
             }
         }
