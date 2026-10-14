@@ -429,7 +429,7 @@ function initTicketTracking() {
     trackInput.addEventListener('keypress', e => { if (e.key === 'Enter') track(); });
 }
 
-// ── CV Viewer (Full-page preview + Download) ─────────────────
+// ── CV Viewer (Preview + real Download + Open in tab) ────────
 function initCvViewer() {
     const btn = document.getElementById('viewCvBtn');
     const btnText = document.getElementById('cvBtnText');
@@ -444,24 +444,30 @@ function initCvViewer() {
 
         const fileName = s.cvFileName || 'CV.pdf';
         const isPdf = fileName.toLowerCase().endsWith('.pdf');
+        const fileId = s.cvFileId;
 
-        // Build a preview URL that Google Drive can serve for embedding
-        let previewSrc = s.cvFile;
+        // ── Correct URLs for each use ─────────────────────────
+        // Preview: Google's embeddable PDF viewer (scrollable, multi-page)
+        const previewSrc = fileId
+            ? `https://drive.google.com/file/d/${fileId}/preview`
 
-        // If it's a Drive file, use the /preview endpoint (better embedding)
-        if (s.cvFileId) {
-            previewSrc = `https://drive.google.com/file/d/${s.cvFileId}/preview`;
-        } else if (s.cvFile?.includes('drive.google.com')) {
-            // extract file id
-            const m = s.cvFile.match(/[-\w]{25,}/);
-            if (m) previewSrc = `https://drive.google.com/file/d/${m[0]}/preview`;
-        }
+        // View in new tab: opens Google Drive viewer in full tab
+        const viewSrc = fileId
+            ? `https://drive.google.com/file/d/${fileId}/view`
+
+        // ⚠️ REAL DOWNLOAD — this one actually triggers a download
+            : s.cvFile;
+
+        // Download: use Google Drive's export download endpoint
+        const downloadSrc = fileId
+            ? `https://drive.google.com/uc?export=download&id=${fileId}`
+            : s.cvFile;
 
         const previewHtml = isPdf
             ? `<iframe src="${previewSrc}"
-                       style="width:100%;height:80vh;border:none;border-radius:var(--radius-md);background:#fff;"
+                       style="width:100%;height:75vh;border:none;border-radius:var(--radius-md);background:#fff;"
                        title="CV Preview"
-                       allow="autoplay"></iframe>`
+                       allowfullscreen></iframe>`
             : `<div style="text-align:center;padding:3rem 1rem;">
                 <i class="fas fa-file-alt" style="font-size:4rem;color:var(--accent-primary);margin-bottom:1rem;"></i>
                 <p style="color:var(--text-secondary);">Preview not available for this file type.</p>
@@ -470,21 +476,22 @@ function initCvViewer() {
 
         Utils.openModal('Curriculum Vitae', `
             <div style="display:flex;flex-direction:column;gap:12px;">
-                <div style="display:flex;justify-content:flex-end;gap:8px;">
-                    <a href="${previewSrc}" target="_blank" rel="noopener"
-                       class="btn btn-outline btn-sm" title="Open in new tab">
-                        <i class="fas fa-external-link-alt"></i> Open in new tab
+                <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+                    <a href="${viewSrc}" target="_blank" rel="noopener"
+                       class="btn btn-outline btn-sm" title="Open in Google Drive">
+                        <i class="fas fa-external-link-alt"></i> View in Drive
                     </a>
-                    <a href="${s.cvFile}" download="${Utils.esc(fileName)}"
-                       class="btn btn-primary btn-sm" title="Download CV">
-                        <i class="fas fa-download"></i> Download
+                    <a href="${downloadSrc}" target="_blank" rel="noopener"
+                       class="btn btn-primary btn-sm" title="Download CV"
+                       download="${Utils.esc(fileName)}">
+                        <i class="fas fa-download"></i> Download CV
                     </a>
                 </div>
                 <div style="width:100%;">${previewHtml}</div>
             </div>
         `);
 
-        // Expand modal to a wide layout for CV
+        // Expand the modal for CV
         const modal = document.getElementById('modal');
         if (modal) {
             modal.style.maxWidth = '95vw';
