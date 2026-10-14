@@ -462,6 +462,15 @@
     margin-bottom: var(--space-2xl);
 }
 
+.stat-card[data-target-page] {
+    cursor: pointer;
+}
+.stat-card[data-target-page]:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
 .stat-card {
     padding: var(--space-xl);
     background: var(--bg-card);
