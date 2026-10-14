@@ -964,6 +964,7 @@ window.savePost = function(postId) {
     posts.forEach((p, i) => p.order = i);
     
     Utils.saveItems(Utils.STORAGE_KEYS.POSTS, posts);
+    saveContentToGitHub('posts', posts, postId ? `Update post: ${title}` : `New post: ${title}`);
     Utils.closeModal();
     Utils.showToast(postId ? 'Post updated' : 'Post created', 'success');
     renderPostsList();
