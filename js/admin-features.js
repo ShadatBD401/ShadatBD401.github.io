@@ -11,6 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     applyAdminSidebarAvatar();   // ← ADD THIS LINE
 });
 
+// ── Show profile pic in admin sidebar ────────────────────────
+function applyAdminSidebarAvatar() {
+    const el = document.getElementById('adminSidebarAvatar');
+    if (!el) return;
+    const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+    if (s.profileImage) {
+        el.innerHTML = `<img src="${s.profileImage}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+    }
+}
+
 function initDriveConnectButton() {
     const container = document.querySelector('.settings-container');
     if (!container || document.getElementById('driveConnectBtn')) return;
