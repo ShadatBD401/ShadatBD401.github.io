@@ -38,19 +38,32 @@ const GDrivePublic = {
 
     async listGalleryItems() {
         const [photos, videos] = await Promise.all([
-            this.listPublic(this.folders.gallery).catch(e => { console.warn('photos:', e); return []; }),
-            this.listPublic(this.folders.videos).catch(e => { console.warn('videos:', e); return []; })
+            this.listPublic(this.folders.gallery).catch(() => []),
+            this.listPublic(this.folders.videos).catch(() => [])
         ]);
 
         const items = [];
+        const parseName = (name) => {
+            const clean = name.replace(/^\d+_/, '').replace(/\.[^.]+$/, '');
+            const parts = clean.split('__');
+            if (parts.length >= 2) {
+                return {
+                    title: parts[0].replace(/_/g, ' ') || 'Untitled',
+                    description: parts[1] === 'no-desc' ? '' : parts[1].replace(/_/g, ' ')
+                };
+            }
+            return { title: clean.replace(/_/g, ' '), description: '' };
+        };
 
         photos.forEach(f => {
             if (f.mimeType?.startsWith('image/')) {
+                const meta = parseName(f.name);
                 items.push({
                     id: f.id,
                     type: 'image',
                     src: this.imgUrl(f.id),
-                    caption: f.name.replace(/^\d+_/, '').replace(/\.[^.]+$/, ''),
+                    title: meta.title,
+                    description: meta.description,
                     createdAt: f.createdTime
                 });
             }
@@ -58,11 +71,13 @@ const GDrivePublic = {
 
         videos.forEach(f => {
             if (f.mimeType?.startsWith('video/')) {
+                const meta = parseName(f.name);
                 items.push({
                     id: f.id,
                     type: 'video',
                     src: this.embedUrl(f.id),
-                    caption: f.name.replace(/^\d+_/, '').replace(/\.[^.]+$/, ''),
+                    title: meta.title,
+                    description: meta.description,
                     createdAt: f.createdTime
                 });
             }
