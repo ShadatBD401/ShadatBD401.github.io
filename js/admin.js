@@ -1231,6 +1231,7 @@ window.saveCert = function(certId) {
     
     certs.forEach((c, i) => c.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.CERTS, certs);
+    saveContentToGitHub('certifications', certs, certId ? `Update cert: ${title}` : `New cert: ${title}`);
     Utils.closeModal();
     Utils.showToast(certId ? 'Certification updated' : 'Certification created', 'success');
     renderCertsList();
