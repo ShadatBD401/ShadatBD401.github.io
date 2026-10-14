@@ -345,19 +345,28 @@ function openGalleryForm(item = null) {
                 <label for="galType">Type *</label>
                 <select id="galType">
                     <option value="image" ${item?.type === 'image' ? 'selected' : ''}>Image</option>
-                    <option value="video" ${item?.type === 'video' ? 'selected' : ''}>Video (YouTube/Vimeo URL or direct link)</option>
+                    <option value="video" ${item?.type === 'video' ? 'selected' : ''}>Video</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="galCaption">Caption</label>
-                <input type="text" id="galCaption" value="${item ? Utils.esc(item.caption || '') : ''}" placeholder="Short description">
+                <label for="galCaption">Title *</label>
+                <input type="text" id="galCaption"
+                       value="${item ? Utils.esc(item.title || item.caption || '') : ''}"
+                       placeholder="Short title shown under the media">
             </div>
             <div class="form-group">
-                <label for="galUrl">URL (for videos) or Upload Image *</label>
-                <input type="url" id="galUrl" value="${item && item.type === 'video' ? Utils.esc(item.src) : ''}" placeholder="https://youtube.com/watch?v=...">
-                <input type="file" id="galFile" accept="image/*" style="margin-top:0.5rem;">
+                <label for="galDescription">Description</label>
+                <textarea id="galDescription" rows="3"
+                          placeholder="Optional longer description...">${item ? Utils.esc(item.description || '') : ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="galUrl">URL (for videos) or Upload File *</label>
+                <input type="url" id="galUrl"
+                       value="${item && item.type === 'video' ? Utils.esc(item.src) : ''}"
+                       placeholder="https://youtube.com/watch?v=...">
+                <input type="file" id="galFile" accept="image/*,video/*" style="margin-top:0.5rem;">
                 <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">
-                    ${isEdit ? 'Leave blank to keep current media.' : 'Upload an image OR paste a video URL.'}
+                    ${isEdit ? 'Leave blank to keep current media.' : 'Upload a file OR paste a video URL.'}
                 </p>
             </div>
             <div class="admin-form-actions">
