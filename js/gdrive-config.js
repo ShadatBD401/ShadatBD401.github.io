@@ -42,6 +42,17 @@ const GDrive = {
     },
 
     async signIn() {
+        // First, try to restore saved token from sessionStorage
+        const saved = sessionStorage.getItem('gdrive_access_token');
+        const savedExp = parseInt(sessionStorage.getItem('gdrive_token_expiry') || '0');
+        if (saved && Date.now() < savedExp - 60000) {
+            this.accessToken = saved;
+            this.tokenExpiry = savedExp;
+            console.log('✅ Restored Drive token from session');
+            return { restored: true };
+        }
+
+        // Otherwise trigger OAuth
         await this.init();
         await this._loadGis();
 
@@ -56,6 +67,11 @@ const GDrive = {
                     if (resp.error) return reject(resp);
                     this.accessToken = resp.access_token;
                     this.tokenExpiry = Date.now() + (resp.expires_in * 1000);
+
+                    // Persist to sessionStorage so it survives reloads in the same tab
+                    sessionStorage.setItem('gdrive_access_token', this.accessToken);
+                    sessionStorage.setItem('gdrive_token_expiry', String(this.tokenExpiry));
+
                     resolve(resp);
                 }
             });
