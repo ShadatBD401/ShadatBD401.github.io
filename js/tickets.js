@@ -37,8 +37,98 @@ const TICKET_CATEGORIES = {
     other: { label: 'Other', icon: 'fa-ellipsis-h' }
 };
 
+// ── Supabase-backed ticket operations ────────────────────────
+async function loadTicketsFromSupabase() {
+    try {
+        const client = await initSupabase();
+        const { data, error } = await client
+            .from('tickets')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    } catch (e) {
+        console.warn('Supabase tickets load failed, using localStorage:', e);
+        return null;
+    }
+}
+
+async function saveTicketToSupabase(ticket) {
+    try {
+        const client = await initSupabase();
+        const { error } = await client.from('tickets').insert({
+            ticket_id: ticket.id,
+            name: ticket.name,
+            email: ticket.email,
+            subject: ticket.subject,
+            message: ticket.message,
+            status: ticket.status || 'open',
+            priority: ticket.priority || 'medium',
+            category: ticket.category || 'general'
+        });
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error('Supabase ticket insert failed:', e);
+        return false;
+    }
+}
+
+async function updateTicketInSupabase(ticketId, updates) {
+    try {
+        const client = await initSupabase();
+        const { error } = await client
+            .from('tickets')
+            .update({ ...updates, updated_at: new Date().toISOString() })
+            .eq('ticket_id', ticketId);
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error('Supabase ticket update failed:', e);
+        return false;
+    }
+}
+
+async function deleteTicketFromSupabase(ticketId) {
+    try {
+        const client = await initSupabase();
+        const { error } = await client
+            .from('tickets')
+            .delete()
+            .eq('ticket_id', ticketId);
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error('Supabase ticket delete failed:', e);
+        return false;
+    }
+}
+
 // ── Load Tickets ─────────────────────────────────────────────
-function loadTickets() {
+async function loadTickets() {
+    // Try Supabase first (works for admin, returns empty for visitors due to RLS)
+    const remote = await loadTicketsFromSupabase();
+    if (remote !== null) {
+        // Map Supabase rows → ticket shape used by UI
+        ticketState.tickets = remote.map(t => ({
+            id: t.ticket_id,
+            name: t.name,
+            email: t.email,
+            subject: t.subject,
+            message: t.message,
+            status: t.status,
+            priority: t.priority,
+            category: t.category,
+            createdAt: t.created_at,
+            updatedAt: t.updated_at,
+            replies: [],
+            history: []
+        }));
+        // Also cache locally for visitors
+        Utils.saveItems(Utils.STORAGE_KEYS.TICKETS, ticketState.tickets);
+        return ticketState.tickets;
+    }
+    // Fallback: localStorage
     ticketState.tickets = Utils.getItems(Utils.STORAGE_KEYS.TICKETS);
     return ticketState.tickets;
 }
