@@ -1095,9 +1095,10 @@ window.saveProject = function(projectId) {
             order: 0
         });
     }
-    
+
     projects.forEach((p, i) => p.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.PROJECTS, projects);
+    saveContentToGitHub('projects', projects, projectId ? `Update project: ${title}` : `New project: ${title}`);
     Utils.closeModal();
     Utils.showToast(projectId ? 'Project updated' : 'Project created', 'success');
     renderProjectsList();
