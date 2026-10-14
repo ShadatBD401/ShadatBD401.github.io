@@ -104,7 +104,12 @@ async function initProfileSettings() {
     async function persist() {
         Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
         try {
-            await window.SupabaseSecrets.set('site_settings', JSON.stringify(settings));
+            // Write to public site_settings table
+            const client = await initSupabase();
+            await client.from('site_settings').upsert(
+                { key: 'main', value: settings, updated_at: new Date().toISOString() },
+                { onConflict: 'key' }
+            );
         } catch (e) {
             console.warn('Supabase settings save failed:', e);
         }
