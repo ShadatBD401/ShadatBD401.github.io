@@ -2453,62 +2453,58 @@ input, textarea, select {
    NEW FEATURES - THEMES, SEARCH, CURSOR, CONTACT, TICKET TRACKER
    ============================================================ */
 
-/* ============================================================
-   THEMES — Each is a full, distinct world
-   ============================================================ */
-
-/* ── LIGHT — clean daylight, white page ────────────────────── */
+/* ── LIGHT — daylight white ────────────────────────────────── */
 [data-theme="light"] {
     --bg-primary:    #ffffff;
-    --bg-secondary:  #f8fafc;
-    --bg-tertiary:   #f1f5f9;
+    --bg-secondary:  #f1f5f9;
+    --bg-tertiary:   #e2e8f0;
     --bg-card:       #ffffff;
     --bg-elevated:   #ffffff;
     --bg-hover:      #e2e8f0;
 
-    --text-primary:   #0f172a;
+    --text-primary:   #0a0e17;    /* very dark for max contrast */
     --text-secondary: #334155;
     --text-muted:     #64748b;
     --text-inverse:   #ffffff;
 
-    --border-color: #e2e8f0;
-    --border-hover: #cbd5e1;
-    --border-accent: rgba(37, 99, 235, 0.35);
+    --border-color: #cbd5e1;
+    --border-hover: #94a3b8;
+    --border-accent: rgba(37, 99, 235, 0.4);
 
-    --accent-primary:   #2563eb;
-    --accent-secondary: #7c3aed;
-    --accent-tertiary:  #0891b2;
-    --accent-success:   #059669;
-    --accent-warning:   #d97706;
-    --accent-danger:    #dc2626;
+    --accent-primary:   #1d4ed8;
+    --accent-secondary: #6d28d9;
+    --accent-tertiary:  #0e7490;
+    --accent-success:   #047857;
+    --accent-warning:   #b45309;
+    --accent-danger:    #b91c1c;
 
     --gradient-primary:   linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
     --gradient-secondary: linear-gradient(135deg, #0891b2 0%, #2563eb 100%);
 
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08);
-    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.12);
-    --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.25);
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.12);
+    --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.15);
+    --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3);
 }
 
-/* ── OCEAN — true deep-sea blue, cyan accents ──────────────── */
+/* ── OCEAN — deep sea blue ─────────────────────────────────── */
 [data-theme="ocean"] {
-    --bg-primary:    #061524;        /* deep ocean floor */
-    --bg-secondary:  #0a1f33;        /* slightly lighter */
-    --bg-tertiary:   #0f2a44;
-    --bg-card:       #0b2338;        /* card panel */
-    --bg-elevated:   #103049;
-    --bg-hover:      #163d5a;
+    --bg-primary:    #071a2c;
+    --bg-secondary:  #0b233a;
+    --bg-tertiary:   #0f2c47;
+    --bg-card:       #0d2540;
+    --bg-elevated:   #0f2c47;
+    --bg-hover:      #164060;
 
-    --text-primary:   #ecfeff;
-    --text-secondary: #b6ddec;
-    --text-muted:     #7ba5bb;
-    --text-inverse:   #061524;
+    --text-primary:   #f0faff;
+    --text-secondary: #a8d5e5;
+    --text-muted:     #6ea3bd;
+    --text-inverse:   #071a2c;
 
-    --border-color: rgba(103, 232, 249, 0.12);
-    --border-hover: rgba(103, 232, 249, 0.28);
-    --border-accent: rgba(34, 211, 238, 0.55);
+    --border-color: rgba(103, 232, 249, 0.15);
+    --border-hover: rgba(103, 232, 249, 0.3);
+    --border-accent: rgba(34, 211, 238, 0.6);
 
     --accent-primary:   #22d3ee;
     --accent-secondary: #06b6d4;
@@ -2517,33 +2513,33 @@ input, textarea, select {
     --accent-warning:   #fbbf24;
     --accent-danger:    #f87171;
 
-    --gradient-primary:   linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    --gradient-primary:   linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
     --gradient-secondary: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
-    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.55);
-    --shadow-glow: 0 0 24px rgba(34, 211, 238, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.55);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 24px rgba(34, 211, 238, 0.45);
 }
 
-/* ── FOREST — deep pine green, emerald accents ─────────────── */
+/* ── FOREST — deep pine ────────────────────────────────────── */
 [data-theme="forest"] {
-    --bg-primary:    #081a0d;        /* dark pine floor */
-    --bg-secondary:  #0c2414;        /* forest canopy */
-    --bg-tertiary:   #123020;
-    --bg-card:       #0e2818;
-    --bg-elevated:   #123020;
-    --bg-hover:      #1a3e28;
+    --bg-primary:    #0a1e12;
+    --bg-secondary:  #0e2818;
+    --bg-tertiary:   #133420;
+    --bg-card:       #102d1c;
+    --bg-elevated:   #133420;
+    --bg-hover:      #1b452c;
 
     --text-primary:   #f0fdf4;
-    --text-secondary: #bde6cb;
-    --text-muted:     #7fa88c;
-    --text-inverse:   #081a0d;
+    --text-secondary: #a7dbb6;
+    --text-muted:     #6fa881;
+    --text-inverse:   #0a1e12;
 
-    --border-color: rgba(110, 231, 183, 0.12);
-    --border-hover: rgba(110, 231, 183, 0.28);
-    --border-accent: rgba(52, 211, 153, 0.55);
+    --border-color: rgba(110, 231, 183, 0.15);
+    --border-hover: rgba(110, 231, 183, 0.3);
+    --border-accent: rgba(52, 211, 153, 0.6);
 
     --accent-primary:   #34d399;
     --accent-secondary: #10b981;
@@ -2555,30 +2551,30 @@ input, textarea, select {
     --gradient-primary:   linear-gradient(135deg, #10b981 0%, #059669 100%);
     --gradient-secondary: linear-gradient(135deg, #34d399 0%, #22c55e 100%);
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
-    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.55);
-    --shadow-glow: 0 0 24px rgba(52, 211, 153, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.55);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 24px rgba(52, 211, 153, 0.45);
 }
 
-/* ── SUNSET — deep plum sky, hot pink/orange accents ──────── */
+/* ── SUNSET — deep plum dusk ───────────────────────────────── */
 [data-theme="sunset"] {
-    --bg-primary:    #1a0a24;        /* dusk sky */
-    --bg-secondary:  #241033;        /* deeper twilight */
-    --bg-tertiary:   #301a44;
-    --bg-card:       #271338;
-    --bg-elevated:   #301a44;
-    --bg-hover:      #3e2254;
+    --bg-primary:    #1f0a2c;
+    --bg-secondary:  #2a123b;
+    --bg-tertiary:   #361a4d;
+    --bg-card:       #2e1440;
+    --bg-elevated:   #361a4d;
+    --bg-hover:      #471f60;
 
     --text-primary:   #fef5ff;
-    --text-secondary: #e8cceb;
-    --text-muted:     #b294bb;
-    --text-inverse:   #1a0a24;
+    --text-secondary: #e8c8ee;
+    --text-muted:     #b394bc;
+    --text-inverse:   #1f0a2c;
 
-    --border-color: rgba(244, 114, 182, 0.12);
-    --border-hover: rgba(244, 114, 182, 0.28);
-    --border-accent: rgba(236, 72, 153, 0.55);
+    --border-color: rgba(244, 114, 182, 0.15);
+    --border-hover: rgba(244, 114, 182, 0.3);
+    --border-accent: rgba(236, 72, 153, 0.6);
 
     --accent-primary:   #f472b6;
     --accent-secondary: #d946ef;
@@ -2590,11 +2586,11 @@ input, textarea, select {
     --gradient-primary:   linear-gradient(135deg, #d946ef 0%, #ec4899 100%);
     --gradient-secondary: linear-gradient(135deg, #fb923c 0%, #f472b6 100%);
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
-    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.55);
-    --shadow-glow: 0 0 24px rgba(244, 114, 182, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.55);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 24px rgba(244, 114, 182, 0.45);
 }
 
 /* Force opaque card backgrounds so text is always readable */
