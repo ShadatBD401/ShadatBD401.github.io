@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllSettings();
     ensureSaveButton();
     initDriveConnectButton();
+    applyAdminSidebarAvatar();   // ← ADD THIS LINE
 });
 
 function initDriveConnectButton() {
