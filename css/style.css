@@ -2473,20 +2473,20 @@ input, textarea, select {
     --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.25);
 }
 
-/* OCEAN */
+/* OCEAN — dark navy bg, high-contrast white text */
 [data-theme="ocean"] {
-    --bg-primary: #0a1929;
+    --bg-primary: #0a1826;
     --bg-secondary: #0f2438;
     --bg-tertiary: #16324a;
-    --bg-card: #102a42;
+    --bg-card: #0e2942;
     --bg-elevated: #16324a;
     --bg-hover: #1c3d5a;
-    --text-primary: #f0f9ff;
-    --text-secondary: #bae6fd;
-    --text-muted: #7dd3fc;
-    --text-inverse: #0a1929;
-    --border-color: rgba(125, 211, 252, 0.18);
-    --border-hover: rgba(125, 211, 252, 0.35);
+    --text-primary: #f8fcff;       /* near-white — max contrast */
+    --text-secondary: #cbe6f5;     /* light blue-grey */
+    --text-muted: #7fa5bd;         /* muted blue */
+    --text-inverse: #0a1826;
+    --border-color: rgba(125, 211, 252, 0.15);
+    --border-hover: rgba(125, 211, 252, 0.3);
     --border-accent: rgba(56, 189, 248, 0.5);
     --accent-primary: #38bdf8;
     --accent-secondary: #22d3ee;
@@ -2499,20 +2499,20 @@ input, textarea, select {
     --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.35);
 }
 
-/* FOREST */
+/* FOREST — deep green bg, high-contrast cream text */
 [data-theme="forest"] {
     --bg-primary: #061a0e;
     --bg-secondary: #0b2416;
     --bg-tertiary: #103020;
-    --bg-card: #0d2717;
+    --bg-card: #0e2919;
     --bg-elevated: #103020;
     --bg-hover: #163d28;
-    --text-primary: #f0fdf4;
-    --text-secondary: #bbf7d0;
-    --text-muted: #86efac;
+    --text-primary: #f4fdf6;       /* near-white */
+    --text-secondary: #c8e6d0;     /* light green-grey */
+    --text-muted: #7fa888;
     --text-inverse: #061a0e;
-    --border-color: rgba(134, 239, 172, 0.18);
-    --border-hover: rgba(134, 239, 172, 0.35);
+    --border-color: rgba(134, 239, 172, 0.15);
+    --border-hover: rgba(134, 239, 172, 0.3);
     --border-accent: rgba(74, 222, 128, 0.5);
     --accent-primary: #4ade80;
     --accent-secondary: #22c55e;
@@ -2525,7 +2525,7 @@ input, textarea, select {
     --shadow-glow: 0 0 20px rgba(74, 222, 128, 0.35);
 }
 
-/* SUNSET */
+/* SUNSET — purple bg, high-contrast cream text */
 [data-theme="sunset"] {
     --bg-primary: #1a0a1f;
     --bg-secondary: #26122d;
@@ -2533,12 +2533,12 @@ input, textarea, select {
     --bg-card: #2a1533;
     --bg-elevated: #321a3b;
     --bg-hover: #3f2249;
-    --text-primary: #fdf4ff;
-    --text-secondary: #f5d0fe;
-    --text-muted: #e9a8f5;
+    --text-primary: #fef7ff;       /* near-white */
+    --text-secondary: #f0d3f7;     /* light pink-grey */
+    --text-muted: #b390bd;
     --text-inverse: #1a0a1f;
-    --border-color: rgba(233, 168, 245, 0.18);
-    --border-hover: rgba(233, 168, 245, 0.35);
+    --border-color: rgba(233, 168, 245, 0.15);
+    --border-hover: rgba(233, 168, 245, 0.3);
     --border-accent: rgba(232, 121, 249, 0.5);
     --accent-primary: #e879f9;
     --accent-secondary: #f472b6;
