@@ -4063,16 +4063,12 @@ p:not([class]) { color: var(--text-secondary); }
     background: var(--bg-card);
 }
 
-/* Section backgrounds alternate correctly per theme */
-.about-section,
-.certifications-section,
-.learning-section {
-    background: var(--bg-secondary);
-}
-.experience-section,
-.technical-section,
-.projects-section,
-.education-section,
-.contact-section {
-    background: var(--bg-primary);
-}
+/* Section backgrounds — alternate for visual rhythm */
+.about-section      { background: var(--bg-secondary); }
+.experience-section { background: var(--bg-primary);   }
+.technical-section  { background: var(--bg-secondary); }
+.projects-section   { background: var(--bg-primary);   }
+.certifications-section { background: var(--bg-secondary); }
+.education-section  { background: var(--bg-primary);   }
+.learning-section   { background: var(--bg-secondary); }
+.contact-section    { background: var(--bg-primary);   }
