@@ -2453,15 +2453,14 @@ input, textarea, select {
    NEW FEATURES - THEMES, SEARCH, CURSOR, CONTACT, TICKET TRACKER
    ============================================================ */
 
-
 /* ============================================================
-   THEMES — Coherent palettes (bg + text + accents designed together)
+   THEMES — Each is a full, distinct world
    ============================================================ */
 
-/* ── LIGHT — clean white with blue accents ─────────────────── */
+/* ── LIGHT — clean daylight, white page ────────────────────── */
 [data-theme="light"] {
-    --bg-primary:    #f8fafc;
-    --bg-secondary:  #ffffff;
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
     --bg-card:       #ffffff;
     --bg-elevated:   #ffffff;
@@ -2493,25 +2492,25 @@ input, textarea, select {
     --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.25);
 }
 
-/* ── OCEAN — deep teal-blue with bright cyan accents ──────── */
+/* ── OCEAN — true deep-sea blue, cyan accents ──────────────── */
 [data-theme="ocean"] {
-    --bg-primary:    #071a26;
-    --bg-secondary:  #0c2536;
-    --bg-tertiary:   #133345;
-    --bg-card:       #0f2a3c;
-    --bg-elevated:   #133345;
-    --bg-hover:      #1a4157;
+    --bg-primary:    #061524;        /* deep ocean floor */
+    --bg-secondary:  #0a1f33;        /* slightly lighter */
+    --bg-tertiary:   #0f2a44;
+    --bg-card:       #0b2338;        /* card panel */
+    --bg-elevated:   #103049;
+    --bg-hover:      #163d5a;
 
-    --text-primary:   #ecfeff;      /* near-white */
-    --text-secondary: #a5d8e6;      /* soft light blue */
-    --text-muted:     #6fa1b3;      /* muted blue */
-    --text-inverse:   #071a26;
+    --text-primary:   #ecfeff;
+    --text-secondary: #b6ddec;
+    --text-muted:     #7ba5bb;
+    --text-inverse:   #061524;
 
     --border-color: rgba(103, 232, 249, 0.12);
     --border-hover: rgba(103, 232, 249, 0.28);
-    --border-accent: rgba(34, 211, 238, 0.5);
+    --border-accent: rgba(34, 211, 238, 0.55);
 
-    --accent-primary:   #22d3ee;    /* bright cyan */
+    --accent-primary:   #22d3ee;
     --accent-secondary: #06b6d4;
     --accent-tertiary:  #67e8f9;
     --accent-success:   #34d399;
@@ -2525,28 +2524,28 @@ input, textarea, select {
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.45);
     --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.55);
-    --shadow-glow: 0 0 20px rgba(34, 211, 238, 0.35);
+    --shadow-glow: 0 0 24px rgba(34, 211, 238, 0.4);
 }
 
-/* ── FOREST — deep forest green with vivid emerald accents ── */
+/* ── FOREST — deep pine green, emerald accents ─────────────── */
 [data-theme="forest"] {
-    --bg-primary:    #0a1a0f;
-    --bg-secondary:  #0f2417;
-    --bg-tertiary:   #153020;
-    --bg-card:       #0f2719;
-    --bg-elevated:   #153020;
-    --bg-hover:      #1c3d28;
+    --bg-primary:    #081a0d;        /* dark pine floor */
+    --bg-secondary:  #0c2414;        /* forest canopy */
+    --bg-tertiary:   #123020;
+    --bg-card:       #0e2818;
+    --bg-elevated:   #123020;
+    --bg-hover:      #1a3e28;
 
-    --text-primary:   #ecfdf5;      /* near-white */
-    --text-secondary: #b9e3c8;      /* soft light green */
-    --text-muted:     #7ba888;      /* muted green */
-    --text-inverse:   #0a1a0f;
+    --text-primary:   #f0fdf4;
+    --text-secondary: #bde6cb;
+    --text-muted:     #7fa88c;
+    --text-inverse:   #081a0d;
 
     --border-color: rgba(110, 231, 183, 0.12);
     --border-hover: rgba(110, 231, 183, 0.28);
-    --border-accent: rgba(52, 211, 153, 0.5);
+    --border-accent: rgba(52, 211, 153, 0.55);
 
-    --accent-primary:   #34d399;    /* emerald */
+    --accent-primary:   #34d399;
     --accent-secondary: #10b981;
     --accent-tertiary:  #6ee7b7;
     --accent-success:   #34d399;
@@ -2560,28 +2559,28 @@ input, textarea, select {
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.45);
     --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.55);
-    --shadow-glow: 0 0 20px rgba(52, 211, 153, 0.35);
+    --shadow-glow: 0 0 24px rgba(52, 211, 153, 0.4);
 }
 
-/* ── SUNSET — deep plum with vivid pink/orange accents ───── */
+/* ── SUNSET — deep plum sky, hot pink/orange accents ──────── */
 [data-theme="sunset"] {
-    --bg-primary:    #17091f;
-    --bg-secondary:  #221030;
-    --bg-tertiary:   #2d1840;
-    --bg-card:       #251335;
-    --bg-elevated:   #2d1840;
-    --bg-hover:      #3a2152;
+    --bg-primary:    #1a0a24;        /* dusk sky */
+    --bg-secondary:  #241033;        /* deeper twilight */
+    --bg-tertiary:   #301a44;
+    --bg-card:       #271338;
+    --bg-elevated:   #301a44;
+    --bg-hover:      #3e2254;
 
-    --text-primary:   #fef5ff;      /* near-white */
-    --text-secondary: #e4c8ef;      /* soft pink-lavender */
-    --text-muted:     #b294c0;      /* muted lavender */
-    --text-inverse:   #17091f;
+    --text-primary:   #fef5ff;
+    --text-secondary: #e8cceb;
+    --text-muted:     #b294bb;
+    --text-inverse:   #1a0a24;
 
     --border-color: rgba(244, 114, 182, 0.12);
     --border-hover: rgba(244, 114, 182, 0.28);
-    --border-accent: rgba(236, 72, 153, 0.5);
+    --border-accent: rgba(236, 72, 153, 0.55);
 
-    --accent-primary:   #f472b6;    /* hot pink */
+    --accent-primary:   #f472b6;
     --accent-secondary: #d946ef;
     --accent-tertiary:  #fb923c;
     --accent-success:   #4ade80;
@@ -2595,7 +2594,7 @@ input, textarea, select {
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.45);
     --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.55);
-    --shadow-glow: 0 0 20px rgba(244, 114, 182, 0.35);
+    --shadow-glow: 0 0 24px rgba(244, 114, 182, 0.4);
 }
 
 /* Force opaque card backgrounds so text is always readable */
