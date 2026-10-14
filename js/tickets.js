@@ -147,25 +147,28 @@ function createTicket(data) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         replies: [],
-        history: [
-            {
-                action: 'created',
-                timestamp: new Date().toISOString(),
-                user: 'system',
-                note: 'Ticket created'
-            }
-        ]
+        history: [{
+            action: 'created',
+            timestamp: new Date().toISOString(),
+            user: 'system',
+            note: 'Ticket created'
+        }]
     };
-    
+
     ticketState.tickets.unshift(ticket);
     saveTickets();
-    
-    // Log activity
-    Utils.logActivity('ticket_created', { 
-        ticketId: ticket.id, 
-        subject: ticket.subject 
+
+    // ⬇️ NEW: push to Supabase in background
+    saveTicketToSupabase(ticket).then(ok => {
+        if (ok) console.log('✅ ticket pushed to Supabase');
+        else console.warn('⚠️ ticket saved locally only');
     });
-    
+
+    Utils.logActivity('ticket_created', {
+        ticketId: ticket.id,
+        subject: ticket.subject
+    });
+
     return ticket;
 }
 
