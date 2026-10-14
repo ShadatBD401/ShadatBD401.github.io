@@ -338,9 +338,7 @@ function initTicketTracking() {
         trackBtn.disabled = true;
 
         let ticket = null;
-
         try {
-        // Try Supabase first
             if (window.SupabaseTickets) {
                 const row = await window.SupabaseTickets.findByTicketId(id);
                 if (row) {
@@ -360,10 +358,10 @@ function initTicketTracking() {
                 }
             }
         } catch (err) {
-            console.warn('Supabase ticket lookup failed:', err);
+            console.warn('Supabase lookup failed:', err);
         }
 
-        // Fallback to localStorage
+        // Fallback: localStorage
         if (!ticket) {
             const tickets = Utils.getItems(Utils.STORAGE_KEYS.TICKETS);
             ticket = tickets.find(t => t.id.toUpperCase() === id.toUpperCase());
@@ -388,14 +386,10 @@ function initTicketTracking() {
             return;
         }
 
-        const statuses = (window.TicketSystem && TicketSystem.TICKET_STATUSES) || {
-            open: { label: 'Open', color: '#3b82f6', icon: 'fa-folder-open' }
-        };
-        const priorities = (window.TicketSystem && TicketSystem.TICKET_PRIORITIES) || {
-            medium: { label: 'Medium', color: '#3b82f6', icon: 'fa-minus' }
-        };
-        const st = statuses[ticket.status] || statuses.open;
-        const pr = priorities[ticket.priority] || priorities.medium;
+        const statuses = (window.TicketSystem && TicketSystem.TICKET_STATUSES) || {};
+        const priorities = (window.TicketSystem && TicketSystem.TICKET_PRIORITIES) || {};
+        const st = statuses[ticket.status] || { label: ticket.status, color: '#3b82f6', icon: 'fa-folder-open' };
+        const pr = priorities[ticket.priority] || { label: ticket.priority, color: '#3b82f6', icon: 'fa-minus' };
 
         resultBox.innerHTML = `
             <div class="ticket-status-card">
@@ -405,11 +399,16 @@ function initTicketTracking() {
                         <i class="fas ${st.icon}"></i> ${st.label}
                     </span>
                 </div>
-                <h4 style="margin-bottom: var(--space-sm);">${Utils.esc(ticket.subject)}</h4>
+                <h4 style="margin-bottom: var(--space-sm); color: var(--text-primary);">${Utils.esc(ticket.subject)}</h4>
                 <div style="display: flex; gap: var(--space-lg); font-size: 0.8125rem; color: var(--text-muted); margin-bottom: var(--space-md); flex-wrap: wrap;">
                     <span><i class="fas fa-calendar"></i> ${Utils.formatDate(ticket.createdAt)}</span>
                     <span><i class="fas fa-clock"></i> ${Utils.timeAgo(ticket.updatedAt || ticket.createdAt)}</span>
                     <span style="color: ${pr.color};"><i class="fas ${pr.icon}"></i> ${pr.label}</span>
+                </div>
+                <div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: 12px;">
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
+                        ${Utils.esc(ticket.message).replace(/\n/g, '<br>')}
+                    </p>
                 </div>
                 ${ticket.replies && ticket.replies.length ? `
                     <div class="ticket-timeline">
@@ -418,14 +417,14 @@ function initTicketTracking() {
                             <div class="ticket-timeline-item">
                                 <span class="ticket-timeline-time">${Utils.formatDateTime(r.timestamp)}</span>
                                 <span>${r.isAdmin ? '🛡️ Admin replied' : '📝 Your message'}</span>
-                        </div>`).join('')}
-                </div>` : `
-                <p style="color: var(--text-muted); font-size: 0.875rem;">
-                    <i class="fas fa-info-circle"></i> No replies yet. We'll respond soon.
-                </p>`}
-        </div>`;
+                            </div>`).join('')}
+                    </div>` : `
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">
+                        <i class="fas fa-info-circle"></i> No replies yet. We'll respond soon.
+                    </p>`}
+            </div>`;
     }
-   
+
     trackBtn.addEventListener('click', track);
     trackInput.addEventListener('keypress', e => { if (e.key === 'Enter') track(); });
 }
