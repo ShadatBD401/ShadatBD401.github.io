@@ -386,30 +386,59 @@ window.saveGalleryItem = async function(id) {
     const caption = document.getElementById('galCaption').value.trim();
     const url = document.getElementById('galUrl').value.trim();
     const fileInput = document.getElementById('galFile');
-    const file = fileInput.files[0];
+    const file = fileInput?.files[0];
 
     let src = url;
+    let driveId = null;
+
+    // If a file was uploaded, push it to Google Drive
     if (file) {
-        if (file.size > 4 * 1024 * 1024) { Utils.showToast('Image must be under 4MB', 'error'); return; }
-        try { src = await Utils.readFileAsDataURL(file); }
-        catch { Utils.showToast('Failed to read file', 'error'); return; }
+        const maxBytes = type === 'video' ? 50 * 1024 * 1024 : 8 * 1024 * 1024;
+        if (file.size > maxBytes) {
+            Utils.showToast(`File must be under ${maxBytes / 1024 / 1024}MB`, 'error');
+            return;
+        }
+        try {
+            Utils.showToast('Uploading to Google Drive...', 'info');
+            const folder = type === 'video' ? 'videos' : 'gallery';
+            const result = await window.GDrive.upload(file, folder);
+            driveId = result.id;
+            // Use CDN URL for images, embed URL for videos
+            src = type === 'video' ? result.embedUrl : result.previewUrl;
+        } catch (err) {
+            console.error(err);
+            Utils.showToast('Drive upload failed: ' + err.message, 'error');
+            return;
+        }
     }
 
-    if (!src) { Utils.showToast('Please provide a URL or upload a file', 'error'); return; }
+    // If a URL was provided for a video, keep it
+    if (!file && url) {
+        src = url;
+    }
+
+    if (!src) {
+        Utils.showToast('Please provide a URL or upload a file', 'error');
+        return;
+    }
 
     const items = Utils.getItems(GALLERY_KEY);
     if (id) {
         const idx = items.findIndex(i => i.id === id);
-        if (idx > -1) items[idx] = { ...items[idx], type, caption, src };
+        if (idx > -1) items[idx] = { ...items[idx], type, caption, src, driveId };
     } else {
         items.unshift({
-            id: Utils.uid(), type, caption, src,
+            id: Utils.uid(),
+            type,
+            caption,
+            src,
+            driveId,
             createdAt: new Date().toISOString()
         });
     }
     Utils.saveItems(GALLERY_KEY, items);
     Utils.closeModal();
-    Utils.showToast(id ? 'Updated' : 'Created', 'success');
+    Utils.showToast(id ? 'Updated' : 'Uploaded to Drive ✓', 'success');
     renderAdminGallery();
 };
 
