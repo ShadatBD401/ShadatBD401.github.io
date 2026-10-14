@@ -3962,3 +3962,110 @@ textarea::placeholder {
     color: var(--text-muted) !important;
     opacity: 0.7;
 }
+
+/* ============================================================
+   THEME TEXT ENFORCEMENT
+   Force readable, coherent text colors in every theme
+   ============================================================ */
+
+/* Headings — always full-strength primary text */
+.hero-title,
+.section-title,
+.about-card h3,
+.skill-card h3,
+.project-card h3,
+.cert-card h3,
+.learning-card h3,
+.education-card h3,
+.timeline-title,
+.info-card h4,
+.contact-card h4,
+.matrix-name,
+.stat-value,
+.gallery-caption-title,
+.education-card h3,
+.admin-item-title,
+.stat-card-value {
+    color: var(--text-primary);
+}
+
+/* Body text — always secondary (softer but readable) */
+.hero-description,
+.section-subtitle,
+.about-card p,
+.skill-card p,
+.project-card p,
+.cert-card p,
+.learning-card p,
+.education-institution,
+.education-duration,
+.education-grade,
+.timeline-list li,
+.timeline-company,
+.contact-card span,
+.contact-value,
+.project-card p,
+.gallery-caption-desc,
+.matrix-name {
+    color: var(--text-secondary);
+}
+
+/* Labels, meta — muted but visible */
+.info-label,
+.stat-label,
+.domain-label,
+.learning-date,
+.learning-meta,
+.gallery-caption-meta,
+.education-year,
+.project-number {
+    color: var(--text-muted);
+}
+
+/* Links & interactive — accent color */
+.info-link,
+.project-link,
+.cert-link,
+.timeline-date,
+.section-number,
+.stat-value,
+.matrix-percent {
+    color: var(--accent-primary);
+}
+
+/* Body text on <p> elements — never pure --text-primary */
+p:not([class]) { color: var(--text-secondary); }
+
+/* Force --bg-card to be opaque so text contrast is guaranteed */
+.about-card,
+.info-card,
+.skill-card,
+.project-card,
+.cert-card,
+.learning-card,
+.education-card,
+.timeline-content,
+.contact-form-container,
+.contact-card,
+.gallery-item,
+.admin-item-card,
+.settings-section,
+.stat-card,
+.dashboard-section,
+.ticket-card {
+    background: var(--bg-card);
+}
+
+/* Section backgrounds alternate correctly per theme */
+.about-section,
+.certifications-section,
+.learning-section {
+    background: var(--bg-secondary);
+}
+.experience-section,
+.technical-section,
+.projects-section,
+.education-section,
+.contact-section {
+    background: var(--bg-primary);
+}
