@@ -111,18 +111,15 @@ window.SupabaseTickets = {
    
     async findByTicketId(ticketId) {
         const client = await initSupabase();
-        // Use the RPC function so anonymous visitors can query by exact ID
         const { data, error } = await client
             .rpc('lookup_ticket', { p_ticket_id: ticketId.toUpperCase() });
-
         if (error) {
-            console.error('RPC lookup failed:', error);
+            console.error('Ticket lookup RPC failed:', error);
             throw error;
         }
-        // RPC returns array; return first row or null
         return Array.isArray(data) ? (data[0] || null) : (data || null);
     },
- 
+
     async listAll() {
         const client = await initSupabase();
         const { data, error } = await client
