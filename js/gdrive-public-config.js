@@ -5,10 +5,10 @@
    ============================================================ */
 
 const GDrivePublic = {
-    apiKey: 'PASTE_YOUR_GDRIVE_API_KEY_HERE',
+    apiKey: 'AIzaSyBw4k5l0FIKDvKFjuyt5oTjEOAn8Ip9ots',
     folders: {
-        gallery: 'PASTE_GALLERY_FOLDER_ID_HERE',
-        videos:  'PASTE_VIDEOS_FOLDER_ID_HERE'
+        gallery: '17DB7TkZ9sj8kWdlKOiSXvznoTw4w979D',
+        videos:  '1yQaFes32qV3bDHtHhVPBlpXXdMogpsPw'
     },
 
     previewUrl(fid) { return `https://drive.google.com/thumbnail?id=${fid}&sz=w1600`; },
