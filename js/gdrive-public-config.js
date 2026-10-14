@@ -11,12 +11,14 @@ const GDrivePublic = {
         videos:  '1yQaFes32qV3bDHtHhVPBlpXXdMogpsPw'
     },
 
-    previewUrl(fid) { return `https://drive.google.com/thumbnail?id=${fid}&sz=w1600`; },
-    embedUrl(fid)   { return `https://drive.google.com/file/d/${fid}/preview`; },
+    // CDN URL — most reliable for <img> tags
+    imgUrl(fid) { return `https://lh3.googleusercontent.com/d/${fid}=w1600`; },
+    // Embed URL — for <iframe> video player
+    embedUrl(fid) { return `https://drive.google.com/file/d/${fid}/preview`; },
 
     async listPublic(folderId) {
         if (!this.apiKey || this.apiKey.startsWith('PASTE_')) {
-            throw new Error('API key not configured in gdrive-public-config.js');
+            throw new Error('API key not configured');
         }
         if (!folderId) throw new Error('Folder ID missing');
 
@@ -27,7 +29,8 @@ const GDrivePublic = {
         const res = await fetch(url);
         if (!res.ok) {
             const err = await res.text();
-            throw new Error(`Drive list failed: ${res.status} ${err}`);
+            console.error('Drive list error:', err);
+            throw new Error(`Drive list failed: ${res.status}`);
         }
         const data = await res.json();
         return data.files || [];
@@ -35,8 +38,8 @@ const GDrivePublic = {
 
     async listGalleryItems() {
         const [photos, videos] = await Promise.all([
-            this.listPublic(this.folders.gallery).catch(e => { console.warn(e); return []; }),
-            this.listPublic(this.folders.videos).catch(e => { console.warn(e); return []; })
+            this.listPublic(this.folders.gallery).catch(e => { console.warn('photos:', e); return []; }),
+            this.listPublic(this.folders.videos).catch(e => { console.warn('videos:', e); return []; })
         ]);
 
         const items = [];
@@ -46,7 +49,7 @@ const GDrivePublic = {
                 items.push({
                     id: f.id,
                     type: 'image',
-                    src: this.previewUrl(f.id),
+                    src: this.imgUrl(f.id),
                     caption: f.name.replace(/^\d+_/, '').replace(/\.[^.]+$/, ''),
                     createdAt: f.createdTime
                 });
