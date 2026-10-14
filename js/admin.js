@@ -317,24 +317,35 @@ function loadDashboardData() {
     
     // Update stats grid
     const statsGrid = document.getElementById('statsGrid');
+
     if (statsGrid) {
         statsGrid.innerHTML = `
-            ${createStatCard('Total Tickets', stats.total, 'fa-ticket-alt', 'blue')}
-            ${createStatCard('Open', stats.open, 'fa-folder-open', 'green')}
-            ${createStatCard('Pending', stats.pending, 'fa-clock', 'yellow')}
-            ${createStatCard('Resolved', stats.resolved, 'fa-check-circle', 'purple')}
-            ${createStatCard('Critical', stats.critical, 'fa-exclamation-triangle', 'red')}
-            ${createStatCard('Posts', Utils.getItems(Utils.STORAGE_KEYS.POSTS).length, 'fa-blog', 'cyan')}
+            ${createStatCard('Total Tickets', stats.total, 'fa-ticket-alt', 'blue', 'tickets', 'all')}
+            ${createStatCard('Open', stats.open, 'fa-folder-open', 'green', 'tickets', 'open')}
+            ${createStatCard('Pending', stats.pending, 'fa-clock', 'yellow', 'tickets', 'pending')}
+            ${createStatCard('Resolved', stats.resolved, 'fa-check-circle', 'purple', 'tickets', 'resolved')}
+            ${createStatCard('Critical', stats.critical, 'fa-exclamation-triangle', 'red', 'tickets', 'critical')}
+            ${createStatCard('Posts', Utils.getItems(Utils.STORAGE_KEYS.POSTS).length, 'fa-blog', 'cyan', 'posts', null)}
         `;
+
+        // Wire click handlers
+        statsGrid.querySelectorAll('.stat-card[data-target-page]').forEach(card => {
+            card.addEventListener('click', () => {
+                const page = card.dataset.targetPage;
+                const status = card.dataset.targetStatus;
+                navigateToPage(page);
+                // If we're navigating to tickets with a status filter
+                if (page === 'tickets' && status) {
+                    setTimeout(() => {
+                        document.querySelectorAll('#ticketFilterButtons .filter-btn').forEach(b => {
+                            b.classList.toggle('active', b.dataset.status === status);
+                        });
+                        renderTicketsList(status);
+                    }, 100);
+                }
+            });
+        });
     }
-    
-    // Update tickets badge
-    const badge = document.getElementById('ticketsBadge');
-    if (badge) {
-        badge.textContent = stats.open;
-        badge.style.display = stats.open > 0 ? 'inline-block' : 'none';
-    }
-    
     // Load recent tickets
     loadRecentTickets();
     
