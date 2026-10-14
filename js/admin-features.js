@@ -19,14 +19,16 @@ async function initProfileSettings() {
     const cvInput = document.getElementById('cvFileInput');
     const cvFileName = document.getElementById('cvFileName');
 
-    // Load settings — try Supabase secrets first, fallback to localStorage
-    let settings = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+    // Load existing settings from Supabase (falls back to localStorage)
+    let settings = {};
     try {
-        const remote = await window.SupabaseSecrets.get('site_settings').catch(() => null);
-        if (remote) {
-            settings = typeof remote === 'string' ? JSON.parse(remote) : remote;
-        }
-    } catch (e) { /* ignore */ }
+        const remote = await window.SupabaseSecrets.get('site_settings');
+        settings = remote ? JSON.parse(remote) : {};
+    } catch (e) {
+        settings = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+    }
+    // Cache into localStorage for public-site reads
+    Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
 
     // Restore visuals
     if (settings.profileImage && profilePreview) {
@@ -41,19 +43,16 @@ async function initProfileSettings() {
         cvFileName.textContent = settings.cvFileName;
     }
 
-    async function persistSettings() {
-        // Save to Supabase secrets (so it applies across devices)
+    async function persist() {
+        Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
         try {
             await window.SupabaseSecrets.set('site_settings', JSON.stringify(settings));
-            // Also cache locally for instant reads
-            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
         } catch (e) {
-            console.warn('Failed to persist to Supabase, using localStorage:', e);
-            Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
+            console.warn('Supabase settings save failed:', e);
         }
     }
 
-    // ── Navbar avatar → upload to Drive ─────────────────────
+    // ── Navbar avatar ────────────────────────────────────────
     profileInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -66,10 +65,9 @@ async function initProfileSettings() {
             const result = await window.GDrive.upload(file, 'profile');
             profilePreview.innerHTML = `<img src="${result.directUrl}" alt="Profile">`;
             profilePreview.classList.add('has-image');
-
             settings.profileImage = result.directUrl;
             settings.profileImageId = result.id;
-            await persistSettings();
+            await persist();
             Utils.showToast('Avatar uploaded ✓', 'success');
         } catch (err) {
             console.error(err);
@@ -85,11 +83,11 @@ async function initProfileSettings() {
         profilePreview.classList.remove('has-image');
         delete settings.profileImage;
         delete settings.profileImageId;
-        await persistSettings();
+        await persist();
         Utils.showToast('Avatar removed', 'success');
     });
 
-    // ── Hero picture → upload to Drive ──────────────────────
+    // ── Hero picture ─────────────────────────────────────────
     heroInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -102,12 +100,12 @@ async function initProfileSettings() {
             const result = await window.GDrive.upload(file, 'profile');
             heroPreview.innerHTML = `<img src="${result.directUrl}" alt="Hero">`;
             heroPreview.classList.add('has-image');
-
             settings.heroImage = result.directUrl;
             settings.heroImageId = result.id;
-            await persistSettings();
+            await persist();
             Utils.showToast('Hero picture uploaded ✓', 'success');
         } catch (err) {
+            console.error(err);
             Utils.showToast('Upload failed: ' + err.message, 'error');
         }
     });
@@ -120,11 +118,11 @@ async function initProfileSettings() {
         heroPreview.classList.remove('has-image');
         delete settings.heroImage;
         delete settings.heroImageId;
-        await persistSettings();
+        await persist();
         Utils.showToast('Hero picture removed', 'success');
     });
 
-    // ── CV → upload to Drive ────────────────────────────────
+    // ── CV upload ────────────────────────────────────────────
     cvInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -136,13 +134,13 @@ async function initProfileSettings() {
             Utils.showToast('Uploading CV...', 'info');
             const result = await window.GDrive.upload(file, 'cv');
             cvFileName.textContent = file.name;
-
             settings.cvFile = result.directUrl;
             settings.cvFileId = result.id;
             settings.cvFileName = file.name;
-            await persistSettings();
+            await persist();
             Utils.showToast('CV uploaded ✓', 'success');
         } catch (err) {
+            console.error(err);
             Utils.showToast('Upload failed: ' + err.message, 'error');
         }
     });
