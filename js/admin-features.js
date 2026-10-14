@@ -7,7 +7,57 @@ document.addEventListener('DOMContentLoaded', () => {
     initProfileSettings();
     loadAllSettings();
     ensureSaveButton();
+    initDriveConnectButton();
 });
+
+function initDriveConnectButton() {
+    // Add a "Connect Google Drive" button at the top of the Settings page
+    const container = document.querySelector('.settings-container');
+    if (!container || document.getElementById('driveConnectBtn')) return;
+
+    const banner = document.createElement('div');
+    banner.className = 'settings-section';
+    banner.style.background = 'rgba(59,130,246,0.05)';
+    banner.innerHTML = `
+        <h2>Google Drive Connection</h2>
+        <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:var(--space-md);">
+            You must authorize Google Drive before uploading images or CV files.
+            Click below to sign in with Google — this only needs to be done once per session.
+        </p>
+        <div style="display:flex;align-items:center;gap:var(--space-md);">
+            <button class="btn btn-primary" id="driveConnectBtn">
+                <i class="fab fa-google-drive"></i>
+                <span id="driveConnectLabel">Connect Google Drive</span>
+            </button>
+            <span id="driveStatus" style="font-size:0.875rem;color:var(--text-muted);">Not connected</span>
+        </div>
+    `;
+    container.insertBefore(banner, container.firstChild);
+
+    const btn = document.getElementById('driveConnectBtn');
+    const label = document.getElementById('driveConnectLabel');
+    const status = document.getElementById('driveStatus');
+
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        label.textContent = 'Connecting...';
+        try {
+            await window.GDrive.signIn();
+            status.textContent = '✓ Connected to Google Drive';
+            status.style.color = 'var(--accent-success)';
+            label.textContent = 'Reconnect Google Drive';
+            Utils.showToast('Google Drive connected ✓', 'success');
+        } catch (err) {
+            console.error(err);
+            status.textContent = '✗ Failed: ' + (err.error || err.message || 'unknown');
+            status.style.color = 'var(--accent-danger)';
+            label.textContent = 'Connect Google Drive';
+            Utils.showToast('Google Drive connect failed', 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+}
 
 async function initProfileSettings() {
     const profileInput = document.getElementById('profileImageInput');
