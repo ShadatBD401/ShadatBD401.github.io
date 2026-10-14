@@ -11,6 +11,36 @@ const adminState = {
     editingType: null
 };
 
+// ── GitHub-backed content persistence ─────────────────────────
+async function saveContentToGitHub(section, items, commitMsg) {
+    if (!window.GitHubContent) {
+        console.warn('GitHubContent not loaded — falling back to localStorage');
+        Utils.saveItems(Utils.STORAGE_KEYS[section.toUpperCase()] || `sh_${section}`, items);
+        return;
+    }
+    try {
+        await window.GitHubContent.write(
+            `data/${section}.json`,
+            items,
+            commitMsg || `Update ${section}`
+        );
+        Utils.saveItems(Utils.STORAGE_KEYS[section.toUpperCase()] || `sh_${section}`, items);
+        console.log(`✅ ${section} saved to GitHub`);
+    } catch (err) {
+        console.error('GitHub save failed:', err);
+        Utils.saveItems(Utils.STORAGE_KEYS[section.toUpperCase()] || `sh_${section}`, items);
+        Utils.showToast('Saved locally (GitHub sync failed)', 'warning');
+    }
+}
+
+async function loadContentFromGitHub(section) {
+    if (!window.GitHubContent) return null;
+    try {
+        const data = await window.GitHubContent.read(`data/${section}.json`);
+        return data ? data.json : null;
+    } catch (e) { return null; }
+}
+
 // ── Initialize ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     // Force dashboard page on load
