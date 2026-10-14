@@ -58,23 +58,39 @@ function renderGalleryPage() {
     }
 
     grid.innerHTML = items.map(item => {
+        const title = item.title || item.caption || 'Untitled';
+        const desc  = item.description || '';
+        const date  = Utils.formatDate(item.createdAt);
+
         if (item.type === 'video') {
             return `
                 <div class="gallery-item" data-id="${item.id}">
-                    <div class="placeholder-video"><i class="fas fa-play-circle"></i></div>
-                    <div class="gallery-video-badge"><i class="fas fa-video"></i> Video</div>
-                    <div class="gallery-overlay">
-                        <div class="gallery-caption">${Utils.esc(item.caption || 'Untitled')}</div>
-                        <div class="gallery-date">${Utils.formatDate(item.createdAt)}</div>
+                    <div class="gallery-media">
+                        <div class="placeholder-video"><i class="fas fa-play-circle"></i></div>
+                        <div class="gallery-video-badge"><i class="fas fa-video"></i> Video</div>
+                    </div>
+                    <div class="gallery-caption-block">
+                        <h3 class="gallery-caption-title">${Utils.esc(title)}</h3>
+                        ${desc ? `<p class="gallery-caption-desc">${Utils.esc(desc)}</p>` : ''}
+                        <div class="gallery-caption-meta">
+                            <i class="fas fa-calendar"></i>
+                            <span>${date}</span>
+                        </div>
                     </div>
                 </div>`;
         }
         return `
             <div class="gallery-item" data-id="${item.id}">
-                <img src="${item.src}" alt="${Utils.esc(item.caption || '')}" loading="lazy">
-                <div class="gallery-overlay">
-                    <div class="gallery-caption">${Utils.esc(item.caption || 'Untitled')}</div>
-                    <div class="gallery-date">${Utils.formatDate(item.createdAt)}</div>
+                <div class="gallery-media">
+                    <img src="${item.src}" alt="${Utils.esc(title)}" loading="lazy">
+                </div>
+                <div class="gallery-caption-block">
+                    <h3 class="gallery-caption-title">${Utils.esc(title)}</h3>
+                    ${desc ? `<p class="gallery-caption-desc">${Utils.esc(desc)}</p>` : ''}
+                    <div class="gallery-caption-meta">
+                        <i class="fas fa-calendar"></i>
+                        <span>${date}</span>
+                    </div>
                 </div>
             </div>`;
     }).join('');
