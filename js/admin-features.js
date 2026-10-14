@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initDriveConnectButton() {
-    // Add a "Connect Google Drive" button at the top of the Settings page
     const container = document.querySelector('.settings-container');
     if (!container || document.getElementById('driveConnectBtn')) return;
 
@@ -37,6 +36,15 @@ function initDriveConnectButton() {
     const btn = document.getElementById('driveConnectBtn');
     const label = document.getElementById('driveConnectLabel');
     const status = document.getElementById('driveStatus');
+
+    // Check if token already exists on load
+    const saved = sessionStorage.getItem('gdrive_access_token');
+    const savedExp = parseInt(sessionStorage.getItem('gdrive_token_expiry') || '0');
+    if (saved && Date.now() < savedExp - 60000) {
+        status.textContent = '✓ Connected to Google Drive';
+        status.style.color = 'var(--accent-success)';
+        label.textContent = 'Reconnect Google Drive';
+    }
 
     btn.addEventListener('click', async () => {
         btn.disabled = true;
