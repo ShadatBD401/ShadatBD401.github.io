@@ -204,6 +204,7 @@ function updateTicketStatus(ticketId, newStatus, note = '') {
         to: newStatus
     });
     
+    updateTicketInSupabase(ticketId, { status: newStatus });
     return true;
 }
 
