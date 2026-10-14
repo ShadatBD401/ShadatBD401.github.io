@@ -304,20 +304,22 @@ function renderAdminGallery() {
         c.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
             <i class="fas fa-images"></i>
             <h3>No gallery items</h3>
-            <p>Click "New Item" to add a photo or video.</p>
+            <p>Click "New Item" to upload a photo or video.</p>
         </div>`;
     } else {
         c.innerHTML = items.map(item => `
             <div class="admin-item-card">
                 <div class="admin-item-header">
-                    <div class="admin-item-icon">
-                        ${item.type === 'video' ? '<i class="fas fa-video"></i>' : '<i class="fas fa-image"></i>'}
+                    <div class="admin-item-icon" style="padding:0;overflow:hidden;background:var(--bg-tertiary);">
+                        ${item.type === 'video'
+                            ? '<i class="fas fa-video"></i>'
+                            : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">`}
                     </div>
                     <div class="admin-item-actions">
                         <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}')" title="Delete">
+                        <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}'); renderAdminVideos();" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -328,7 +330,6 @@ function renderAdminGallery() {
         `).join('');
     }
 
-    // Wire "New Item" button
     const btn = document.getElementById('newGalleryBtn');
     if (btn && !btn.dataset.wired) {
         btn.dataset.wired = '1';
