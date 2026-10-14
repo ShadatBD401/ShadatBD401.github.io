@@ -2713,11 +2713,11 @@ input, textarea, select {
     text-shadow: 0 0 4px rgba(0,0,0,0.6);
 }
 
-.theme-swatch[data-theme="dark"] { background: #0a0e17; }
-.theme-swatch[data-theme="light"] { background: #f8fafc; border: 2px solid #cbd5e1; }
-.theme-swatch[data-theme="ocean"] { background: linear-gradient(135deg, #0c1929, #2196f3); }
-.theme-swatch[data-theme="forest"] { background: linear-gradient(135deg, #0d1f12, #4caf50); }
-.theme-swatch[data-theme="sunset"] { background: linear-gradient(135deg, #1a0f1f, #e91e63); }
+.theme-swatch[data-theme="dark"]   { background: #0a0e17; }
+.theme-swatch[data-theme="light"]  { background: #ffffff; border: 2px solid #cbd5e1; }
+.theme-swatch[data-theme="ocean"]  { background: linear-gradient(135deg, #071a2c, #22d3ee); }
+.theme-swatch[data-theme="forest"] { background: linear-gradient(135deg, #0a1e12, #34d399); }
+.theme-swatch[data-theme="sunset"] { background: linear-gradient(135deg, #1f0a2c, #f472b6); }
 
 /* ── Navbar Social Icons ──────────────────────────────────── */
 .nav-social {
