@@ -496,7 +496,7 @@
                             <input type="text" class="setting-input" id="settingCvButtonText" value="View CV">
                         </div>
                     </div>
-
+       
                     <div class="settings-section">
                         <h2>General Settings</h2>
                         <div class="setting-item">
@@ -515,7 +515,28 @@
                         </div>
                     </div>
 
-                                        <!-- NEW: Section Visibility -->
+                    <!-- Theme Settings -->
+                    <div class="settings-section">
+                        <h2>Theme</h2>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: var(--space-md);">
+                            Choose the default theme visitors see. Users can still switch their own theme.
+                        </p>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>Default Theme</h4>
+                                <p>Applies on first visit and when a visitor hasn't chosen a theme</p>
+                            </div>
+                            <select class="setting-input" id="settingDefaultTheme">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="ocean">Ocean</option>
+                                <option value="forest">Forest</option>
+                                <option value="sunset">Sunset</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Section Visibility -->
                     <div class="settings-section">
                         <h2>Section Visibility</h2>
                         <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: var(--space-md);">
