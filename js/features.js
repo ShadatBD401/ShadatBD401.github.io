@@ -12,11 +12,16 @@ function initThemeSwitcher() {
     const swatches = document.querySelectorAll('.theme-swatch');
     const themeToggle = document.getElementById('themeToggle');
 
-    const savedTheme = Utils.getStorage(Utils.STORAGE_KEYS.THEME, 'dark');
+    // Priority: saved user choice > admin default > 'dark'
+    const siteSettings = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+    const savedTheme = Utils.getStorage(Utils.STORAGE_KEYS.THEME, null)
+        || siteSettings.defaultTheme
+        || 'dark';
+
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateSwatchUI(savedTheme);
     updateThemeIcon(savedTheme);
-
+   
     toggle?.addEventListener('click', (e) => {
         e.stopPropagation();
         switcher?.classList.toggle('open');
