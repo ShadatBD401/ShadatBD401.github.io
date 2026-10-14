@@ -230,7 +230,8 @@ function loadAllSettings() {
         settingWhatsapp: s.whatsapp || '',
         settingEmail: s.email || 'sahadat.bda35@gmail.com',
         settingPhone: s.phone || '+880 1575 382663',
-        settingNotifyEmail: s.notifyEmail || 'sahadat.bda35@gmail.com'
+        settingNotifyEmail: s.notifyEmail || 'sahadat.bda35@gmail.com',
+        settingDefaultTheme: s.defaultTheme || 'dark'
     };
     Object.entries(map).forEach(([id, val]) => {
         const el = document.getElementById(id);
