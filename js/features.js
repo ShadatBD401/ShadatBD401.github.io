@@ -40,7 +40,7 @@ function initThemeSwitcher() {
         const idx = THEMES.indexOf(current);
         const next = THEMES[(idx + 1) % THEMES.length];
         applyTheme(next);
-        Utils.showToast(`Theme: ${next.charAt(0).toUpperCase() + next.slice(1)}`, 'info');
+        // Utils.showToast(`Theme: ${next.charAt(0).toUpperCase() + next.slice(1)}`, 'info');
     });
 }
 
