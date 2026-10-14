@@ -26,9 +26,8 @@ async function loadGalleryPage() {
     if (!grid) return;
 
     try {
-        if (!window.GDrive) throw new Error('GDrive not loaded');
-        await window.GDrive.init();
-        const items = await window.GDrive.listGalleryItems();
+        if (!window.GDrivePublic) throw new Error('GDrivePublic not loaded');
+        const items = await window.GDrivePublic.listGalleryItems();
         galleryPageState.items = items;
         renderGalleryPage();
     } catch (err) {
