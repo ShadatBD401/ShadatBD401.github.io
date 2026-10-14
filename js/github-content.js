@@ -68,8 +68,7 @@ const GitHubContent = {
         const body = {
             message,
             content: encoded,
-            branch: this.branch,
-            committer: { name: 'Portfolio Admin', email: 'admin@shadat.dev' }
+            branch: this.branch
         };
         if (sha) body.sha = sha;
 
