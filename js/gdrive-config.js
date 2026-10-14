@@ -148,9 +148,11 @@ const GDrive = {
             name: data.name,
             mimeType: data.mimeType,
             viewUrl: data.webViewLink,
-            directUrl: this.directUrl(data.id),
+            // Use thumbnail URL for direct <img> embedding — always works
+            directUrl: this.previewUrl(data.id),
             previewUrl: this.previewUrl(data.id),
-            embedUrl: this.embedUrl(data.id)
+            embedUrl: this.embedUrl(data.id),
+            downloadUrl: this.downloadUrl(data.id)
         };
     },
 
