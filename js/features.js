@@ -529,12 +529,20 @@ function applySiteSettings() {
 
     // Navbar avatar (uses profileImage)
     // Navbar avatar (uses profileImage)
+
     const navAvatar = document.getElementById('navAvatar');
     if (navAvatar) {
+        const fallbackLogo = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>`;
         if (s.profileImage) {
-            navAvatar.innerHTML = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span><img src="${s.profileImage}" alt="Profile">`;
+            let src = s.profileImage;
+            if (s.profileImageId) {
+                src = `https://lh3.googleusercontent.com/d/${s.profileImageId}=s200-c`;
+            } else if (src.includes('lh3.googleusercontent.com')) {
+                src = src.replace(/=w\d+.*$/, '=s200-c');
+            }
+            navAvatar.innerHTML = `${fallbackLogo}<img src="${src}" alt="Profile">`;
         } else {
-            navAvatar.innerHTML = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>`;
+            navAvatar.innerHTML = fallbackLogo;
         }
     }
 
