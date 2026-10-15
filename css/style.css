@@ -3340,6 +3340,7 @@ input, textarea, select {
     object-fit: cover;
     display: block;
     z-index: 2;
+    image-rendering: -webkit-optimize-contrast;
 }
 
 .nav-avatar:hover {
