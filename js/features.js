@@ -2,29 +2,24 @@
    FEATURES: THEMES, GLOBAL SEARCH, CUSTOM CURSOR,
              TICKET TRACKING, CV, GALLERY
    ============================================================ */
-/* ══════════════════════════════════════════════════════════════
-   THEME SYSTEM — Bulletproof
-   ══════════════════════════════════════════════════════════════ */
 
 const THEMES = ['dark', 'light', 'ocean', 'forest', 'sunset'];
 
+// ── Theme Management ─────────────────────────────────────────
 function initThemeSwitcher() {
     const switcher = document.getElementById('themeSwitcher');
     const toggle = document.getElementById('themeSwitcherToggle');
     const swatches = document.querySelectorAll('.theme-swatch');
     const themeToggle = document.getElementById('themeToggle');
 
-    // Determine current theme
     const savedTheme = Utils.getStorage('sh_theme', null);
     const siteSettings = Utils.getStorage('sh_settings', {});
     const currentTheme = savedTheme || siteSettings.defaultTheme || 'dark';
 
-    // Apply on load
     document.documentElement.setAttribute('data-theme', currentTheme);
     updateSwatchUI(currentTheme);
     updateThemeIcon(currentTheme);
 
-    // Floating palette button — opens/closes swatches
     if (toggle && switcher) {
         toggle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -32,25 +27,20 @@ function initThemeSwitcher() {
         });
     }
 
-    // Close when clicking outside
     document.addEventListener('click', (e) => {
         if (switcher && !switcher.contains(e.target) && switcher.classList.contains('open')) {
             switcher.classList.remove('open');
         }
     });
 
-    // Click a swatch
     swatches.forEach(swatch => {
         swatch.addEventListener('click', (e) => {
             e.stopPropagation();
-            const theme = swatch.dataset.theme;
-            console.log('🎨 Theme clicked:', theme);
-            applyTheme(theme);
+            applyTheme(swatch.dataset.theme);
             if (switcher) switcher.classList.remove('open');
         });
     });
 
-    // Cycle theme via moon icon in navbar
     if (themeToggle) {
         themeToggle.addEventListener('click', (e) => {
             e.preventDefault();
@@ -58,7 +48,6 @@ function initThemeSwitcher() {
             const current = Utils.getStorage('sh_theme', currentTheme);
             const idx = THEMES.indexOf(current);
             const next = THEMES[(idx + 1) % THEMES.length];
-            console.log('🎨 Cycle theme:', current, '→', next);
             applyTheme(next);
         });
     }
@@ -66,22 +55,11 @@ function initThemeSwitcher() {
 
 function applyTheme(theme) {
     if (!THEMES.includes(theme)) theme = 'dark';
-
-    // Apply immediately to <html> so CSS variables update instantly
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.style.colorScheme = (theme === 'light') ? 'light' : 'dark';
-
-    // Persist
     Utils.setStorage('sh_theme', theme);
-
-    // Update UI bits
     updateSwatchUI(theme);
     updateThemeIcon(theme);
-
-    // Force a reflow so any cached styles reset
-    void document.body.offsetHeight;
-
-    console.log('✅ Theme applied:', theme);
 }
 
 function updateSwatchUI(theme) {
@@ -103,8 +81,9 @@ function updateThemeIcon(theme) {
     icon.className = `fas ${icons[theme] || 'fa-palette'}`;
 }
 
-// Expose globally so it can be called from anywhere
 window.applyTheme = applyTheme;
+
+// ── Global Search ────────────────────────────────────────────
 
 // ── Global Search ────────────────────────────────────────────
 function initGlobalSearch() {
