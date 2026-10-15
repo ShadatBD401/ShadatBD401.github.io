@@ -91,11 +91,24 @@ async function initProfileSettings() {
     // Load existing settings from Supabase (falls back to localStorage)
     let settings = {};
     try {
-        const remote = await window.SupabaseSecrets.get('site_settings');
-        settings = remote ? JSON.parse(remote) : {};
+        // Read from public site_settings table (same one visitors read)
+        const client = await initSupabase();
+        const { data } = await client
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'main')
+            .maybeSingle();
+        if (data?.value) {
+            settings = data.value;
+        } else {
+            // Fallback: try legacy secrets table
+            const remote = await window.SupabaseSecrets.get('site_settings').catch(() => null);
+            settings = remote ? JSON.parse(remote) : Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+        }
     } catch (e) {
         settings = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
     }
+
     // Cache into localStorage for public-site reads
     Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
 
