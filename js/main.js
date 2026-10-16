@@ -797,70 +797,68 @@ function openPostModal(post) {
 function initContactForm() {
     const form = document.getElementById('contactForm');
     if (!form) return;
-    
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        
-        // Get form data
+
         const formData = {
-            name: document.getElementById('contactName').value.trim(),
-            email: document.getElementById('contactEmail').value.trim(),
-            subject: document.getElementById('contactSubject').value.trim(),
+            name:     document.getElementById('contactName').value.trim(),
+            email:    document.getElementById('contactEmail').value.trim(),
+            subject:  document.getElementById('contactSubject').value.trim(),
             category: document.getElementById('contactCategory').value,
             priority: document.getElementById('contactPriority').value,
-            message: document.getElementById('contactMessage').value.trim()
+            message:  document.getElementById('contactMessage').value.trim()
         };
-        
-        // Validate
+
         if (!formData.name || !formData.email || !formData.subject || !formData.message) {
             Utils.showToast('Please fill in all required fields', 'error');
             return;
         }
-        
         if (!Utils.isValidEmail(formData.email)) {
             Utils.showToast('Please enter a valid email address', 'error');
             return;
         }
-        
-        // Show loading
+
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
         submitBtn.disabled = true;
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Create ticket
-        const ticket = {
-            id: Utils.ticketId(),
+
+        const ticketIdStr = Utils.ticketId();
+        const nowIso = new Date().toISOString();
+
+        // 1) ALWAYS save a local copy first (so tracking works even offline)
+        const localTickets = Utils.getItems(Utils.STORAGE_KEYS.TICKETS);
+        localTickets.unshift({
+            id: ticketIdStr,
             ...formData,
             status: 'open',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: nowIso,
+            updatedAt: nowIso,
             replies: []
-        };
-        
-        // Save ticket
-        const tickets = Utils.getItems(Utils.STORAGE_KEYS.TICKETS);
-        tickets.unshift(ticket);
-        Utils.saveItems(Utils.STORAGE_KEYS.TICKETS, tickets);
-        
-        // Log activity
-        Utils.logActivity('ticket_created', { ticketId: ticket.id, subject: ticket.subject });
-        
-        // Reset form
+        });
+        Utils.saveItems(Utils.STORAGE_KEYS.TICKETS, localTickets);
+
+        // 2) Then push to Supabase (best-effort)
+        if (window.SupabaseTickets) {
+            try {
+                await window.SupabaseTickets.create({
+                    id: ticketIdStr,
+                    ...formData,
+                    status: 'open',
+                    replies: []
+                });
+                console.log('✅ Ticket saved to Supabase');
+            } catch (err) {
+                console.warn('⚠️ Supabase save failed, local copy kept:', err);
+            }
+        }
+
+        Utils.logActivity('ticket_created', { ticketId: ticketIdStr, subject: formData.subject });
         form.reset();
-        
-        // Show success
-        Utils.showToast(`Ticket ${ticket.id} submitted successfully!`, 'success');
-        
-        // Restore button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        
-        // Show confirmation modal
+        Utils.showToast(`Ticket ${ticketIdStr} submitted successfully!`, 'success');
+
         Utils.openModal('Ticket Submitted', `
             <div style="text-align: center; padding: 1rem;">
                 <div style="font-size: 3rem; color: var(--accent-success); margin-bottom: 1rem;">
@@ -872,7 +870,7 @@ function initContactForm() {
                 </p>
                 <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
                     <p style="font-family: var(--font-mono); font-size: 1.25rem; color: var(--accent-primary);">
-                        ${ticket.id}
+                        ${ticketIdStr}
                     </p>
                     <p style="font-size: 0.875rem; color: var(--text-muted);">
                         Save this ID to track your ticket
@@ -883,100 +881,9 @@ function initContactForm() {
                 </p>
             </div>
         `);
-    });
-}
 
-function initContactForm() {
-    const form = document.getElementById('contactForm');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-
-        const formData = {
-            name: document.getElementById('contactName').value.trim(),
-            email: document.getElementById('contactEmail').value.trim(),
-            subject: document.getElementById('contactSubject').value.trim(),
-            category: document.getElementById('contactCategory').value,
-            priority: document.getElementById('contactPriority').value,
-            message: document.getElementById('contactMessage').value.trim()
-        };
-
-        if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-            Utils.showToast('Please fill in all required fields', 'error');
-            return;
-        }
-        if (!Utils.isValidEmail(formData.email)) {
-            Utils.showToast('Please enter a valid email address', 'error');
-            return;
-        }
-
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-        submitBtn.disabled = true;
-
-        // Generate a ticket ID
-        const ticketIdStr = Utils.ticketId();
-
-        try {
-            // Save to Supabase (with localStorage fallback)
-            if (window.SupabaseTickets) {
-                await window.SupabaseTickets.create({
-                    id: ticketIdStr,
-                    ...formData,
-                    status: 'open',
-                    replies: []
-                });
-            } else {
-                // Fallback: localStorage only
-                const tickets = Utils.getItems(Utils.STORAGE_KEYS.TICKETS);
-                tickets.unshift({
-                    id: ticketIdStr,
-                    ...formData,
-                    status: 'open',
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    replies: []
-                });
-                Utils.saveItems(Utils.STORAGE_KEYS.TICKETS, tickets);
-            }
-
-            Utils.logActivity('ticket_created', { ticketId: ticketIdStr, subject: formData.subject });
-            form.reset();
-            Utils.showToast(`Ticket ${ticketIdStr} submitted successfully!`, 'success');
-
-            Utils.openModal('Ticket Submitted', `
-                <div style="text-align: center; padding: 1rem;">
-                    <div style="font-size: 3rem; color: var(--accent-success); margin-bottom: 1rem;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 style="margin-bottom: 0.5rem;">Thank you, ${Utils.esc(formData.name)}!</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                        Your ticket has been created successfully.
-                    </p>
-                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
-                        <p style="font-family: var(--font-mono); font-size: 1.25rem; color: var(--accent-primary);">
-                            ${ticketIdStr}
-                        </p>
-                        <p style="font-size: 0.875rem; color: var(--text-muted);">
-                            Save this ID to track your ticket
-                        </p>
-                    </div>
-                    <p style="color: var(--text-secondary); font-size: 0.875rem;">
-                        I'll get back to you at ${Utils.esc(formData.email)} as soon as possible.
-                    </p>
-                </div>
-            `);
-        } catch (err) {
-            console.error('❌ Ticket submission failed:', err);
-            const detail = err?.message || err?.error_description || err?.details || JSON.stringify(err);
-            Utils.showToast('Failed: ' + detail, 'error', 8000);       
-        } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
 }
 
