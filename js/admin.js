@@ -759,18 +759,39 @@ window.submitReply = async function(ticketId) {
 };
 
 // ── Delete Ticket ────────────────────────────────────────────
-window.deleteTicketConfirm = function(ticketId) {
+window.deleteTicketConfirm = async function(ticketId) {
     if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
         return;
     }
-    
-    if (TicketSystem.deleteTicket(ticketId)) {
-        Utils.showToast('Ticket deleted', 'success');
+
+    try {
+        // Delete from Supabase
+        if (window.SupabaseTickets && window.SupabaseTickets.deleteByTicketId) {
+            await window.SupabaseTickets.deleteByTicketId(ticketId);
+        } else {
+            // Fallback: delete directly via Supabase client
+            const client = await initSupabase();
+            const { error } = await client
+                .from('tickets')
+                .delete()
+                .eq('ticket_id', ticketId);
+            if (error) throw error;
+        }
+
+        // Remove from local state
+        TicketSystem.ticketState.tickets =
+            TicketSystem.ticketState.tickets.filter(t => t.id !== ticketId);
+        TicketSystem.saveTickets();
+
+        Utils.logActivity('ticket_deleted', { ticketId });
+        Utils.showToast('Ticket deleted from Supabase', 'success');
+
         renderTicketsList();
         updateTicketStats();
         loadDashboardData();
-    } else {
-        Utils.showToast('Failed to delete ticket', 'error');
+    } catch (err) {
+        console.error('Ticket delete failed:', err);
+        Utils.showToast('Failed to delete ticket: ' + err.message, 'error');
     }
 };
 
