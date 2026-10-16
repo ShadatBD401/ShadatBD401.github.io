@@ -774,6 +774,36 @@ window.deleteTicketConfirm = function(ticketId) {
     }
 };
 
+window.toggleItemVisibility = async function (section, itemId) {
+    const key = Utils.STORAGE_KEYS[section.toUpperCase()];
+    if (!key) { Utils.showToast('Unknown section: ' + section, 'error'); return; }
+
+    const items = Utils.getItems(key);
+    const item = items.find(i => i.id === itemId);
+    if (!item) { Utils.showToast('Item not found', 'error'); return; }
+
+    item.hidden = !item.hidden;
+    Utils.saveItems(key, items);
+
+    // Push to GitHub so the public site sees the change
+    await saveContentToGitHub(
+        section,
+        items,
+        item.hidden ? `Hide: ${item.title}` : `Show: ${item.title}`
+    );
+
+    Utils.showToast(
+        item.hidden ? `"${item.title}" is now hidden from visitors` : `"${item.title}" is now visible`,
+        'success'
+    );
+
+    // Re-render
+    if (section === 'posts')          renderPostsList();
+    if (section === 'projects')       renderProjectsList();
+    if (section === 'certifications') renderCertsList();
+    if (section === 'skills')         renderSkillsList();
+};
+
 // ── Open Admin Ticket Detail ─────────────────────────────────
 function openAdminTicketDetail(ticket) {
     const status = TicketSystem.TICKET_STATUSES[ticket.status];
