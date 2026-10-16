@@ -295,26 +295,88 @@ function shInitTicketTracking() {
         const priorities = (window.TicketSystem && window.TicketSystem.TICKET_PRIORITIES) || {};
         const st = statuses[ticket.status] || { label: ticket.status, color: '#3b82f6', icon: 'fa-folder-open' };
         const pr = priorities[ticket.priority] || { label: ticket.priority, color: '#3b82f6', icon: 'fa-minus' };
+       
+        // ── Build the replies thread HTML ─────────────────────────
+        let repliesHtml = '';
+        if (ticket.replies && ticket.replies.length > 0) {
+            repliesHtml =
+                '<div style="margin-top: var(--space-lg);">' +
+                    '<h5 style="margin: 0 0 var(--space-sm) 0; font-size: 0.875rem; color: var(--text-primary);">' +
+                        '<i class="fas fa-comments"></i> Conversation (' + ticket.replies.length + ')' +
+                    '</h5>' +
+                    ticket.replies.map(function (r) {
+                        const isAdmin = r.isAdmin === true;
+                        return '' +
+                            '<div style="padding: 12px; margin-bottom: 8px; border-radius: var(--radius-md);' +
+                                'background: ' + (isAdmin ? 'rgba(59,130,246,0.08)' : 'var(--bg-secondary)') + ';' +
+                                'border-left: 3px solid ' + (isAdmin ? 'var(--accent-primary)' : 'var(--text-muted)') + ';">' +
+                                '<div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.75rem;">' +
+                                    '<span style="font-weight: 600; color: ' + (isAdmin ? 'var(--accent-primary)' : 'var(--text-secondary)') + ';">' +
+                                        '<i class="fas ' + (isAdmin ? 'fa-shield-alt' : 'fa-user') + '"></i> ' +
+                                        (isAdmin ? 'Support Team' : 'You') +
+                                    '</span>' +
+                                    '<span style="color: var(--text-muted);">' +
+                                        (r.timestamp ? Utils.timeAgo(r.timestamp) : '') +
+                                    '</span>' +
+                                '</div>' +
+                                '<p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem; line-height: 1.55;">' +
+                                    Utils.esc(r.message).replace(/\n/g, '<br>') +
+                                '</p>' +
+                            '</div>';
+                    }).join('') +
+                '</div>';
+        } else {
+            repliesHtml =
+                '<div style="margin-top: var(--space-lg); padding: 12px; background: var(--bg-secondary);' +
+                    'border-radius: var(--radius-md); text-align: center; color: var(--text-muted); font-size: 0.8125rem;">' +
+                    '<i class="fas fa-hourglass-half"></i> No replies yet. We will get back to you soon.' +
+                '</div>';
+        }
 
+        // ── Render the full ticket status card ────────────────────
         resultBox.innerHTML =
             '<div class="ticket-status-card">' +
+                // Header: ID + Status badge
                 '<div class="ticket-status-header">' +
                     '<span class="ticket-status-id">' + Utils.esc(ticket.id) + '</span>' +
                     '<span class="ticket-status-badge" style="background: ' + st.color + '20; color: ' + st.color + ';">' +
                         '<i class="fas ' + st.icon + '"></i> ' + st.label +
                     '</span>' +
                 '</div>' +
-                '<h4 style="margin-bottom: var(--space-sm); color: var(--text-primary);">' + Utils.esc(ticket.subject) + '</h4>' +
-                '<div style="display: flex; gap: var(--space-lg); font-size: 0.8125rem; color: var(--text-muted); margin-bottom: var(--space-md); flex-wrap: wrap;">' +
+
+                // Subject
+                '<h4 style="margin: var(--space-sm) 0; color: var(--text-primary);">' +
+                    Utils.esc(ticket.subject) +
+                '</h4>' +
+
+                // Meta row: date, priority, category
+                '<div style="display: flex; gap: var(--space-md); font-size: 0.8125rem;' +
+                    'color: var(--text-muted); margin-bottom: var(--space-md); flex-wrap: wrap;">' +
                     '<span><i class="fas fa-calendar"></i> ' + Utils.formatDate(ticket.createdAt) + '</span>' +
                     '<span><i class="fas fa-clock"></i> ' + Utils.timeAgo(ticket.updatedAt || ticket.createdAt) + '</span>' +
+                    '<span style="color: ' + pr.color + ';">' +
+                        '<i class="fas ' + pr.icon + '"></i> ' + pr.label + ' Priority' +
+                    '</span>' +
+                    (ticket.category ?
+                        '<span><i class="fas fa-tag"></i> ' + Utils.esc(ticket.category) + '</span>'
+                        : '') +
                 '</div>' +
-                '<div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md);">' +
+
+                // Original message
+                '<div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md);' +
+                    'border-left: 3px solid var(--accent-primary);">' +
+                    '<div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);' +
+                        'text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">' +
+                        'Original Message' +
+                    '</div>' +
                     '<p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">' +
                         Utils.esc(ticket.message).replace(/\n/g, '<br>') +
                     '</p>' +
                 '</div>' +
-            '</div>';
+
+                // Replies thread
+                repliesHtml +
+            '</div>';       
     }
 
     trackBtn.addEventListener('click', track);
