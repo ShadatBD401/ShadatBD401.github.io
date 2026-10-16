@@ -1375,7 +1375,7 @@ function renderSkillsList() {
     const container = document.getElementById('skillsContainer');
     if (!container) return;
     
-    const skills = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.SKILLS));
+    const skills = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.SKILLS), { includeHidden: true });
     
     if (skills.length === 0) {
         container.innerHTML = `
