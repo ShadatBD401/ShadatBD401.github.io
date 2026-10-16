@@ -107,7 +107,7 @@ function showDashboard() {
         p.classList.toggle('active', p.id === 'page-dashboard');
     });
    
-    loadDashboardData();
+    await loadDashboardData();
     setupPageNavigation();
     syncAllContentFromGitHub();   // ← add this line
 }
