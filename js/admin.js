@@ -911,13 +911,17 @@ function renderPostsList() {
                     <div class="admin-item-header">
                         <div class="admin-item-icon">${Utils.esc(post.emoji || '📝')}</div>
                         <div class="admin-item-actions">
+                            <button class="admin-item-btn" onclick="toggleItemVisibility('posts', '${post.id}')"
+                                    title="${post.hidden ? 'Show to visitors' : 'Hide from visitors'}">
+                                <i class="fas ${post.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                            </button>
                             <button class="admin-item-btn" onclick="editPost('${post.id}')" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="admin-item-btn delete" onclick="deletePostConfirm('${post.id}')" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
-                        </div>
+                        </div>                       
                     </div>
                     <h4 class="admin-item-title">${Utils.esc(post.title)}</h4>
                     <p class="admin-item-desc">${Utils.esc(post.summary || Utils.truncate(post.content, 100))}</p>
