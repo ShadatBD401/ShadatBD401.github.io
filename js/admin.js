@@ -310,11 +310,35 @@ function navigateToPage(page) {
 }
 
 // ── Dashboard Data ───────────────────────────────────────────
-function loadDashboardData() {
-    // Load tickets
-    TicketSystem.loadTickets();
-    const stats = TicketSystem.getTicketStats();
-    
+async function loadDashboardData() {
+    // Load tickets from Supabase FIRST, then compute stats
+    try {
+        if (window.SupabaseTickets) {
+            const rows = await window.SupabaseTickets.listAll();
+            TicketSystem.ticketState.tickets = rows.map(r => ({
+                id: r.ticket_id,
+                name: r.name,
+                email: r.email,
+                subject: r.subject,
+                message: r.message,
+                status: r.status,
+                priority: r.priority,
+                category: r.category,
+                createdAt: r.created_at,
+                updatedAt: r.updated_at,
+                replies: r.replies || [],
+                history: []
+            }));
+        } else {
+            await TicketSystem.loadTickets();
+        }
+    } catch (err) {
+        console.warn('Dashboard ticket load failed, using cache:', err);
+        await TicketSystem.loadTickets();
+    }
+
+    const stats = TicketSystem.getTicketStats();   
+   
     // Update stats grid
     const statsGrid = document.getElementById('statsGrid');
 
