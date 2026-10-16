@@ -921,7 +921,7 @@ function renderPostsList() {
     const container = document.getElementById('postsContainer');
     if (!container) return;
     
-    const posts = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.POSTS));
+    const posts = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.POSTS), { includeHidden: true });
     
     if (posts.length === 0) {
         container.innerHTML = `
