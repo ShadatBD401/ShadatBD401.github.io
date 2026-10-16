@@ -1361,15 +1361,19 @@ function renderSkillsList() {
     container.innerHTML = skills.map(skill => `
         <div class="admin-item-card">
             <div class="admin-item-header">
-                <div class="admin-item-icon">${Utils.esc(skill.icon)}</div>
+                <div class="admin-item-icon">${Utils.esc(skill.icon)}</div>          
                 <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleItemVisibility('skills', '${skill.id}')"
+                            title="${skill.hidden ? 'Show to visitors' : 'Hide from visitors'}">
+                        <i class="fas ${skill.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                    </button>
                     <button class="admin-item-btn" onclick="editSkill('${skill.id}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="admin-item-btn delete" onclick="deleteSkillConfirm('${skill.id}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
-                </div>
+                </div>      
             </div>
             <h4 class="admin-item-title">${Utils.esc(skill.title)}</h4>
             <p class="admin-item-desc">${Utils.esc(skill.desc)}</p>
