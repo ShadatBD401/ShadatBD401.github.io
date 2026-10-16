@@ -227,7 +227,7 @@ function shInitCustomCursor() {
 // ── Ticket Tracking ──────────────────────────────────────────
 function shInitTicketTracking() {
     const trackBtn = document.getElementById('trackTicketBtn');
-    const trackInput = document.getElementById('trackTicketInput');
+    const trackInput = document.getElementById('ticketTrackInput');
     const resultBox = document.getElementById('ticketTrackResult');
     if (!trackBtn || !trackInput || !resultBox) return;
 
