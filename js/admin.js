@@ -91,7 +91,7 @@ function showLogin() {
 }
 
 // ── Show Dashboard ───────────────────────────────────────────
-function showDashboard() {
+async function showDashboard() {
     document.getElementById('loginScreen')?.classList.add('hidden');
     document.getElementById('adminDashboard')?.classList.remove('hidden');
     
