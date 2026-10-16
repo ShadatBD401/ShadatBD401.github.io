@@ -338,6 +338,14 @@ async function loadDashboardData() {
     }
 
     const stats = TicketSystem.getTicketStats();   
+
+    // ── Update sidebar Tickets badge ──────────────────────────
+    const badge = document.getElementById('ticketsBadge');
+    if (badge) {
+        badge.textContent = stats.total;
+        // Hide badge if 0, show if > 0
+        badge.style.display = stats.total > 0 ? '' : 'none';
+    }
    
     // Update stats grid
     const statsGrid = document.getElementById('statsGrid');
