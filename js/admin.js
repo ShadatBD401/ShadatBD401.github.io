@@ -1100,7 +1100,7 @@ function renderProjectsList() {
     const container = document.getElementById('projectsContainer');
     if (!container) return;
     
-    const projects = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.PROJECTS));
+    const projects = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.PROJECTS), { includeHidden: true });
     
     if (projects.length === 0) {
         container.innerHTML = `
