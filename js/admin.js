@@ -1501,12 +1501,18 @@ window.editSkill = function(skillId) {
     if (skill) openSkillForm(skill);
 };
 
-window.deleteSkillConfirm = function(skillId) {
+window.deleteSkillConfirm = async function(skillId) {
     if (!confirm('Are you sure you want to delete this skill?')) return;
-    const skills = Utils.getItems(Utils.STORAGE_KEYS.SKILLS).filter(s => s.id !== skillId);
-    Utils.saveItems(Utils.STORAGE_KEYS.SKILLS, skills);
-    Utils.showToast('Skill deleted', 'success');
+
+    const all = Utils.getItems(Utils.STORAGE_KEYS.SKILLS);
+    const target = all.find(s => s.id === skillId);
+    const filtered = all.filter(s => s.id !== skillId);
+
+    Utils.saveItems(Utils.STORAGE_KEYS.SKILLS, filtered);
     renderSkillsList();
+
+    await saveContentToGitHub('skills', filtered, `Delete skill: ${target?.title || skillId}`);
+    Utils.showToast('Skill deleted', 'success');
 };
 
 // ── Activity Page ────────────────────────────────────────────
