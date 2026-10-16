@@ -1084,7 +1084,7 @@ function renderProjectsList() {
     }
     
     container.innerHTML = projects.map(project => `
-        <div class="admin-item-card">
+        <div class="admin-item-card" style="${project.hidden ? 'opacity: 0.55;' : ''}">
             <div class="admin-item-header">
                 <div class="admin-item-icon"><i class="fas fa-project-diagram"></i></div>
                 <div class="admin-item-actions">
