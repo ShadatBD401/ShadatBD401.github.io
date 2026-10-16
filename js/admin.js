@@ -1073,7 +1073,7 @@ window.editPost = function(postId) {
     if (post) openPostForm(post);
 };
 
-window.deletePostConfirm = function(postId) {
+window.deletePostConfirm = async function(postId) {
     if (!confirm('Are you sure you want to delete this post?')) return;
     
     const posts = Utils.getItems(Utils.STORAGE_KEYS.POSTS);
@@ -1082,8 +1082,11 @@ window.deletePostConfirm = function(postId) {
     
     Utils.saveItems(Utils.STORAGE_KEYS.POSTS, filtered);
     Utils.logActivity('post_deleted', { title: post?.title });
-    Utils.showToast('Post deleted', 'success');
     renderPostsList();
+
+    // Push the updated list to GitHub (this removes the post from the repo)
+    await saveContentToGitHub('posts', filtered, `Delete post: ${post?.title || postId}`);
+    Utils.showToast('Post deleted', 'success');
 };
 
 // ── Projects Page ────────────────────────────────────────────
