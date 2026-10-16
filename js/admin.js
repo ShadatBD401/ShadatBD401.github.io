@@ -1088,13 +1088,17 @@ function renderProjectsList() {
             <div class="admin-item-header">
                 <div class="admin-item-icon"><i class="fas fa-project-diagram"></i></div>
                 <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleItemVisibility('projects', '${project.id}')"
+                            title="${project.hidden ? 'Show to visitors' : 'Hide from visitors'}">
+                        <i class="fas ${project.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                    </button>
                     <button class="admin-item-btn" onclick="editProject('${project.id}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="admin-item-btn delete" onclick="deleteProjectConfirm('${project.id}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
-                </div>
+                </div>               
             </div>
             <h4 class="admin-item-title">${Utils.esc(project.title)}</h4>
             <p class="admin-item-desc">${Utils.esc(Utils.truncate(project.description, 100))}</p>
