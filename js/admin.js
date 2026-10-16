@@ -1100,7 +1100,10 @@ function renderProjectsList() {
                     </button>
                 </div>               
             </div>
-            <h4 class="admin-item-title">${Utils.esc(project.title)}</h4>
+            <h4 class="admin-item-title">
+                ${Utils.esc(project.title)}
+                ${project.hidden ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;text-transform:uppercase;font-weight:600;">Hidden</span>' : ''}
+            </h4>
             <p class="admin-item-desc">${Utils.esc(Utils.truncate(project.description, 100))}</p>
         </div>
     `).join('');
