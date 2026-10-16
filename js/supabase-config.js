@@ -108,18 +108,23 @@ window.SupabaseTickets = {
         console.log('✅ Ticket inserted:', data);
         return data;
     },
-   
+
     async findByTicketId(ticketId) {
         const client = await initSupabase();
-        const { data, error } = await client
-            .rpc('lookup_ticket', { p_ticket_id: ticketId.toUpperCase() });
-        if (error) {
-            console.error('Ticket lookup RPC failed:', error);
-            throw error;
+        try {
+            const { data, error } = await client
+                .rpc('lookup_ticket', { p_ticket_id: ticketId.toUpperCase().trim() });
+            if (error) {
+                console.warn('lookup_ticket RPC failed:', error.message);
+                return null;   // ← graceful
+            }
+            return Array.isArray(data) ? (data[0] || null) : (data || null);
+        } catch (e) {
+            console.warn('lookup_ticket exception:', e);
+            return null;   // ← graceful
         }
-        return Array.isArray(data) ? (data[0] || null) : (data || null);
-    },
-
+    }
+   
     async listAll() {
         const client = await initSupabase();
         const { data, error } = await client
