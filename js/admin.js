@@ -1216,12 +1216,18 @@ window.editProject = function(projectId) {
     if (project) openProjectForm(project);
 };
 
-window.deleteProjectConfirm = function(projectId) {
+window.deleteProjectConfirm = async function(projectId) {
     if (!confirm('Are you sure you want to delete this project?')) return;
-    const projects = Utils.getItems(Utils.STORAGE_KEYS.PROJECTS).filter(p => p.id !== projectId);
-    Utils.saveItems(Utils.STORAGE_KEYS.PROJECTS, projects);
-    Utils.showToast('Project deleted', 'success');
+
+    const all = Utils.getItems(Utils.STORAGE_KEYS.PROJECTS);
+    const target = all.find(p => p.id === projectId);
+    const filtered = all.filter(p => p.id !== projectId);
+
+    Utils.saveItems(Utils.STORAGE_KEYS.PROJECTS, filtered);
     renderProjectsList();
+
+    await saveContentToGitHub('projects', filtered, `Delete project: ${target?.title || projectId}`);
+    Utils.showToast('Project deleted', 'success');
 };
 
 // ── Certifications Page ──────────────────────────────────────
