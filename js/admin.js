@@ -86,8 +86,13 @@ async function checkSession() {
 
 // ── Show Login ───────────────────────────────────────────────
 function showLogin() {
-    document.getElementById('loginScreen')?.classList.remove('hidden');
-    document.getElementById('adminDashboard')?.classList.add('hidden');
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboard = document.getElementById('adminDashboard');
+    if (loginScreen) {
+        loginScreen.classList.remove('hidden');
+        loginScreen.style.display = '';       // ← reset to CSS default (flex)
+    }
+    if (dashboard) dashboard.classList.add('hidden');
 }
 
 // ── Show Dashboard ───────────────────────────────────────────
