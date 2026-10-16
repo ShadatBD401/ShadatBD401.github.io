@@ -22,7 +22,8 @@
     "tags": "sdfasdf",
     "createdAt": "2026-10-13T18:57:24.885Z",
     "order": 1,
-    "views": 0
+    "views": 0,
+    "hidden": true
   },
   {
     "id": "post-1",
