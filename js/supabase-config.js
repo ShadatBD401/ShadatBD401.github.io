@@ -1,8 +1,8 @@
 /* ============================================================
-   SUPABASE CONFIG — New API Key Format
+   SUPABASE CONFIG
    ============================================================ */
 
-const SUPABASE_URL = 'https://feimrdohogrraspqpzmk.supabase.co';        // ← REPLACE
+const SUPABASE_URL = 'https://feimrdohogrraspqpzmk.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_fFa1X3qXxJ2osovGD6R1Tg_shdtXzwx';
 
 let supabaseClient = null;
@@ -24,7 +24,6 @@ async function initSupabase() {
     return supabaseClient;
 }
 
-// ── Authentication ───────────────────────────────────────────
 const SupabaseAuth = {
     async signIn(email, password) {
         const client = await initSupabase();
@@ -53,7 +52,6 @@ const SupabaseAuth = {
     }
 };
 
-// ── Secrets Vault ────────────────────────────────────────────
 const SupabaseSecrets = {
     async get(key) {
         const client = await initSupabase();
@@ -78,7 +76,6 @@ const SupabaseSecrets = {
     }
 };
 
-// ── Tickets (Supabase-backed) ─────────────────────────────────
 window.SupabaseTickets = {
     async create(ticket) {
         const client = await initSupabase();
@@ -97,12 +94,7 @@ window.SupabaseTickets = {
             .from('tickets').insert(row).select().single();
 
         if (error) {
-            console.error('❌ Supabase insert error:', {
-                message: error.message,
-                details: error.details,
-                hint:    error.hint,
-                code:    error.code
-            });
+            console.error('❌ Supabase insert error:', error);
             throw error;
         }
         console.log('✅ Ticket inserted:', data);
@@ -111,20 +103,15 @@ window.SupabaseTickets = {
 
     async findByTicketId(ticketId) {
         const client = await initSupabase();
-        try {
-            const { data, error } = await client
-                .rpc('lookup_ticket', { p_ticket_id: ticketId.toUpperCase().trim() });
-            if (error) {
-                console.warn('lookup_ticket RPC failed:', error.message);
-                return null;   // ← graceful
-            }
-            return Array.isArray(data) ? (data[0] || null) : (data || null);
-        } catch (e) {
-            console.warn('lookup_ticket exception:', e);
-            return null;   // ← graceful
+        const { data, error } = await client
+            .rpc('lookup_ticket', { p_ticket_id: ticketId.toUpperCase() });
+        if (error) {
+            console.error('Ticket lookup RPC failed:', error);
+            throw error;
         }
-    }
-   
+        return Array.isArray(data) ? (data[0] || null) : (data || null);
+    },
+
     async listAll() {
         const client = await initSupabase();
         const { data, error } = await client
@@ -175,8 +162,8 @@ window.SupabaseTickets = {
     }
 };
 
-
-// ── Expose to window (needed for admin.js and inline console) ─
 window.initSupabase = initSupabase;
 window.SupabaseAuth = SupabaseAuth;
 window.SupabaseSecrets = SupabaseSecrets;
+
+console.log('✅ supabase-config.js loaded');
