@@ -430,12 +430,21 @@ window.editGalleryItem = function(id) {
 };
 
 window.deleteGalleryItem = async function(id) {
-    if (!confirm('Delete this gallery item?')) return;
+    if (!confirm('Delete this gallery item from Google Drive?')) return;
+
     const items = Utils.getItems(GALLERY_KEY);
     const item = items.find(i => i.id === id);
+
     if (item?.driveId) {
-        try { await window.GDrive.delete(item.driveId); } catch (e) { console.warn(e); }
+        try {
+            await window.GDrive.delete(item.driveId);
+            console.log('✅ Deleted from Google Drive:', item.driveId);
+        } catch (e) {
+            console.warn('⚠️ Drive delete failed:', e);
+            Utils.showToast('Warning: Drive file could not be deleted', 'warning');
+        }
     }
+
     Utils.saveItems(GALLERY_KEY, items.filter(i => i.id !== id));
     Utils.showToast('Deleted', 'success');
     renderAdminGallery();
