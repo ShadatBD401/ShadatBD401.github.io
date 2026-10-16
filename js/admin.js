@@ -1235,7 +1235,7 @@ function renderCertsList() {
     const container = document.getElementById('certsContainer');
     if (!container) return;
     
-    const certs = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.CERTS));
+    const certs = Utils.sortByOrder(Utils.getItems(Utils.STORAGE_KEYS.CERTS), { includeHidden: true });
     
     if (certs.length === 0) {
         container.innerHTML = `
