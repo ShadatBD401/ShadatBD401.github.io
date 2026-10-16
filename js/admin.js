@@ -1223,13 +1223,17 @@ function renderCertsList() {
             <div class="admin-item-header">
                 <div class="admin-item-icon"><i class="fas fa-certificate"></i></div>
                 <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleItemVisibility('certifications', '${cert.id}')"
+                            title="${cert.hidden ? 'Show to visitors' : 'Hide from visitors'}">
+                        <i class="fas ${cert.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                    </button>
                     <button class="admin-item-btn" onclick="editCert('${cert.id}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="admin-item-btn delete" onclick="deleteCertConfirm('${cert.id}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
-                </div>
+                </div>                
             </div>
             <h4 class="admin-item-title">${Utils.esc(cert.title)}</h4>
             <p class="admin-item-desc">${Utils.esc(cert.description)}</p>
