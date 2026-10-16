@@ -5,7 +5,8 @@
     "description": "Designed departmental segmentation and secure inter-VLAN communication using switching, routing and access-control concepts.\n\n• Configured VLANs for multiple departments\n• Implemented inter-VLAN routing with Router-on-a-Stick\n• Applied ACLs for security between departments\n• Documented network topology and addressing plan",
     "tags": "VLAN|Inter-VLAN|ACL|Switching",
     "link": "#",
-    "order": 0
+    "order": 0,
+    "hidden": true
   },
   {
     "id": "proj-2",
