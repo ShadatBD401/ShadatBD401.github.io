@@ -15,7 +15,7 @@
     "tags": "AD DS|DNS|DHCP|IPAM|GPO",
     "link": "#",
     "order": 1,
-    "hidden": false
+    "hidden": true
   },
   {
     "id": "proj-3",
