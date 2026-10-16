@@ -688,24 +688,38 @@ window.confirmStatusChange = async function(ticketId) {
 
 window.submitReply = async function(ticketId) {
     const message = document.getElementById('replyMessage').value.trim();
-    if (!message) { Utils.showToast('Please enter a reply', 'error'); return; }
+    if (!message) {
+        Utils.showToast('Please enter a reply message', 'error');
+        return;
+    }
+
+    const btn = event?.target?.closest('button');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; }
 
     try {
         if (window.SupabaseTickets) {
             await window.SupabaseTickets.addReply(ticketId, message, true);
+            console.log('✅ Reply saved to Supabase');
         } else {
             TicketSystem.addTicketReply(ticketId, message, true);
+            console.warn('⚠️ Supabase not available — reply saved locally only');
         }
-        Utils.closeToast?.();
+
         Utils.closeModal();
         Utils.showToast('Reply sent', 'success');
-        loadTicketsPage();
+
+        // Refresh the tickets list and reopen detail with fresh data
+        await loadTicketsPage();
+
+        const ticket = TicketSystem.getTicket(ticketId);
+        if (ticket) openAdminTicketDetail(ticket);
+
     } catch (err) {
-        Utils.showToast('Failed to send reply', 'error');
+        console.error('Reply failed:', err);
+        Utils.showToast('Failed to send reply: ' + err.message, 'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reply'; }
     }
 };
-
-
 
 // ── Delete Ticket ────────────────────────────────────────────
 window.deleteTicketConfirm = function(ticketId) {
@@ -824,29 +838,6 @@ function openAdminTicketDetail(ticket) {
     
     Utils.openModal('Ticket Details', content);
 }
-
-window.submitReply = function(ticketId) {
-    const message = document.getElementById('replyMessage').value.trim();
-    
-    if (!message) {
-        Utils.showToast('Please enter a reply message', 'error');
-        return;
-    }
-    
-    if (TicketSystem.addTicketReply(ticketId, message, true)) {
-        Utils.closeModal();
-        Utils.showToast('Reply sent successfully', 'success');
-        
-        // Reopen with updated data
-        const ticket = TicketSystem.getTicket(ticketId);
-        if (ticket) openAdminTicketDetail(ticket);
-        
-        renderTicketsList();
-        loadDashboardData();
-    } else {
-        Utils.showToast('Failed to send reply', 'error');
-    }
-};
 
 // ── Posts Page ───────────────────────────────────────────────
 function loadPostsPage() {
