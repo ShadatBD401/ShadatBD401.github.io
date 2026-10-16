@@ -1375,7 +1375,10 @@ function renderSkillsList() {
                     </button>
                 </div>      
             </div>
-            <h4 class="admin-item-title">${Utils.esc(skill.title)}</h4>
+            <h4 class="admin-item-title">
+                ${Utils.esc(skill.title)}
+                ${skill.hidden ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;text-transform:uppercase;font-weight:600;">Hidden</span>' : ''}
+            </h4> 
             <p class="admin-item-desc">${Utils.esc(skill.desc)}</p>
         </div>
     `).join('');
