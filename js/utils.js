@@ -303,12 +303,8 @@ function capitalize(str) {
 }
 
 // ── Array Helpers ────────────────────────────────────────────
-function sortByOrder(items) {
-    // Filter out items marked as hidden (when called from the public site).
-    // Admin views explicitly pass `{ includeHidden: true }` to see everything.
-    const args = sortByOrder._lastArgs || {};
-    const includeHidden = args.includeHidden === true;
-
+function sortByOrder(items, options = {}) {
+    const { includeHidden = false } = options;
     const filtered = includeHidden
         ? items
         : items.filter(i => i.hidden !== true);
