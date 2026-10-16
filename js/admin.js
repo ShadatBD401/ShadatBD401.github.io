@@ -1362,12 +1362,18 @@ window.editCert = function(certId) {
     if (cert) openCertForm(cert);
 };
 
-window.deleteCertConfirm = function(certId) {
+window.deleteCertConfirm = async function(certId) {
     if (!confirm('Are you sure you want to delete this certification?')) return;
-    const certs = Utils.getItems(Utils.STORAGE_KEYS.CERTS).filter(c => c.id !== certId);
-    Utils.saveItems(Utils.STORAGE_KEYS.CERTS, certs);
-    Utils.showToast('Certification deleted', 'success');
+
+    const all = Utils.getItems(Utils.STORAGE_KEYS.CERTS);
+    const target = all.find(c => c.id === certId);
+    const filtered = all.filter(c => c.id !== certId);
+
+    Utils.saveItems(Utils.STORAGE_KEYS.CERTS, filtered);
     renderCertsList();
+
+    await saveContentToGitHub('certifications', filtered, `Delete cert: ${target?.title || certId}`);
+    Utils.showToast('Certification deleted', 'success');
 };
 
 // ── Skills Page ──────────────────────────────────────────────
