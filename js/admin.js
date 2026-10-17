@@ -1425,7 +1425,7 @@ function renderSkillsList() {
     }
     
     container.innerHTML = skills.map(skill => `
-        <div class="admin-item-card" style="${skill.hidden ? 'opacity: 0.55;' : ''}">
+        <div class="admin-item-card" data-id="${item.id}" style="${skill.hidden ? 'opacity: 0.55;' : ''}">
             <div class="admin-item-header">
                 <div class="admin-item-icon">${Utils.esc(skill.icon)}</div>          
                 <div class="admin-item-actions">
