@@ -540,6 +540,10 @@ function renderAdminVideos() {
                 <div class="admin-item-header">
                     <div class="admin-item-icon"><i class="fas fa-video"></i></div>
                     <div class="admin-item-actions">
+                        <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.id}')"
+                                title="${isGalleryHidden(item.id) ? 'Show to visitors' : 'Hide from visitors'}">
+                            <i class="fas ${isGalleryHidden(item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                        </button>
                         <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
