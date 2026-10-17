@@ -2,13 +2,17 @@
    ADMIN FEATURES: PROFILE UPLOAD, SOCIAL LINKS, CV, SETTINGS, GALLERY
    ============================================================ */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!document.getElementById('adminDashboard')) return;
     initProfileSettings();
     loadAllSettings();
     ensureSaveButton();
     initDriveConnectButton();
-    applyAdminSidebarAvatar();   // ← ADD THIS LINE
+    applyAdminSidebarAvatar();
+
+    // Preload hidden gallery list
+    const ids = await getHiddenGalleryIds();
+    Utils.setStorage('sh_hidden_gallery', ids);
 });
 
 // ── Show profile pic in admin sidebar ────────────────────────
