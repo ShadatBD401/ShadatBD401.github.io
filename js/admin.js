@@ -987,6 +987,9 @@ function renderPostsList() {
             `).join('')}
         </div>
     `;
+    
+    // Enable drag & drop
+    makeSortable('postsContainer', 'posts', reorderPosts);
 }
 
 window.openPostForm = function(post = null) {
