@@ -1630,25 +1630,80 @@ function resetAllData() {
 // ── Enable drag-and-drop on a container ───────────────────
 function makeSortable(containerId, section, saveCallback) {
     const el = document.getElementById(containerId);
-    if (!el || el._sortable) return;   // already wired
+    if (!el) return;
+    
+    // Destroy existing instance if it exists to prevent duplicate bindings on re-render
+    if (el._sortable) {
+        el._sortable.destroy();
+    }
 
     el._sortable = new Sortable(el, {
         animation: 200,
-        handle: '.admin-item-card',      // whole card draggable
+        handle: '.admin-item-card',      
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
         onEnd: async () => {
-            // Collect new order from DOM
             const newOrder = [...el.querySelectorAll('.admin-item-card')]
                 .map(card => card.dataset.id)
                 .filter(Boolean);
 
             if (!newOrder.length) return;
-
-            // Save via callback (which knows where to persist)
             await saveCallback(newOrder);
         }
     });
+}
+
+// ── Reorder Callbacks ────────────────────────────────────────
+async function reorderPosts(newOrderIds) {
+    const posts = Utils.getItems(Utils.STORAGE_KEYS.POSTS);
+    const map = Object.fromEntries(posts.map(p => [p.id, p]));
+    const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
+    
+    if (reordered.length !== posts.length) return; // Safety check
+
+    reordered.forEach((p, i) => p.order = i);
+    Utils.saveItems(Utils.STORAGE_KEYS.POSTS, reordered);
+    await saveContentToGitHub('posts', reordered, 'Reorder posts');
+    Utils.showToast('Post order saved', 'success');
+}
+
+async function reorderProjects(newOrderIds) {
+    const items = Utils.getItems(Utils.STORAGE_KEYS.PROJECTS);
+    const map = Object.fromEntries(items.map(p => [p.id, p]));
+    const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
+    
+    if (reordered.length !== items.length) return;
+
+    reordered.forEach((p, i) => p.order = i);
+    Utils.saveItems(Utils.STORAGE_KEYS.PROJECTS, reordered);
+    await saveContentToGitHub('projects', reordered, 'Reorder projects');
+    Utils.showToast('Project order saved', 'success');
+}
+
+async function reorderCerts(newOrderIds) {
+    const items = Utils.getItems(Utils.STORAGE_KEYS.CERTS);
+    const map = Object.fromEntries(items.map(p => [p.id, p]));
+    const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
+    
+    if (reordered.length !== items.length) return;
+
+    reordered.forEach((p, i) => p.order = i);
+    Utils.saveItems(Utils.STORAGE_KEYS.CERTS, reordered);
+    await saveContentToGitHub('certifications', reordered, 'Reorder certifications');
+    Utils.showToast('Certification order saved', 'success');
+}
+
+async function reorderSkills(newOrderIds) {
+    const items = Utils.getItems(Utils.STORAGE_KEYS.SKILLS);
+    const map = Object.fromEntries(items.map(p => [p.id, p]));
+    const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
+    
+    if (reordered.length !== items.length) return;
+
+    reordered.forEach((p, i) => p.order = i);
+    Utils.saveItems(Utils.STORAGE_KEYS.SKILLS, reordered);
+    await saveContentToGitHub('skills', reordered, 'Reorder skills');
+    Utils.showToast('Skill order saved', 'success');
 }
 
 // ── Modal Setup ──────────────────────────────────────────────
