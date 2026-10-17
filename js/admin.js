@@ -1644,10 +1644,7 @@ function makeSortable(containerId, section, saveCallback) {
     const el = document.getElementById(containerId);
     if (!el) return;
     
-    // Destroy existing instance if it exists to prevent duplicate bindings on re-render
-    if (el._sortable) {
-        el._sortable.destroy();
-    }
+    if (el._sortable) el._sortable.destroy();
 
     el._sortable = new Sortable(el, {
         animation: 200,
@@ -1667,16 +1664,15 @@ function makeSortable(containerId, section, saveCallback) {
 
 // ── Reorder Callbacks ────────────────────────────────────────
 async function reorderPosts(newOrderIds) {
-    const posts = Utils.getItems(Utils.STORAGE_KEYS.POSTS);
-    const map = Object.fromEntries(posts.map(p => [p.id, p]));
+    const items = Utils.getItems(Utils.STORAGE_KEYS.POSTS);
+    const map = Object.fromEntries(items.map(p => [p.id, p]));
     const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
     
-    if (reordered.length !== posts.length) return; // Safety check
-
     reordered.forEach((p, i) => p.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.POSTS, reordered);
+    
+    Utils.showToast('Pushing new order to GitHub...', 'info');
     await saveContentToGitHub('posts', reordered, 'Reorder posts');
-    Utils.showToast('Post order saved', 'success');
 }
 
 async function reorderProjects(newOrderIds) {
@@ -1684,12 +1680,11 @@ async function reorderProjects(newOrderIds) {
     const map = Object.fromEntries(items.map(p => [p.id, p]));
     const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
     
-    if (reordered.length !== items.length) return;
-
     reordered.forEach((p, i) => p.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.PROJECTS, reordered);
+    
+    Utils.showToast('Pushing new order to GitHub...', 'info');
     await saveContentToGitHub('projects', reordered, 'Reorder projects');
-    Utils.showToast('Project order saved', 'success');
 }
 
 async function reorderCerts(newOrderIds) {
@@ -1697,12 +1692,11 @@ async function reorderCerts(newOrderIds) {
     const map = Object.fromEntries(items.map(p => [p.id, p]));
     const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
     
-    if (reordered.length !== items.length) return;
-
     reordered.forEach((p, i) => p.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.CERTS, reordered);
+    
+    Utils.showToast('Pushing new order to GitHub...', 'info');
     await saveContentToGitHub('certifications', reordered, 'Reorder certifications');
-    Utils.showToast('Certification order saved', 'success');
 }
 
 async function reorderSkills(newOrderIds) {
@@ -1710,12 +1704,11 @@ async function reorderSkills(newOrderIds) {
     const map = Object.fromEntries(items.map(p => [p.id, p]));
     const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
     
-    if (reordered.length !== items.length) return;
-
     reordered.forEach((p, i) => p.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.SKILLS, reordered);
+    
+    Utils.showToast('Pushing new order to GitHub...', 'info');
     await saveContentToGitHub('skills', reordered, 'Reorder skills');
-    Utils.showToast('Skill order saved', 'success');
 }
 
 // ── Modal Setup ──────────────────────────────────────────────
