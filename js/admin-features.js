@@ -463,7 +463,7 @@ function renderAdminGallery() {
         </div>`;
     } else {
         c.innerHTML = items.map(item => `
-            <div class="admin-item-card" style="${isGalleryHidden(item.id) ? 'opacity: 0.55;' : ''}">
+            <div class="admin-item-card" data-id="${item.id}" style="${isGalleryHidden(item.id) ? 'opacity: 0.55;' : ''}">
                 <div class="admin-item-header">
                     <div class="admin-item-icon" style="padding:0;overflow:hidden;background:var(--bg-tertiary);">
 
