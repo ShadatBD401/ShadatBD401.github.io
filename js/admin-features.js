@@ -554,7 +554,7 @@ function renderAdminVideos() {
                         <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}'); renderAdminVideos();" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
-                    </div>
+                    </div>                    
                 </div>
                 <h4 class="admin-item-title">
                     ${Utils.esc(item.title || item.caption || 'Untitled')}
