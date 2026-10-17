@@ -1311,6 +1311,9 @@ function renderCertsList() {
             </span>
         </div>
     `).join('');
+    
+    // Enable drag & drop
+    makeSortable('certsContainer', 'certifications', reorderCerts);
 }
 
 window.openCertForm = function(cert = null) {
