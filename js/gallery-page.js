@@ -8,6 +8,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', Utils.getStorage('sh_theme', 'dark'));
     initModal();
 
+    // Load the hidden gallery ID list from Supabase first
+    try {
+        const client = await initSupabase();
+        const { data } = await client
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'hidden_gallery')
+            .maybeSingle();
+        if (Array.isArray(data?.value)) {
+            Utils.setStorage('sh_hidden_gallery', data.value);
+        }
+    } catch (e) {
+        console.warn('Could not load hidden gallery list:', e);
+    }
+
     const box = document.getElementById('galleryFilters');
     box?.addEventListener('click', e => {
         const btn = e.target.closest('.filter-btn');
