@@ -1457,6 +1457,9 @@ function renderSkillsList() {
             <p class="admin-item-desc">${Utils.esc(skill.desc)}</p>
         </div>
     `).join('');
+    
+    // Enable drag & drop
+    makeSortable('skillsContainer', 'skills', reorderSkills);
 }
 
 window.openSkillForm = function(skill = null) {
