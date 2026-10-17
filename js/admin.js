@@ -1627,6 +1627,30 @@ function resetAllData() {
     }, 1500);
 }
 
+// ── Enable drag-and-drop on a container ───────────────────
+function makeSortable(containerId, section, saveCallback) {
+    const el = document.getElementById(containerId);
+    if (!el || el._sortable) return;   // already wired
+
+    el._sortable = new Sortable(el, {
+        animation: 200,
+        handle: '.admin-item-card',      // whole card draggable
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        onEnd: async () => {
+            // Collect new order from DOM
+            const newOrder = [...el.querySelectorAll('.admin-item-card')]
+                .map(card => card.dataset.id)
+                .filter(Boolean);
+
+            if (!newOrder.length) return;
+
+            // Save via callback (which knows where to persist)
+            await saveCallback(newOrder);
+        }
+    });
+}
+
 // ── Modal Setup ──────────────────────────────────────────────
 function initModals() {
     const overlay = document.getElementById('modalOverlay');
