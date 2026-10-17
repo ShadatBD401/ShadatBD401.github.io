@@ -45,7 +45,8 @@
     "category": "system",
     "emoji": "🖥️",
     "createdAt": "2026-10-10T17:32:59.602Z",
-    "order": 3
+    "order": 3,
+    "hidden": true
   },
   {
     "id": "post-3",
