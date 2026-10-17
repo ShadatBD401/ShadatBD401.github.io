@@ -9,19 +9,19 @@
     "hidden": true
   },
   {
-    "id": "skill-2",
-    "icon": "🔵",
-    "title": "Cisco Infrastructure",
-    "desc": "Configure and manage Cisco routers and switches using Cisco IOS CLI. Deploy VLANs, trunk links, Router-on-a-Stick, Layer 3 switching, STP, and EtherChannel. Configure routing protocols, DHCP, NAT, ACLs, and NTP.",
-    "tags": "Cisco IOS|VLAN|STP|EtherChannel|ACL",
-    "order": 1
-  },
-  {
     "id": "skill-3",
     "icon": "🛡️",
     "title": "MikroTik Engineering",
     "desc": "Configure and administer MikroTik RouterOS on RouterBOARD and CHR platforms. Deploy IP addressing, bridges, VLANs, DHCP, DNS, static routing, NAT, and firewall rules. Configure PPPoE services, VPNs, bandwidth management.",
     "tags": "RouterOS|PPPoE|Firewall|Bandwidth|VPN",
+    "order": 1
+  },
+  {
+    "id": "skill-2",
+    "icon": "🔵",
+    "title": "Cisco Infrastructure",
+    "desc": "Configure and manage Cisco routers and switches using Cisco IOS CLI. Deploy VLANs, trunk links, Router-on-a-Stick, Layer 3 switching, STP, and EtherChannel. Configure routing protocols, DHCP, NAT, ACLs, and NTP.",
+    "tags": "Cisco IOS|VLAN|STP|EtherChannel|ACL",
     "order": 2
   },
   {
