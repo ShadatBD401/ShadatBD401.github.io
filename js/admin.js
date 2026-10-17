@@ -1164,6 +1164,9 @@ function renderProjectsList() {
             <p class="admin-item-desc">${Utils.esc(Utils.truncate(project.description, 100))}</p>
         </div>
     `).join('');
+    
+    // Enable drag & drop
+    makeSortable('projectsContainer', 'projects', reorderProjects);
 }
 
 window.openProjectForm = function(project = null) {
