@@ -958,7 +958,7 @@ function renderPostsList() {
     container.innerHTML = `
         <div class="items-container">
             ${posts.map(post => `
-                <div class="admin-item-card" style="${post.hidden ? 'opacity: 0.55;' : ''}">
+                <div class="admin-item-card" data-id="${post.id}" style="${post.hidden ? 'opacity: 0.55;' : ''}">
                     <div class="admin-item-header">
                         <div class="admin-item-icon">${Utils.esc(post.emoji || '📝')}</div>
                         <div class="admin-item-actions">
