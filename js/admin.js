@@ -1285,7 +1285,7 @@ function renderCertsList() {
     }
     
     container.innerHTML = certs.map(cert => `
-        <div class="admin-item-card" data-id="${item.id}" style="${cert.hidden ? 'opacity: 0.55;' : ''}">
+        <div class="admin-item-card" data-id="${cert.id}" style="${cert.hidden ? 'opacity: 0.55;' : ''}">
             <div class="admin-item-header">
                 <div class="admin-item-icon"><i class="fas fa-certificate"></i></div>
                 <div class="admin-item-actions">
