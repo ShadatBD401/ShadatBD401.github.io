@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "id": "skill-1",
+    "icon": "🌐",
+    "title": "Networking & Routing",
+    "desc": "Understand and apply IPv4/IPv6 addressing, subnetting, VLSM, CIDR, and route summarization. Design and configure LAN/WAN networks with static and dynamic routing (OSPF). Configure inter-VLAN routing, DHCP, NAT/PAT, and essential IP services.",
+    "tags": "OSPF|VLAN|NAT|ACL|HSRP",
+    "order": 0,
+    "hidden": true
+  },
+  {
+    "id": "skill-2",
+    "icon": "🔵",
+    "title": "Cisco Infrastructure",
+    "desc": "Configure and manage Cisco routers and switches using Cisco IOS CLI. Deploy VLANs, trunk links, Router-on-a-Stick, Layer 3 switching, STP, and EtherChannel. Configure routing protocols, DHCP, NAT, ACLs, and NTP.",
+    "tags": "Cisco IOS|VLAN|STP|EtherChannel|ACL",
+    "order": 1
+  },
+  {
+    "id": "skill-3",
+    "icon": "🛡️",
+    "title": "MikroTik Engineering",
+    "desc": "Configure and administer MikroTik RouterOS on RouterBOARD and CHR platforms. Deploy IP addressing, bridges, VLANs, DHCP, DNS, static routing, NAT, and firewall rules. Configure PPPoE services, VPNs, bandwidth management.",
+    "tags": "RouterOS|PPPoE|Firewall|Bandwidth|VPN",
+    "order": 2
+  },
+  {
+    "id": "skill-4",
+    "icon": "🖥️",
+    "title": "Windows Server Administration",
+    "desc": "Windows Server Installation, Deployment, and Initial Configuration. Active Directory Domain Services (AD DS). DNS, DHCP, and IP Address Management (IPAM). Group Policy (GPO) and Active Directory Administration.",
+    "tags": "AD DS|DNS|DHCP|GPO|IPAM|ADCS",
+    "order": 3
+  },
+  {
+    "id": "skill-5",
+    "icon": "🐧",
+    "title": "Linux Administration",
+    "desc": "Red Hat Enterprise Linux Installation and Configuration. Linux Command Line and Bash Shell. User, Group, and Permission Management. Process, Service, and System Administration (systemd). SSH Configuration.",
+    "tags": "RHEL|Bash|systemd|SELinux|LVM|Samba",
+    "order": 4
+  },
+  {
+    "id": "skill-6",
+    "icon": "🔒",
+    "title": "Cybersecurity",
+    "desc": "Authorized vulnerability assessment and web/API security research across common and advanced application weaknesses. XSS, IDOR, SSRF, CSRF, Authentication Bypass, File Upload issues.",
+    "tags": "Burp Suite|Nmap|Metasploit|Wireshark|CTF",
+    "order": 5
+  },
+  {
+    "id": "skill-7",
+    "icon": "☁️",
+    "title": "Virtualization & Cloud",
+    "desc": "VMware, Microsoft Hyper-V, Virtual Machine Deployment, Management, Troubleshooting, Lab Environment Setup. Knowledge of Type 1 and Type 2 Hypervisors, Virtualization, and Cloud Computing Concepts.",
+    "tags": "VMware|Hyper-V|KVM|Docker|Containers",
+    "order": 6
+  },
+  {
+    "id": "skill-8",
+    "icon": "💻",
+    "title": "Hardware & Support",
+    "desc": "PC Hardware Installation, Configuration, and Troubleshooting. Motherboards, CPUs, Memory (RAM), Storage Devices, and Power Supplies. RAID, SSD/HDD Management, and Peripheral Devices.",
+    "tags": "CompTIA A+|RAID|Hardware|Troubleshooting",
+    "order": 7
+  }
+]
