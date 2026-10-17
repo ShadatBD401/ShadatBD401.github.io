@@ -361,13 +361,17 @@ function renderAdminGallery() {
                             : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">`}
                     </div>
                     <div class="admin-item-actions">
+                        <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.id}')"
+                                title="${isGalleryHidden(item.id) ? 'Show to visitors' : 'Hide from visitors'}">
+                            <i class="fas ${isGalleryHidden(item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                        </button>
                         <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}'); renderAdminVideos();" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
-                    </div>
+                    </div> 
                 </div>
                 <h4 class="admin-item-title">${Utils.esc(item.caption || 'Untitled')}</h4>
                 <p class="admin-item-desc">${item.type === 'video' ? 'Video' : 'Image'} • ${Utils.formatDate(item.createdAt)}</p>
