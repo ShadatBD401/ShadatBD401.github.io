@@ -452,8 +452,20 @@ const GALLERY_KEY = 'sh_gallery';
 function renderAdminGallery() {
     const c = document.getElementById('galleryContainer');
     if (!c) return;
-    const items = Utils.getItems(GALLERY_KEY).sort((a, b) =>
-        new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // Sort by custom order if it exists
+    const savedOrder = Utils.getStorage('sh_gallery_order', []);
+    let items = Utils.getItems('sh_gallery');
+    
+    if (savedOrder.length > 0) {
+        items.sort((a, b) => {
+            const idxA = savedOrder.indexOf(a.id);
+            const idxB = savedOrder.indexOf(b.id);
+            if (idxA === -1) return 1; // new items at end
+            if (idxB === -1) return -1;
+            return idxA - idxB;
+        });
+    }
 
     if (!items.length) {
         c.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
@@ -466,14 +478,12 @@ function renderAdminGallery() {
             <div class="admin-item-card" data-id="${item.id}" style="${isGalleryHidden(item.id) ? 'opacity: 0.55;' : ''}">
                 <div class="admin-item-header">
                     <div class="admin-item-icon" style="padding:0;overflow:hidden;background:var(--bg-tertiary);">
-
                         ${item.type === 'video'
                             ? '<i class="fas fa-video"></i>'
-                            : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">`}
+                            : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;">`}
                     </div>
                     <div class="admin-item-actions">
-                        <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.id}')"
-                                title="${isGalleryHidden(item.id) ? 'Show to visitors' : 'Hide from visitors'}">
+                        <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.id}')" title="Hide/Show">
                             <i class="fas ${isGalleryHidden(item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
                         </button>
                         <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
@@ -486,12 +496,26 @@ function renderAdminGallery() {
                 </div>
                 <h4 class="admin-item-title">
                     ${Utils.esc(item.title || item.caption || 'Untitled')}
-                    ${isGalleryHidden(item.id) ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;text-transform:uppercase;font-weight:600;">Hidden</span>' : ''}
+                    ${isGalleryHidden(item.id) ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;">HIDDEN</span>' : ''}
                 </h4>
-                <p class="admin-item-desc">${item.type === 'video' ? 'Video' : 'Image'} • ${Utils.formatDate(item.createdAt)}</p>
             </div>
         `).join('');
     }
+
+    // Enable Drag & Drop for Gallery
+    makeSortable('galleryContainer', 'gallery', async (newOrder) => {
+        Utils.setStorage('sh_gallery_order', newOrder);
+        try {
+            const client = await initSupabase();
+            await client.from('site_settings').upsert(
+                { key: 'gallery_order', value: newOrder, updated_at: new Date().toISOString() },
+                { onConflict: 'key' }
+            );
+            Utils.showToast('Gallery order saved', 'success');
+        } catch (e) {
+            Utils.showToast('Failed to save gallery order', 'error');
+        }
+    });
 
     const btn = document.getElementById('newGalleryBtn');
     if (btn && !btn.dataset.wired) {
