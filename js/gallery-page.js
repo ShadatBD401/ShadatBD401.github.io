@@ -44,10 +44,14 @@ function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
-    const items = galleryPageState.filter === 'all'
-        ? galleryPageState.items
-        : galleryPageState.items.filter(i => i.type === galleryPageState.filter);
+    // Filter hidden items
+    const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
+    const visibleItems = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));
 
+    const items = galleryPageState.filter === 'all'
+        ? visibleItems
+        : visibleItems.filter(i => i.type === galleryPageState.filter);
+   
     if (!items.length) {
         grid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
