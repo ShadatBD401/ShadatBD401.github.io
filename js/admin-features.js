@@ -353,9 +353,10 @@ function renderAdminGallery() {
         </div>`;
     } else {
         c.innerHTML = items.map(item => `
-            <div class="admin-item-card">
+            <div class="admin-item-card" style="${isGalleryHidden(item.id) ? 'opacity: 0.55;' : ''}">
                 <div class="admin-item-header">
                     <div class="admin-item-icon" style="padding:0;overflow:hidden;background:var(--bg-tertiary);">
+
                         ${item.type === 'video'
                             ? '<i class="fas fa-video"></i>'
                             : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">`}
