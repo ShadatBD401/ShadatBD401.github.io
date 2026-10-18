@@ -45,6 +45,7 @@
     "description": "Web Application Vulnerabilities & Burp Suite",
     "status": "training",
     "link": "#",
-    "order": 5
+    "order": 5,
+    "hidden": true
   }
 ]
