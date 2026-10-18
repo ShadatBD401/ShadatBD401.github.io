@@ -39,6 +39,6 @@
     "tags": "AD DS|DNS|DHCP|IPAM|GPO",
     "link": "#",
     "order": 4,
-    "hidden": true
+    "hidden": false
   }
 ]
