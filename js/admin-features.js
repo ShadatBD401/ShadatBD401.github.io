@@ -664,3 +664,45 @@ function renderAdminVideos() {
         });
     }
 }
+
+/* ============================================================
+   AUTO-SAVE SECTION VISIBILITY TOGGLES
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('adminDashboard')) return;
+
+    // Small debounce so rapid toggles don't hammer Supabase
+    const autoSave = Utils.debounce(() => {
+        const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
+        s.visibility = s.visibility || {};
+        ['about','experience','technical','projects','certifications',
+         'education','learning','gallery','contact','notes'].forEach(sec => {
+            const el = document.getElementById('vis_' + sec);
+            if (el) s.visibility[sec] = el.checked;
+        });
+        Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
+
+        (async () => {
+            try {
+                const client = await initSupabase();
+                await client.from('site_settings').upsert(
+                    { key: 'main', value: s, updated_at: new Date().toISOString() },
+                    { onConflict: 'key' }
+                );
+                Utils.showToast('Visibility saved', 'success', 1200);
+            } catch (e) {
+                console.warn('Auto-save failed:', e);
+            }
+        })();
+    }, 400);
+
+    // Wire each vis_* checkbox once it exists
+    ['about','experience','technical','projects','certifications',
+     'education','learning','gallery','contact','notes'].forEach(sec => {
+        const el = document.getElementById('vis_' + sec);
+        if (el && !el.dataset.wired) {
+            el.dataset.wired = '1';
+            el.addEventListener('change', autoSave);
+        }
+    });
+});
