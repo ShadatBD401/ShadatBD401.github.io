@@ -25,8 +25,7 @@ function applyAdminSidebarAvatar() {
     }
 }
 
-// ── Hidden gallery items list ─────────────────────────────
-// Stored in site_settings under key `hidden_gallery` as an array of Drive file IDs.
+// ── Hidden Gallery Logic ─────────────────────────────
 async function getHiddenGalleryIds() {
     try {
         const client = await initSupabase();
@@ -37,7 +36,6 @@ async function getHiddenGalleryIds() {
             .maybeSingle();
         return Array.isArray(data?.value) ? data.value : [];
     } catch (e) {
-        // Fallback to localStorage
         return Utils.getStorage('sh_hidden_gallery', []);
     }
 }
@@ -78,58 +76,20 @@ window.toggleGalleryVisibility = async function (id) {
     renderAdminVideos();
 };
 
-// ── Hidden gallery items list ─────────────────────────────
-// Stored in site_settings under key `hidden_gallery` as an array of Drive file IDs.
-async function getHiddenGalleryIds() {
-    try {
-        const client = await initSupabase();
-        const { data } = await client
-            .from('site_settings')
-            .select('value')
-            .eq('key', 'hidden_gallery')
-            .maybeSingle();
-        return Array.isArray(data?.value) ? data.value : [];
-    } catch (e) {
-        // Fallback to localStorage
-        return Utils.getStorage('sh_hidden_gallery', []);
-    }
-}
-
-function isGalleryHidden(id) {
-    const list = Utils.getStorage('sh_hidden_gallery', []);
-    return list.includes(id);
-}
-
-async function setHiddenGalleryIds(ids) {
-    Utils.setStorage('sh_hidden_gallery', ids);
+async function reorderGallery(newOrderIds) {
+    Utils.setStorage('sh_gallery_order', newOrderIds);
     try {
         const client = await initSupabase();
         await client.from('site_settings').upsert(
-            { key: 'hidden_gallery', value: ids, updated_at: new Date().toISOString() },
+            { key: 'gallery_order', value: newOrderIds, updated_at: new Date().toISOString() },
             { onConflict: 'key' }
         );
+        Utils.showToast('Gallery order saved!', 'success');
     } catch (e) {
-        console.warn('Failed to publish hidden gallery list:', e);
+        console.error('Failed to save gallery order:', e);
+        Utils.showToast('Failed to save gallery order', 'error');
     }
 }
-
-window.toggleGalleryVisibility = async function (id) {
-    const hidden = await getHiddenGalleryIds();
-    const idx = hidden.indexOf(id);
-
-    let updated;
-    if (idx === -1) {
-        updated = [...hidden, id];
-        Utils.showToast('Item hidden from visitors', 'success');
-    } else {
-        updated = hidden.filter(x => x !== id);
-        Utils.showToast('Item visible to visitors', 'success');
-    }
-
-    await setHiddenGalleryIds(updated);
-    renderAdminGallery();
-    renderAdminVideos();
-};
 
 function initDriveConnectButton() {
     const container = document.querySelector('.settings-container');
