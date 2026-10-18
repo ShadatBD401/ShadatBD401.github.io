@@ -13,16 +13,21 @@ const adminState = {
 
 // ── GitHub-backed content helpers ────────────────────────────
 async function saveContentToGitHub(section, items, commitMsg) {
-    if (!window.GitHubContent) {
-        console.warn('[GitHub] not loaded — saving locally');
-        const key = Utils.STORAGE_KEYS[section.toUpperCase()];
-        if (key) Utils.saveItems(key, items);
-        return;
-    }
-    const key = Utils.STORAGE_KEYS[section.toUpperCase()];
+    const keyMap = {
+        POSTS:          Utils.STORAGE_KEYS.POSTS,
+        PROJECTS:       Utils.STORAGE_KEYS.PROJECTS,
+        CERTIFICATIONS: Utils.STORAGE_KEYS.CERTS,   // ← map
+        SKILLS:         Utils.STORAGE_KEYS.SKILLS
+    };
+    const key = keyMap[section.toUpperCase()];
     if (key) Utils.saveItems(key, items);
 
-    // Serialize saves per section (prevents 409 conflicts from rapid clicks)
+    if (!window.GitHubContent) {
+        console.warn('[GitHub] not loaded — saving locally');
+        return;
+    }
+
+    // Serialize saves per section
     window._githubSaveLocks = window._githubSaveLocks || {};
     const prev = window._githubSaveLocks[section] || Promise.resolve();
 
