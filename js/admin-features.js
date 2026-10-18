@@ -84,14 +84,15 @@ async function reorderGallery(newOrderIds) {
     Utils.setStorage('sh_gallery_order', newOrderIds);
     try {
         const client = await initSupabase();
-        await client.from('site_settings').upsert(
+        const { error } = await client.from('site_settings').upsert(
             { key: 'gallery_order', value: newOrderIds, updated_at: new Date().toISOString() },
             { onConflict: 'key' }
         );
+        if (error) throw error;
         Utils.showToast('Gallery order saved!', 'success');
     } catch (e) {
         console.error('Failed to save gallery order:', e);
-        Utils.showToast('Failed to save gallery order', 'error');
+        Utils.showToast('Failed to save order: ' + e.message, 'error');
     }
 }
 
