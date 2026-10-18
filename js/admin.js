@@ -806,8 +806,24 @@ window.deleteTicketConfirm = async function(ticketId) {
 };
 
 window.toggleItemVisibility = async function (section, itemId) {
-    const key = Utils.STORAGE_KEYS[section.toUpperCase()];
+    // Map section → storage key (handles certifications → CERTS)
+    const keyMap = {
+        posts:          Utils.STORAGE_KEYS.POSTS,
+        projects:       Utils.STORAGE_KEYS.PROJECTS,
+        certifications: Utils.STORAGE_KEYS.CERTS,   // ← special case
+        skills:         Utils.STORAGE_KEYS.SKILLS
+    };
+    const key = keyMap[section];
     if (!key) { Utils.showToast('Unknown section: ' + section, 'error'); return; }
+
+    // And map section → GitHub file name
+    const ghFileMap = {
+        posts:          'posts',
+        projects:       'projects',
+        certifications: 'certifications',   // matches data/certifications.json
+        skills:         'skills'
+    };
+    const ghFile = ghFileMap[section];
 
     const items = Utils.getItems(key);
     const item = items.find(i => i.id === itemId);
@@ -816,19 +832,17 @@ window.toggleItemVisibility = async function (section, itemId) {
     item.hidden = !item.hidden;
     Utils.saveItems(key, items);
 
-    // Push to GitHub so the public site sees the change
     await saveContentToGitHub(
-        section,
+        ghFile,
         items,
         item.hidden ? `Hide: ${item.title}` : `Show: ${item.title}`
     );
 
     Utils.showToast(
-        item.hidden ? `"${item.title}" is now hidden from visitors` : `"${item.title}" is now visible`,
+        item.hidden ? `"${item.title}" is now hidden` : `"${item.title}" is now visible`,
         'success'
     );
 
-    // Re-render
     if (section === 'posts')          renderPostsList();
     if (section === 'projects')       renderProjectsList();
     if (section === 'certifications') renderCertsList();
