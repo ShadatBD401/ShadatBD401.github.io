@@ -8,19 +8,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', Utils.getStorage('sh_theme', 'dark'));
     initModal();
 
-    // Load the hidden gallery ID list from Supabase first
+    // Load hidden gallery IDs AND gallery order from Supabase
     try {
         const client = await initSupabase();
-        const { data } = await client
+
+        // 1. Fetch hidden items
+        const { data: hiddenData } = await client
             .from('site_settings')
             .select('value')
             .eq('key', 'hidden_gallery')
             .maybeSingle();
-        if (Array.isArray(data?.value)) {
-            Utils.setStorage('sh_hidden_gallery', data.value);
+        if (Array.isArray(hiddenData?.value)) {
+            Utils.setStorage('sh_hidden_gallery', hiddenData.value);
         }
+
+        // 2. Fetch custom order
+        const { data: orderData } = await client
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'gallery_order')
+            .maybeSingle();
+        if (Array.isArray(orderData?.value)) {
+            Utils.setStorage('sh_gallery_order', orderData.value);
+        }
+
+        console.log('⬇️ Loaded gallery settings from Supabase');
     } catch (e) {
-        console.warn('Could not load hidden gallery list:', e);
+        console.warn('Could not load gallery settings:', e);
     }
 
     const box = document.getElementById('galleryFilters');
