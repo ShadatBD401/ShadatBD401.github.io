@@ -463,19 +463,7 @@ function renderAdminGallery() {
     }
 
     // Enable Drag & Drop for Gallery
-    makeSortable('galleryContainer', 'gallery', async (newOrder) => {
-        Utils.setStorage('sh_gallery_order', newOrder);
-        try {
-            const client = await initSupabase();
-            await client.from('site_settings').upsert(
-                { key: 'gallery_order', value: newOrder, updated_at: new Date().toISOString() },
-                { onConflict: 'key' }
-            );
-            Utils.showToast('Gallery order saved', 'success');
-        } catch (e) {
-            Utils.showToast('Failed to save gallery order', 'error');
-        }
-    });
+    makeSortable('galleryContainer', 'gallery', reorderGallery);
 
     const btn = document.getElementById('newGalleryBtn');
     if (btn && !btn.dataset.wired) {
