@@ -1,4 +1,24 @@
 /* ============================================================
+   GLOBAL OVERFLOW GUARD
+   ============================================================ */
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+img, video, canvas, svg, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent any orb/canvas from pushing layout wider than viewport */
+.bg-effects,
+#particleCanvas,
+.glow-orb {
+    max-width: 100vw;
+}
+
+/* ============================================================
    RESPONSIVE STYLES
    ============================================================ */
 
