@@ -21,19 +21,27 @@ async function saveContentToGitHub(section, items, commitMsg) {
     }
     const key = Utils.STORAGE_KEYS[section.toUpperCase()];
     if (key) Utils.saveItems(key, items);
-    
-    try {
-        await window.GitHubContent.write(
-            `data/${section}.json`,
-            items,
-            commitMsg || `Update ${section}`
-        );
-        console.log(`✅ ${section}.json pushed to GitHub`);
-        Utils.showToast(`${section} synced to GitHub!`, 'success');
-    } catch (err) {
-        console.error(`GitHub save failed for ${section}:`, err);
-        Utils.showToast(`Failed to sync ${section} to GitHub. Check console.`, 'error');
-    }
+
+    // Serialize saves per section (prevents 409 conflicts from rapid clicks)
+    window._githubSaveLocks = window._githubSaveLocks || {};
+    const prev = window._githubSaveLocks[section] || Promise.resolve();
+
+    window._githubSaveLocks[section] = prev.then(async () => {
+        try {
+            await window.GitHubContent.write(
+                `data/${section}.json`,
+                items,
+                commitMsg || `Update ${section}`
+            );
+            console.log(`✅ ${section}.json pushed to GitHub`);
+            Utils.showToast(`${section} synced to GitHub!`, 'success');
+        } catch (err) {
+            console.error(`GitHub save failed for ${section}:`, err);
+            Utils.showToast(`Failed to sync ${section} to GitHub. Check console.`, 'error');
+        }
+    });
+
+    return window._githubSaveLocks[section];
 }
 
 async function loadContentFromGitHub(section) {
