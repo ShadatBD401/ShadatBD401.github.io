@@ -20,7 +20,8 @@ async function saveContentToGitHub(section, items, commitMsg) {
         return;
     }
     const key = Utils.STORAGE_KEYS[section.toUpperCase()];
-    if (key) Utils.saveItems(key, items);   // always update local cache
+    if (key) Utils.saveItems(key, items);
+    
     try {
         await window.GitHubContent.write(
             `data/${section}.json`,
@@ -28,9 +29,10 @@ async function saveContentToGitHub(section, items, commitMsg) {
             commitMsg || `Update ${section}`
         );
         console.log(`✅ ${section}.json pushed to GitHub`);
+        Utils.showToast(`${section} synced to GitHub!`, 'success');
     } catch (err) {
         console.error(`GitHub save failed for ${section}:`, err);
-        Utils.showToast(`${section} saved locally (GitHub sync failed)`, 'warning');
+        Utils.showToast(`Failed to sync ${section} to GitHub. Check console.`, 'error');
     }
 }
 
