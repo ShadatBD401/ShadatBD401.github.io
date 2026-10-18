@@ -1148,6 +1148,90 @@ document.getElementById('newsletterForm')?.addEventListener('submit', (e) => {
     Utils.showToast('Successfully subscribed!', 'success');
 });
 
+// ── Notes & Reading ─────────────────────────────────────────
+const NOTES_KEY = 'sh_notes';
+const NOTE_COLORS = {
+    default: '',
+    yellow:  '#fef3c7',
+    blue:    '#dbeafe',
+    green:   '#d1fae5',
+    pink:    '#fce7f3',
+    purple:  '#ede9fe'
+};
+
+let notesState = { notes: [], filter: 'all' };
+
+function loadNotes() {
+    notesState.notes = Utils.getItems(NOTES_KEY);
+    renderNotes();
+    wireNoteFilters();
+}
+
+function wireNoteFilters() {
+    document.querySelectorAll('#notesFilters .filter-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('#notesFilters .filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            notesState.filter = btn.dataset.noteFilter;
+            renderNotes();
+        };
+    });
+}
+
+function renderNotes() {
+    const grid = document.getElementById('notesGrid');
+    if (!grid) return;
+    let items = Utils.sortByOrder(notesState.notes);
+    if (notesState.filter !== 'all') {
+        items = items.filter(n => n.type === notesState.filter);
+    }
+    if (!items.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+            <i class="fas fa-sticky-note" style="font-size:3rem;opacity:.5;margin-bottom:1rem;"></i>
+            <p>No notes yet.</p></div>`;
+        return;
+    }
+    grid.innerHTML = items.map(n => {
+        const bg = NOTE_COLORS[n.color] || '';
+        const plain = (n.content || '').replace(/<[^>]+>/g, ' ').trim();
+        return `
+            <div class="note-card" data-id="${n.id}"
+                 style="${bg ? `--note-bg:${bg}; color:#111827;` : ''}">
+                <div class="note-card-type">
+                    <i class="fas ${n.type === 'book' ? 'fa-book' : 'fa-sticky-note'}"></i>
+                    ${n.type === 'book' ? 'Reading' : 'Note'}
+                </div>
+                <h3 class="note-card-title">${Utils.esc(n.title)}</h3>
+                <p class="note-card-preview">${Utils.esc(Utils.truncate(plain, 120))}</p>
+                <div class="note-card-meta">
+                    <span><i class="fas fa-calendar"></i> ${Utils.formatDate(n.createdAt)}</span>
+                </div>
+            </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.note-card').forEach(card => {
+        card.onclick = () => {
+            const n = notesState.notes.find(x => x.id === card.dataset.id);
+            if (n) openNoteRead(n);
+        };
+    });
+}
+
+function openNoteRead(note) {
+    Utils.openModal(note.title, `
+        <div class="note-read-content">
+            ${note.content || '<p style="color:var(--text-muted);">(Empty note)</p>'}
+        </div>
+        <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);
+                    display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+            <span><i class="fas fa-calendar"></i> ${Utils.formatDate(note.createdAt)}</span>
+            ${note.updatedAt && note.updatedAt !== note.createdAt
+                ? `<span><i class="fas fa-edit"></i> Updated ${Utils.timeAgo(note.updatedAt)}</span>`
+                : ''}
+        </div>
+    `);
+}
+
 // ── Export for Admin ─────────────────────────────────────────
 window.PortfolioApp = {
     state,
