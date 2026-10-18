@@ -1696,6 +1696,10 @@ function makeSortable(containerId, section, saveCallback) {
     });
 }
 
+
+
+
+
 // ── Reorder Callbacks ────────────────────────────────────────
 async function reorderPosts(newOrderIds) {
     const items = Utils.getItems(Utils.STORAGE_KEYS.POSTS);
@@ -1704,7 +1708,8 @@ async function reorderPosts(newOrderIds) {
     
     reordered.forEach((p, i) => p.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.POSTS, reordered);
-    
+    renderPostsList();   // ← refresh admin list immediately
+
     Utils.showToast('Pushing new order to GitHub...', 'info');
     await saveContentToGitHub('posts', reordered, 'Reorder posts');
 }
