@@ -1763,6 +1763,639 @@ document.getElementById('refreshBtn')?.addEventListener('click', () => {
     setTimeout(() => Utils.showToast('Data refreshed', 'success'), 500);
 });
 
+/* ============================================================
+   NEW SECTIONS: EDUCATION, EXPERIENCE, HERO STATS, ABOUT, CONTACT CARDS, MATRIX
+   ============================================================ */
+
+// Ensure arrays exist (also mirrored to GitHub JSON files)
+const NEW_KEYS = {
+    education:  'sh_education',
+    experience: 'sh_experience',
+    heroStats:  'sh_hero_stats',
+    domains:    'sh_domains',
+    interests:  'sh_interests',
+    contactCards: 'sh_contact_cards',
+    matrix:     'sh_matrix',
+    notes:      'sh_notes'
+};
+
+// ── Education ────────────────────────────────────────────────
+function loadEducationPage() {
+    renderEducationList();
+    const btn = document.getElementById('newEduBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.onclick = () => openEduForm();
+    }
+}
+
+function renderEducationList() {
+    const c = document.getElementById('educationContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NEW_KEYS.education), { includeHidden: true });
+    if (!items.length) {
+        c.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+            <i class="fas fa-graduation-cap"></i><h3>No education entries</h3>
+            <p>Click "New Entry" to add one.</p></div>`;
+        return;
+    }
+    c.innerHTML = items.map(e => `
+        <div class="admin-item-card" data-id="${e.id}" style="${e.hidden ? 'opacity:.55;' : ''}">
+            <div class="admin-item-header">
+                <div class="admin-item-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleNewItemVisibility('education','${e.id}')">
+                        <i class="fas ${e.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                    </button>
+                    <button class="admin-item-btn" onclick="editEdu('${e.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="admin-item-btn delete" onclick="deleteEdu('${e.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <h4 class="admin-item-title">${Utils.esc(e.title)}</h4>
+            <p class="admin-item-desc">${Utils.esc(e.institution || '')} • ${Utils.esc(e.year || '')}</p>
+        </div>
+    `).join('');
+    makeSortable('educationContainer', 'education', reorderEducation);
+}
+
+function openEduForm(item = null) {
+    Utils.openModal(item ? 'Edit Education' : 'New Education', `
+        <div class="admin-form">
+            <div class="form-group"><label>Year</label>
+                <input type="text" id="eduYear" value="${item ? Utils.esc(item.year || '') : ''}" placeholder="2025 - 2026"></div>
+            <div class="form-group"><label>Title *</label>
+                <input type="text" id="eduTitle" value="${item ? Utils.esc(item.title) : ''}" placeholder="Diploma in ..."></div>
+            <div class="form-group"><label>Institution</label>
+                <input type="text" id="eduInst" value="${item ? Utils.esc(item.institution || '') : ''}" placeholder="College name"></div>
+            <div class="form-group"><label>Grade / Duration</label>
+                <input type="text" id="eduGrade" value="${item ? Utils.esc(item.grade || '') : ''}" placeholder="CGPA: 3.31"></div>
+            <div class="form-group"><label>Modules (pipe separated)</label>
+                <input type="text" id="eduModules" value="${item ? Utils.esc(item.modules || '') : ''}" placeholder="Module1|Module2"></div>
+            <div class="form-group"><label>Icon (FontAwesome class)</label>
+                <input type="text" id="eduIcon" value="${item ? Utils.esc(item.icon || 'fa-university') : 'fa-university'}"></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdu('${item?.id || ''}')">
+                    <i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>`);
+}
+
+window.editEdu = id => {
+    const it = Utils.getItems(NEW_KEYS.education).find(x => x.id === id);
+    if (it) openEduForm(it);
+};
+window.saveEdu = id => {
+    const data = {
+        year: document.getElementById('eduYear').value.trim(),
+        title: document.getElementById('eduTitle').value.trim(),
+        institution: document.getElementById('eduInst').value.trim(),
+        grade: document.getElementById('eduGrade').value.trim(),
+        modules: document.getElementById('eduModules').value.trim(),
+        icon: document.getElementById('eduIcon').value.trim() || 'fa-university'
+    };
+    if (!data.title) { Utils.showToast('Title is required', 'error'); return; }
+    const items = Utils.getItems(NEW_KEYS.education);
+    if (id) {
+        const i = items.findIndex(x => x.id === id);
+        if (i > -1) items[i] = { ...items[i], ...data };
+    } else {
+        items.push({ id: Utils.uid(), ...data, order: items.length });
+    }
+    items.forEach((x, i) => x.order = i);
+    Utils.saveItems(NEW_KEYS.education, items);
+    saveContentToGitHub('education', items, id ? 'Update education' : 'New education');
+    Utils.closeModal(); renderEducationList();
+};
+window.deleteEdu = async id => {
+    if (!confirm('Delete this entry?')) return;
+    const items = Utils.getItems(NEW_KEYS.education).filter(x => x.id !== id);
+    Utils.saveItems(NEW_KEYS.education, items);
+    renderEducationList();
+    await saveContentToGitHub('education', items, 'Delete education');
+};
+
+// ── Experience ───────────────────────────────────────────────
+function loadExperiencePage() {
+    renderExperienceList();
+    const btn = document.getElementById('newExpBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.onclick = () => openExpForm();
+    }
+}
+
+function renderExperienceList() {
+    const c = document.getElementById('experienceContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NEW_KEYS.experience), { includeHidden: true });
+    if (!items.length) {
+        c.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+            <i class="fas fa-briefcase"></i><h3>No experience entries</h3></div>`;
+        return;
+    }
+    c.innerHTML = items.map(e => `
+        <div class="admin-item-card" data-id="${e.id}" style="${e.hidden ? 'opacity:.55;' : ''}">
+            <div class="admin-item-header">
+                <div class="admin-item-icon"><i class="fas fa-briefcase"></i></div>
+                <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleNewItemVisibility('experience','${e.id}')">
+                        <i class="fas ${e.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                    <button class="admin-item-btn" onclick="editExp('${e.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="admin-item-btn delete" onclick="deleteExp('${e.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <h4 class="admin-item-title">${Utils.esc(e.title)}</h4>
+            <p class="admin-item-desc">${Utils.esc(e.company || '')} • ${Utils.esc(e.date || '')}</p>
+        </div>
+    `).join('');
+    makeSortable('experienceContainer', 'experience', reorderExperience);
+}
+
+function openExpForm(item = null) {
+    Utils.openModal(item ? 'Edit Experience' : 'New Experience', `
+        <div class="admin-form">
+            <div class="form-group"><label>Date</label>
+                <input type="text" id="expDate" value="${item ? Utils.esc(item.date || '') : ''}" placeholder="July 2026 – Present"></div>
+            <div class="form-group"><label>Job Title *</label>
+                <input type="text" id="expTitle" value="${item ? Utils.esc(item.title) : ''}"></div>
+            <div class="form-group"><label>Company</label>
+                <input type="text" id="expCompany" value="${item ? Utils.esc(item.company || '') : ''}"></div>
+            <div class="form-group"><label>Bullet points (pipe separated)</label>
+                <textarea id="expBullets" rows="5">${item ? Utils.esc(item.bullets || '') : ''}</textarea></div>
+            <div class="form-group"><label>Tags (pipe separated)</label>
+                <input type="text" id="expTags" value="${item ? Utils.esc(item.tags || '') : ''}"></div>
+            <div class="form-group"><label>Badge (e.g. Current)</label>
+                <input type="text" id="expBadge" value="${item ? Utils.esc(item.badge || '') : ''}"></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveExp('${item?.id || ''}')">
+                    <i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>`);
+}
+
+window.editExp = id => {
+    const it = Utils.getItems(NEW_KEYS.experience).find(x => x.id === id);
+    if (it) openExpForm(it);
+};
+window.saveExp = id => {
+    const data = {
+        date: document.getElementById('expDate').value.trim(),
+        title: document.getElementById('expTitle').value.trim(),
+        company: document.getElementById('expCompany').value.trim(),
+        bullets: document.getElementById('expBullets').value.trim(),
+        tags: document.getElementById('expTags').value.trim(),
+        badge: document.getElementById('expBadge').value.trim()
+    };
+    if (!data.title) { Utils.showToast('Title is required', 'error'); return; }
+    const items = Utils.getItems(NEW_KEYS.experience);
+    if (id) {
+        const i = items.findIndex(x => x.id === id);
+        if (i > -1) items[i] = { ...items[i], ...data };
+    } else {
+        items.push({ id: Utils.uid(), ...data, order: items.length });
+    }
+    items.forEach((x, i) => x.order = i);
+    Utils.saveItems(NEW_KEYS.experience, items);
+    saveContentToGitHub('experience', items, id ? 'Update experience' : 'New experience');
+    Utils.closeModal(); renderExperienceList();
+};
+window.deleteExp = async id => {
+    if (!confirm('Delete this entry?')) return;
+    const items = Utils.getItems(NEW_KEYS.experience).filter(x => x.id !== id);
+    Utils.saveItems(NEW_KEYS.experience, items);
+    renderExperienceList();
+    await saveContentToGitHub('experience', items, 'Delete experience');
+};
+
+// ── Hero Stats ───────────────────────────────────────────────
+function loadHeroPage() {
+    renderHeroStats();
+    const btn = document.getElementById('addHeroStatBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.onclick = () => addHeroStat();
+    }
+}
+
+function renderHeroStats() {
+    const c = document.getElementById('heroStatsContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NEW_KEYS.heroStats), { includeHidden: true });
+    if (!items.length) {
+        // Seed defaults on first load
+        const defaults = [
+            { id: 'hs1', value: 100, suffix: '+', label: 'Vulnerabilities Discovered', order: 0 },
+            { id: 'hs2', value: 788, suffix: '', label: 'Hours Training', order: 1 },
+            { id: 'hs3', value: 5, suffix: '', label: 'Projects Completed', order: 2 },
+            { id: 'hs4', value: 3, suffix: '', label: 'MikroTik Certifications', order: 3 }
+        ];
+        Utils.saveItems(NEW_KEYS.heroStats, defaults);
+        return renderHeroStats();
+    }
+    c.innerHTML = items.map(s => `
+        <div class="setting-item" data-id="${s.id}" style="${s.hidden ? 'opacity:.55;' : ''}">
+            <div class="setting-info"><h4>${Utils.esc(s.label)}</h4>
+                <p>Value: ${s.value}${s.suffix || ''}</p></div>
+            <div style="display:flex; gap:6px;">
+                <button class="admin-item-btn" onclick="toggleNewItemVisibility('heroStats','${s.id}')">
+                    <i class="fas ${s.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                <button class="admin-item-btn" onclick="editHeroStat('${s.id}')"><i class="fas fa-edit"></i></button>
+                <button class="admin-item-btn delete" onclick="deleteHeroStat('${s.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addHeroStat() {
+    Utils.openModal('New Hero Stat', `
+        <div class="admin-form">
+            <div class="form-group"><label>Value (number) *</label>
+                <input type="number" id="hsValue" value="0"></div>
+            <div class="form-group"><label>Suffix</label>
+                <input type="text" id="hsSuffix" placeholder="+"></div>
+            <div class="form-group"><label>Label *</label>
+                <input type="text" id="hsLabel" placeholder="Projects Completed"></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveHeroStat()">Save</button>
+            </div>
+        </div>`);
+}
+window.saveHeroStat = id => {
+    const data = {
+        value: parseInt(document.getElementById('hsValue').value) || 0,
+        suffix: document.getElementById('hsSuffix').value.trim(),
+        label: document.getElementById('hsLabel').value.trim()
+    };
+    if (!data.label) { Utils.showToast('Label required', 'error'); return; }
+    const items = Utils.getItems(NEW_KEYS.heroStats);
+    if (id) {
+        const i = items.findIndex(x => x.id === id);
+        if (i > -1) items[i] = { ...items[i], ...data };
+    } else {
+        items.push({ id: Utils.uid(), ...data, order: items.length });
+    }
+    Utils.saveItems(NEW_KEYS.heroStats, items);
+    saveContentToGitHub('hero-stats', items, 'Update hero stats');
+    Utils.closeModal(); renderHeroStats();
+};
+window.editHeroStat = id => {
+    const s = Utils.getItems(NEW_KEYS.heroStats).find(x => x.id === id);
+    if (!s) return;
+    Utils.openModal('Edit Hero Stat', `
+        <div class="admin-form">
+            <div class="form-group"><label>Value</label>
+                <input type="number" id="hsValue" value="${s.value}"></div>
+            <div class="form-group"><label>Suffix</label>
+                <input type="text" id="hsSuffix" value="${Utils.esc(s.suffix || '')}"></div>
+            <div class="form-group"><label>Label</label>
+                <input type="text" id="hsLabel" value="${Utils.esc(s.label)}"></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveHeroStat('${s.id}')">Save</button>
+            </div>
+        </div>`);
+};
+window.deleteHeroStat = async id => {
+    if (!confirm('Delete this stat?')) return;
+    const items = Utils.getItems(NEW_KEYS.heroStats).filter(x => x.id !== id);
+    Utils.saveItems(NEW_KEYS.heroStats, items);
+    renderHeroStats();
+    await saveContentToGitHub('hero-stats', items, 'Delete hero stat');
+};
+
+// ── About & Interests ────────────────────────────────────────
+function loadAboutPage() {
+    renderDomains();
+    renderInterests();
+}
+
+function renderDomains() {
+    const c = document.getElementById('aboutDomainsContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NEW_KEYS.domains), { includeHidden: true });
+    if (!items.length) {
+        const defaults = [
+            { id: 'd1', label: 'PRIMARY', name: 'Network Operations', kind: 'primary', order: 0 },
+            { id: 'd2', label: 'SECONDARY', name: 'Systems Administration', kind: 'secondary', order: 1 },
+            { id: 'd3', label: 'SECURITY', name: 'Web & API Security Research', kind: 'security', order: 2 },
+            { id: 'd4', label: 'LABS', name: 'VMware • Hyper-V • Linux • Windows Server', kind: 'labs', order: 3 }
+        ];
+        Utils.saveItems(NEW_KEYS.domains, defaults);
+        return renderDomains();
+    }
+    c.innerHTML = items.map(d => `
+        <div class="setting-item" data-id="${d.id}" style="${d.hidden ? 'opacity:.55;' : ''}">
+            <div class="setting-info"><h4>${Utils.esc(d.label)}</h4><p>${Utils.esc(d.name)}</p></div>
+            <div style="display:flex; gap:6px;">
+                <button class="admin-item-btn" onclick="toggleNewItemVisibility('domains','${d.id}')">
+                    <i class="fas ${d.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                <button class="admin-item-btn" onclick="editDomain('${d.id}')"><i class="fas fa-edit"></i></button>
+                <button class="admin-item-btn delete" onclick="deleteDomain('${d.id}')"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+    makeSortable('aboutDomainsContainer', 'domains', reorderDomains);
+}
+
+window.editDomain = id => {
+    const d = Utils.getItems(NEW_KEYS.domains).find(x => x.id === id);
+    if (!d) return;
+    Utils.openModal('Edit Domain', `
+        <div class="admin-form">
+            <div class="form-group"><label>Label</label>
+                <input type="text" id="domLabel" value="${Utils.esc(d.label)}"></div>
+            <div class="form-group"><label>Name</label>
+                <input type="text" id="domName" value="${Utils.esc(d.name)}"></div>
+            <div class="form-group"><label>Style</label>
+                <select id="domKind">
+                    <option value="primary" ${d.kind === 'primary' ? 'selected' : ''}>Primary</option>
+                    <option value="secondary" ${d.kind === 'secondary' ? 'selected' : ''}>Secondary</option>
+                    <option value="security" ${d.kind === 'security' ? 'selected' : ''}>Security</option>
+                    <option value="labs" ${d.kind === 'labs' ? 'selected' : ''}>Labs</option>
+                </select></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDomain('${d.id}')">Save</button>
+            </div>
+        </div>`);
+};
+window.saveDomain = id => {
+    const data = {
+        label: document.getElementById('domLabel').value.trim(),
+        name: document.getElementById('domName').value.trim(),
+        kind: document.getElementById('domKind').value
+    };
+    const items = Utils.getItems(NEW_KEYS.domains);
+    const i = items.findIndex(x => x.id === id);
+    if (i > -1) items[i] = { ...items[i], ...data };
+    Utils.saveItems(NEW_KEYS.domains, items);
+    saveContentToGitHub('about-domains', items, 'Update about domains');
+    Utils.closeModal(); renderDomains();
+};
+window.deleteDomain = async id => {
+    if (!confirm('Delete this domain?')) return;
+    const items = Utils.getItems(NEW_KEYS.domains).filter(x => x.id !== id);
+    Utils.saveItems(NEW_KEYS.domains, items);
+    renderDomains();
+    await saveContentToGitHub('about-domains', items, 'Delete domain');
+};
+
+function renderInterests() {
+    const c = document.getElementById('interestTagsContainer');
+    if (!c) return;
+    const tags = Utils.getStorage(NEW_KEYS.interests, null) ||
+        ['Network Security', 'Bug Bounty', 'Cloud Infrastructure', 'CTF Challenges', 'Open Source', 'Travel'];
+    Utils.setStorage(NEW_KEYS.interests, tags);
+    c.innerHTML = `
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1rem;">
+            ${tags.map((t, i) => `
+                <span class="tag" style="display:inline-flex;align-items:center;gap:6px;">
+                    ${Utils.esc(t)}
+                    <button class="admin-item-btn delete" style="width:20px;height:20px;"
+                            onclick="removeInterest(${i})"><i class="fas fa-times"></i></button>
+                </span>`).join('')}
+        </div>
+        <div style="display:flex; gap:8px;">
+            <input type="text" id="newInterestInput" class="setting-input" placeholder="New interest...">
+            <button class="btn btn-primary btn-sm" onclick="addInterest()">
+                <i class="fas fa-plus"></i> Add</button>
+        </div>`;
+}
+window.addInterest = () => {
+    const v = document.getElementById('newInterestInput').value.trim();
+    if (!v) return;
+    const tags = Utils.getStorage(NEW_KEYS.interests, []);
+    tags.push(v);
+    Utils.setStorage(NEW_KEYS.interests, tags);
+    renderInterests();
+    saveContentToGitHub('interests', tags, 'Add interest');
+};
+window.removeInterest = async i => {
+    const tags = Utils.getStorage(NEW_KEYS.interests, []);
+    tags.splice(i, 1);
+    Utils.setStorage(NEW_KEYS.interests, tags);
+    renderInterests();
+    await saveContentToGitHub('interests', tags, 'Remove interest');
+};
+
+// ── Contact Cards ────────────────────────────────────────────
+function loadContactCardsPage() {
+    renderContactCards();
+    const btn = document.getElementById('newContactCardBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.onclick = () => openContactCardForm();
+    }
+}
+
+function renderContactCards() {
+    const c = document.getElementById('contactCardsContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NEW_KEYS.contactCards), { includeHidden: true });
+    if (!items.length) {
+        const defaults = [
+            { id: 'cc1', icon: 'fa-envelope', label: 'Email', value: 'sahadat.bda35@gmail.com', href: 'mailto:sahadat.bda35@gmail.com', order: 0 },
+            { id: 'cc2', icon: 'fa-phone', label: 'Phone', value: '+880 1575 382663', href: 'tel:+8801575382663', order: 1 },
+            { id: 'cc3', icon: 'fa-map-marker-alt', label: 'Location', value: 'Tejgaon, Dhaka 1215, Bangladesh', href: '', order: 2 }
+        ];
+        Utils.saveItems(NEW_KEYS.contactCards, defaults);
+        return renderContactCards();
+    }
+    c.innerHTML = items.map(cc => `
+        <div class="admin-item-card" data-id="${cc.id}" style="${cc.hidden ? 'opacity:.55;' : ''}">
+            <div class="admin-item-header">
+                <div class="admin-item-icon"><i class="fas ${Utils.esc(cc.icon)}"></i></div>
+                <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleNewItemVisibility('contactCards','${cc.id}')">
+                        <i class="fas ${cc.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                    <button class="admin-item-btn" onclick="editContactCard('${cc.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="admin-item-btn delete" onclick="deleteContactCard('${cc.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <h4 class="admin-item-title">${Utils.esc(cc.label)}</h4>
+            <p class="admin-item-desc">${Utils.esc(cc.value)}</p>
+        </div>
+    `).join('');
+    makeSortable('contactCardsContainer', 'contactCards', reorderContactCards);
+}
+
+function openContactCardForm(item = null) {
+    Utils.openModal(item ? 'Edit Contact Card' : 'New Contact Card', `
+        <div class="admin-form">
+            <div class="form-group"><label>Icon (FontAwesome)</label>
+                <input type="text" id="ccIcon" value="${item ? Utils.esc(item.icon) : 'fa-envelope'}"></div>
+            <div class="form-group"><label>Label *</label>
+                <input type="text" id="ccLabel" value="${item ? Utils.esc(item.label) : ''}"></div>
+            <div class="form-group"><label>Value *</label>
+                <input type="text" id="ccValue" value="${item ? Utils.esc(item.value) : ''}"></div>
+            <div class="form-group"><label>Link (optional)</label>
+                <input type="text" id="ccHref" value="${item ? Utils.esc(item.href || '') : ''}" placeholder="mailto:..."></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveContactCard('${item?.id || ''}')">Save</button>
+            </div>
+        </div>`);
+}
+window.editContactCard = id => {
+    const it = Utils.getItems(NEW_KEYS.contactCards).find(x => x.id === id);
+    if (it) openContactCardForm(it);
+};
+window.saveContactCard = id => {
+    const data = {
+        icon: document.getElementById('ccIcon').value.trim() || 'fa-envelope',
+        label: document.getElementById('ccLabel').value.trim(),
+        value: document.getElementById('ccValue').value.trim(),
+        href: document.getElementById('ccHref').value.trim()
+    };
+    if (!data.label || !data.value) { Utils.showToast('Label & value required', 'error'); return; }
+    const items = Utils.getItems(NEW_KEYS.contactCards);
+    if (id) {
+        const i = items.findIndex(x => x.id === id);
+        if (i > -1) items[i] = { ...items[i], ...data };
+    } else {
+        items.push({ id: Utils.uid(), ...data, order: items.length });
+    }
+    Utils.saveItems(NEW_KEYS.contactCards, items);
+    saveContentToGitHub('contact-cards', items, 'Update contact cards');
+    Utils.closeModal(); renderContactCards();
+};
+window.deleteContactCard = async id => {
+    if (!confirm('Delete this card?')) return;
+    const items = Utils.getItems(NEW_KEYS.contactCards).filter(x => x.id !== id);
+    Utils.saveItems(NEW_KEYS.contactCards, items);
+    renderContactCards();
+    await saveContentToGitHub('contact-cards', items, 'Delete contact card');
+};
+
+// ── Skill Matrix ─────────────────────────────────────────────
+function loadMatrixPage() {
+    renderMatrix();
+    const btn = document.getElementById('newMatrixBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.onclick = () => openMatrixForm();
+    }
+}
+
+function renderMatrix() {
+    const c = document.getElementById('matrixContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NEW_KEYS.matrix), { includeHidden: true });
+    if (!items.length) {
+        const defaults = [
+            { id: 'm1', name: 'Cisco Networking', percent: 85, order: 0 },
+            { id: 'm2', name: 'MikroTik RouterOS', percent: 90, order: 1 },
+            { id: 'm3', name: 'Windows Server Administration', percent: 85, order: 2 },
+            { id: 'm4', name: 'Linux Administration', percent: 80, order: 3 },
+            { id: 'm5', name: 'Cybersecurity', percent: 75, order: 4 },
+            { id: 'm6', name: 'Virtualization', percent: 80, order: 5 }
+        ];
+        Utils.saveItems(NEW_KEYS.matrix, defaults);
+        return renderMatrix();
+    }
+    c.innerHTML = items.map(m => `
+        <div class="admin-item-card" data-id="${m.id}" style="${m.hidden ? 'opacity:.55;' : ''}">
+            <div class="admin-item-header">
+                <div class="admin-item-icon"><i class="fas fa-chart-bar"></i></div>
+                <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleNewItemVisibility('matrix','${m.id}')">
+                        <i class="fas ${m.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                    <button class="admin-item-btn" onclick="editMatrix('${m.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="admin-item-btn delete" onclick="deleteMatrix('${m.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <h4 class="admin-item-title">${Utils.esc(m.name)}</h4>
+            <p class="admin-item-desc">${m.percent}%</p>
+        </div>
+    `).join('');
+    makeSortable('matrixContainer', 'matrix', reorderMatrix);
+}
+
+function openMatrixForm(item = null) {
+    Utils.openModal(item ? 'Edit Bar' : 'New Bar', `
+        <div class="admin-form">
+            <div class="form-group"><label>Name *</label>
+                <input type="text" id="matName" value="${item ? Utils.esc(item.name) : ''}"></div>
+            <div class="form-group"><label>Percent (0-100)</label>
+                <input type="number" id="matPercent" min="0" max="100" value="${item ? item.percent : 50}"></div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveMatrix('${item?.id || ''}')">Save</button>
+            </div>
+        </div>`);
+}
+window.editMatrix = id => {
+    const it = Utils.getItems(NEW_KEYS.matrix).find(x => x.id === id);
+    if (it) openMatrixForm(it);
+};
+window.saveMatrix = id => {
+    const data = {
+        name: document.getElementById('matName').value.trim(),
+        percent: Math.max(0, Math.min(100, parseInt(document.getElementById('matPercent').value) || 0))
+    };
+    if (!data.name) { Utils.showToast('Name required', 'error'); return; }
+    const items = Utils.getItems(NEW_KEYS.matrix);
+    if (id) {
+        const i = items.findIndex(x => x.id === id);
+        if (i > -1) items[i] = { ...items[i], ...data };
+    } else {
+        items.push({ id: Utils.uid(), ...data, order: items.length });
+    }
+    Utils.saveItems(NEW_KEYS.matrix, items);
+    saveContentToGitHub('matrix', items, 'Update matrix');
+    Utils.closeModal(); renderMatrix();
+};
+window.deleteMatrix = async id => {
+    if (!confirm('Delete this bar?')) return;
+    const items = Utils.getItems(NEW_KEYS.matrix).filter(x => x.id !== id);
+    Utils.saveItems(NEW_KEYS.matrix, items);
+    renderMatrix();
+    await saveContentToGitHub('matrix', items, 'Delete matrix');
+};
+
+// ── Generic toggle for new sections ──────────────────────────
+window.toggleNewItemVisibility = async function (section, id) {
+    const items = Utils.getItems(NEW_KEYS[section]);
+    const item = items.find(x => x.id === id);
+    if (!item) return;
+    item.hidden = !item.hidden;
+    Utils.saveItems(NEW_KEYS[section], items);
+    // Re-render the right list
+    const renderers = {
+        education: renderEducationList,
+        experience: renderExperienceList,
+        heroStats: renderHeroStats,
+        domains: renderDomains,
+        contactCards: renderContactCards,
+        matrix: renderMatrix
+    };
+    renderers[section]?.();
+    const ghName = {
+        education: 'education', experience: 'experience',
+        heroStats: 'hero-stats', domains: 'about-domains',
+        contactCards: 'contact-cards', matrix: 'matrix'
+    }[section];
+    await saveContentToGitHub(ghName, items, item.hidden ? 'Hide item' : 'Show item');
+};
+
+// ── Reorder callbacks for new sections ───────────────────────
+function reorderByKey(key, newOrderIds) {
+    const items = Utils.getItems(key);
+    const map = Object.fromEntries(items.map(x => [x.id, x]));
+    const reordered = newOrderIds.map(id => map[id]).filter(Boolean);
+    reordered.forEach((x, i) => x.order = i);
+    Utils.saveItems(key, reordered);
+    return reordered;
+}
+async function reorderEducation(ids)   { const r = reorderByKey(NEW_KEYS.education, ids);   await saveContentToGitHub('education', r, 'Reorder education'); }
+async function reorderExperience(ids)  { const r = reorderByKey(NEW_KEYS.experience, ids);  await saveContentToGitHub('experience', r, 'Reorder experience'); }
+async function reorderDomains(ids)     { const r = reorderByKey(NEW_KEYS.domains, ids);     await saveContentToGitHub('about-domains', r, 'Reorder domains'); }
+async function reorderContactCards(ids){ const r = reorderByKey(NEW_KEYS.contactCards, ids);await saveContentToGitHub('contact-cards', r, 'Reorder contact cards'); }
+async function reorderMatrix(ids)      { const r = reorderByKey(NEW_KEYS.matrix, ids);      await saveContentToGitHub('matrix', r, 'Reorder matrix'); }
+
 // ── Export Admin Module ──────────────────────────────────────
 window.AdminPanel = {
     adminState,
