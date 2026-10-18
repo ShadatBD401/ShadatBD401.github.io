@@ -46,23 +46,39 @@ async function fetchPublicContent() {
     const OWNER  = 'shadatbd401';
     const REPO   = 'shadatbd401.github.io';
     const BRANCH = 'main';
-    const sections = ['posts', 'projects', 'certifications', 'skills'];
+    const sections = [
+        'posts', 'projects', 'certifications', 'skills',
+        'education', 'experience', 'hero-stats',
+        'about-domains', 'interests', 'contact-cards', 'matrix'
+    ];
+
+    const keyMap = {
+        posts: Utils.STORAGE_KEYS.POSTS,
+        projects: Utils.STORAGE_KEYS.PROJECTS,
+        certifications: Utils.STORAGE_KEYS.CERTS,
+        skills: Utils.STORAGE_KEYS.SKILLS,
+        'education': 'sh_education',
+        'experience': 'sh_experience',
+        'hero-stats': 'sh_hero_stats',
+        'about-domains': 'sh_domains',
+        'interests': 'sh_interests',
+        'contact-cards': 'sh_contact_cards',
+        'matrix': 'sh_matrix'
+    };
 
     for (const s of sections) {
         try {
-            // Using GitHub API instead of raw.githubusercontent to bypass CDN cache
             const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/${s}.json?ref=${BRANCH}&t=${Date.now()}`;
-            const res = await fetch(url, { 
+            const res = await fetch(url, {
                 cache: 'no-store',
-                headers: { 'Accept': 'application/vnd.github.v3.raw' } // Gets raw JSON directly
+                headers: { 'Accept': 'application/vnd.github.v3.raw' }
             });
             if (!res.ok) continue;
             const json = await res.json();
-            
             if (Array.isArray(json)) {
-                const key = Utils.STORAGE_KEYS[s.toUpperCase()];
-                if (key) Utils.saveItems(key, json);
-                console.log(`⬇️ public: loaded fresh ${s}.json from GitHub API`);
+                const key = keyMap[s];
+                if (key) Utils.setStorage(key, json);
+                console.log(`⬇️ public: loaded ${s}.json`);
             }
         } catch (e) {
             console.warn(`public: could not load ${s}.json`, e);
