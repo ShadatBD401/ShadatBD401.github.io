@@ -30,7 +30,7 @@
     "tags": "VLAN|Inter-VLAN|ACL|Switching",
     "link": "#",
     "order": 3,
-    "hidden": false
+    "hidden": true
   },
   {
     "id": "proj-2",
