@@ -14,7 +14,8 @@
     "description": "Implemented a redundant DNS architecture on Red Hat Linux with master/slave replication for service resilience.\n\n• Configured BIND DNS server on RHEL\n• Set up master-slave replication\n• Tested failover scenarios\n• Documented configuration and troubleshooting steps",
     "tags": "RHEL|BIND|DNS|High Availability",
     "link": "#",
-    "order": 1
+    "order": 1,
+    "hidden": true
   },
   {
     "id": "proj-4",
@@ -22,7 +23,8 @@
     "description": "Built a Red Hat Linux mail-server environment with backup and recovery considerations for continuity.\n\n• Deployed Postfix and Dovecot\n• Configured SMTP relay with authentication\n• Implemented automated backup scripts\n• Tested recovery procedures",
     "tags": "Postfix|Dovecot|Backup|RHEL",
     "link": "#",
-    "order": 2
+    "order": 2,
+    "hidden": true
   },
   {
     "id": "proj-1",
@@ -39,6 +41,7 @@
     "description": "Configured secure network file sharing on Red Hat Linux with permissions and access-control considerations.\n\n• Deployed Samba server on RHEL\n• Configured user-level access controls\n• Integrated with Windows Active Directory\n• Implemented audit logging",
     "tags": "Samba|SMB|RHEL|File Sharing",
     "link": "#",
-    "order": 4
+    "order": 4,
+    "hidden": true
   }
 ]
