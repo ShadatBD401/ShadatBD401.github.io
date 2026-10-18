@@ -310,7 +310,7 @@ async function initProfileSettings() {
 function loadAllSettings() {
     const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
     // Load visibility toggles
-    ['about','experience','technical','projects','certifications','education','learning','gallery','contact'].forEach(sec => {
+    ['about','experience','technical','projects','certifications','education','learning','gallery','contact','notes'].forEach(sec => {
         const el = document.getElementById('vis_' + sec);
         if (el) el.checked = (s.visibility || {})[sec] !== false;   // default true
     });
@@ -357,7 +357,7 @@ function saveAllSettings() {
 
     // Save visibility
     s.visibility = s.visibility || {};
-    ['about','experience','technical','projects','certifications','education','learning','gallery','contact'].forEach(sec => {
+    ['about','experience','technical','projects','certifications','education','learning','gallery','contact','notes'].forEach(sec => {
         const el = document.getElementById('vis_' + sec);
         if (el) s.visibility[sec] = el.checked;
     });
