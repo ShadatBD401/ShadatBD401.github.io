@@ -297,32 +297,24 @@ function navigateToPage(page) {
     
     // Load page data
     switch (page) {
-        case 'dashboard':
-            loadDashboardData();
-            break;
-        case 'tickets':
-            loadTicketsPage();
-            break;
-        case 'posts':
-            loadPostsPage();
-            break;
-        case 'projects':
-            loadProjectsPage();
-            break;
-        case 'certifications':
-            loadCertificationsPage();
-            break;
-        case 'skills':
-            loadSkillsPage();
-            break;
-        case 'activity':
-            loadActivityPage();
-            break;
-        case 'settings':
-            loadSettingsPage();
-            break;
+        case 'dashboard':     loadDashboardData();     break;
+        case 'tickets':       loadTicketsPage();       break;
+        case 'posts':         loadPostsPage();         break;
+        case 'projects':      loadProjectsPage();      break;
+        case 'certifications':loadCertificationsPage();break;
+        case 'skills':        loadSkillsPage();        break;
+        case 'education':     loadEducationPage();     break;
+        case 'experience':    loadExperiencePage();    break;
+        case 'hero':          loadHeroPage();          break;
+        case 'about':         loadAboutPage();         break;
+        case 'contact-info':  loadContactCardsPage();  break;
+        case 'matrix':        loadMatrixPage();        break;
+        case 'activity':      loadActivityPage();      break;
+        case 'settings':      loadSettingsPage();      break;
+        case 'gallery':       renderAdminGallery?.();  break;
+        case 'videos':        renderAdminVideos?.();   break;
     }
-    
+   
     // Close sidebar on mobile
     if (window.innerWidth <= 1024) {
         document.getElementById('adminSidebar')?.classList.remove('open');
