@@ -55,13 +55,16 @@
     if (navAvatar) {
         const fallbackLogo = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>`;
         if (s.profileImage) {
-            const src = crispUrl(s.profileImage, s.profileImageId, 200);
-            navAvatar.innerHTML = `${fallbackLogo}<img src="${src}" alt="Profile" onerror="this.remove()">`;
+            const src = crispUrl(s.profileImage, s.profileImageId, 80);
+            navAvatar.innerHTML = fallbackLogo +
+                `<img src="${src}" alt="Profile"
+                      onerror="this.style.display='none'"
+                      style="width:100%;height:100%;object-fit:cover;">`;
         } else {
             navAvatar.innerHTML = fallbackLogo;
         }
     }
-
+   
     // ⬇️ NEW: Hero terminal avatar (was only created by features.js before)
     const heroTerminal = document.querySelector('.hero-terminal');
     if (heroTerminal && s.heroImage) {
