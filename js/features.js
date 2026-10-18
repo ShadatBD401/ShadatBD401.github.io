@@ -447,6 +447,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const savedTheme = Utils.getStorage('sh_theme', null);
     const siteSettings = Utils.getStorage('sh_settings', {});
     window.applyTheme(savedTheme || siteSettings.defaultTheme || 'dark');
+       // Wire the navbar theme toggle button
+    const themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', window.cycleTheme);
+    }
 
     try { shInitGlobalSearch(); } catch (e) { console.error('Search init failed:', e); }
     try { shInitCustomCursor(); } catch (e) { console.error('Cursor init failed:', e); }
