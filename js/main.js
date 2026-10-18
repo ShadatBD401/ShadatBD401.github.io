@@ -33,6 +33,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     initParticles();
     initCounters();
     initSkills();
+    renderHeroStats();
+    renderExperience();
+    renderEducation();
+    renderDomains();
+    renderInterests();
+    renderContactCards();
+    renderMatrix();
     initProjects();
     initCertifications();
     initLearning();
