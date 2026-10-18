@@ -42,13 +42,14 @@
 
     // helper: crisp Google Drive image URL
     function crispUrl(url, id, size) {
-        if (id) return `https://lh3.googleusercontent.com/d/${id}=s${size}-c`;
-        if (url && url.includes('lh3.googleusercontent.com')) {
-            return url.replace(/=w\d+.*$/, `=s${size}-c`);
+        // Use the Drive thumbnail CDN which returns real JPEG at the exact size
+        if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w${size}`;
+        if (url && url.includes('googleusercontent.com')) {
+            return url.replace(/=w\d+.*$/, `=w${size}`);
         }
         return url;
-    }
-
+    }   
+   
     // Navbar avatar
     const navAvatar = document.getElementById('navAvatar');
     if (navAvatar) {
