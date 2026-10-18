@@ -3294,28 +3294,6 @@ main,
 /* ── Navbar Avatar ────────────────────────────────────────── */
 .nav-avatar {
     position: relative;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--gradient-primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    overflow: hidden;
-    border: 2px solid var(--border-color);
-    box-shadow: var(--shadow-md);
-    transition: all var(--transition-fast);
-    isolation: isolate;
-}
-
-/* ── Navbar Avatar ────────────────────────────────────────── */
-.nav-avatar {
-    position: relative;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -3323,16 +3301,46 @@ main,
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    font-weight: 700;
     flex-shrink: 0;
     overflow: hidden;
     border: 1px solid var(--border-color);
     transition: transform var(--transition-fast), border-color var(--transition-fast);
-    margin: 0;
-    -webkit-backface-visibility: hidden;
+}
+
+.nav-avatar-logo {
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: -0.04em;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+.nav-avatar-logo .logo-bracket { color: var(--accent-primary); }
+.nav-avatar-logo .logo-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
     backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+.nav-avatar:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-primary);
 }
 
 /* Styled <SH/> — big, gradient, recognisable */
