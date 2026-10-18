@@ -184,6 +184,28 @@ function shInitCustomCursor() {
     });
     document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
     document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
+
+    // ── Idle: hide after 5s of no movement, reappear instantly on move ──
+    let idleTimer = null;
+    const startIdle = () => {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+            cursor.style.opacity = '0';
+            follower.style.opacity = '0';
+            smoke.style.opacity = '0';
+        }, 5000);
+    };
+    document.addEventListener('mousemove', () => {
+        cursor.style.opacity = '1';
+        follower.style.opacity = '';
+        startIdle();
+    });
+    document.addEventListener('mousedown', () => {
+        cursor.style.opacity = '1';
+        follower.style.opacity = '';
+        startIdle();
+    });
+    startIdle();
 }
 
 // ── Ticket Tracking ──────────────────────────────────────────
