@@ -46,6 +46,6 @@
     "status": "training",
     "link": "#",
     "order": 5,
-    "hidden": true
+    "hidden": false
   }
 ]
