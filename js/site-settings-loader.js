@@ -89,7 +89,7 @@
         about: 'about', experience: 'experience', technical: 'technical',
         projects: 'projects', certifications: 'certifications',
         education: 'education', learning: 'learning',
-        gallery: 'gallery', contact: 'contact'
+        gallery: 'gallery', contact: 'contact', notes: 'notes'
     };
     Object.entries(sectionMap).forEach(([key, id]) => {
         const navLink = document.querySelector(`.nav-link[data-section="${id}"]`);
