@@ -1,11 +1,20 @@
 [
   {
+    "id": "proj-2",
+    "title": "Windows Server Enterprise Infrastructure",
+    "description": "Built an enterprise-style Windows Server environment around Active Directory, DNS, DHCP and IPAM.\n\n• Deployed AD DS with multiple domain controllers\n• Configured DNS and DHCP for centralized management\n• Implemented IPAM for IP address tracking\n• Created Group Policies for security compliance",
+    "tags": "AD DS|DNS|DHCP|IPAM|GPO",
+    "link": "#",
+    "order": 0,
+    "hidden": false
+  },
+  {
     "id": "proj-3",
     "title": "Redundant DNS with Master-Slave Replication",
     "description": "Implemented a redundant DNS architecture on Red Hat Linux with master/slave replication for service resilience.\n\n• Configured BIND DNS server on RHEL\n• Set up master-slave replication\n• Tested failover scenarios\n• Documented configuration and troubleshooting steps",
     "tags": "RHEL|BIND|DNS|High Availability",
     "link": "#",
-    "order": 0
+    "order": 1
   },
   {
     "id": "proj-4",
@@ -13,22 +22,13 @@
     "description": "Built a Red Hat Linux mail-server environment with backup and recovery considerations for continuity.\n\n• Deployed Postfix and Dovecot\n• Configured SMTP relay with authentication\n• Implemented automated backup scripts\n• Tested recovery procedures",
     "tags": "Postfix|Dovecot|Backup|RHEL",
     "link": "#",
-    "order": 1
+    "order": 2
   },
   {
     "id": "proj-1",
     "title": "Departmental VLAN Network Design",
     "description": "Designed departmental segmentation and secure inter-VLAN communication using switching, routing and access-control concepts.\n\n• Configured VLANs for multiple departments\n• Implemented inter-VLAN routing with Router-on-a-Stick\n• Applied ACLs for security between departments\n• Documented network topology and addressing plan",
     "tags": "VLAN|Inter-VLAN|ACL|Switching",
-    "link": "#",
-    "order": 2,
-    "hidden": false
-  },
-  {
-    "id": "proj-2",
-    "title": "Windows Server Enterprise Infrastructure",
-    "description": "Built an enterprise-style Windows Server environment around Active Directory, DNS, DHCP and IPAM.\n\n• Deployed AD DS with multiple domain controllers\n• Configured DNS and DHCP for centralized management\n• Implemented IPAM for IP address tracking\n• Created Group Policies for security compliance",
-    "tags": "AD DS|DNS|DHCP|IPAM|GPO",
     "link": "#",
     "order": 3,
     "hidden": false
