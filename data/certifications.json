@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "id": "cert-1",
+    "title": "MTCNA",
+    "description": "MikroTik Certified Network Associate",
+    "status": "active",
+    "link": "#",
+    "order": 0
+  },
+  {
+    "id": "cert-2",
+    "title": "MTCRE",
+    "description": "MikroTik Certified Routing Engineer",
+    "status": "active",
+    "link": "#",
+    "order": 1
+  },
+  {
+    "id": "cert-3",
+    "title": "MTCSE",
+    "description": "MikroTik Certified Security Engineer",
+    "status": "active",
+    "link": "#",
+    "order": 2
+  },
+  {
+    "id": "cert-4",
+    "title": "CCNA",
+    "description": "Cisco Certified Network Associate (Training Completed)",
+    "status": "training",
+    "link": "#",
+    "order": 3
+  },
+  {
+    "id": "cert-5",
+    "title": "Red Hat System Admin",
+    "description": "RH124, RH134, RH254 (Training Completed)",
+    "status": "training",
+    "link": "#",
+    "order": 4
+  },
+  {
+    "id": "cert-6",
+    "title": "Web Security Workshop",
+    "description": "Web Application Vulnerabilities & Burp Suite",
+    "status": "training",
+    "link": "#",
+    "order": 5
+  }
+]
