@@ -26,6 +26,15 @@ window.applyTheme = function (theme) {
     }
 };
 
+// ── Cycle through themes on toggle click ────────────────────
+window.cycleTheme = function () {
+    const current = Utils.getStorage('sh_theme', 'dark');
+    const idx = window.SH_THEMES.indexOf(current);
+    const next = window.SH_THEMES[(idx + 1) % window.SH_THEMES.length];
+    window.applyTheme(next);
+    if (Utils.showToast) Utils.showToast(`Theme: ${next}`, 'info', 1500);
+};
+
 // ── Global Search ────────────────────────────────────────────
 function shInitGlobalSearch() {
     const trigger = document.getElementById('searchTrigger');
