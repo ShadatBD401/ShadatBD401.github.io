@@ -47,7 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderGalleryPage();
     });
 
+    // Small delay to let any pending admin writes settle
+    await new Promise(r => setTimeout(r, 200));
     await loadGalleryPage();
+   
 });
 
 async function loadGalleryPage() {
