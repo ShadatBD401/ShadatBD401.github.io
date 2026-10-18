@@ -34,6 +34,6 @@
     "name": "Virtualization",
     "percent": 80,
     "order": 5,
-    "hidden": true
+    "hidden": false
   }
 ]
