@@ -13,10 +13,6 @@ window.applyTheme = function (theme) {
     document.documentElement.style.colorScheme = (theme === 'light') ? 'light' : 'dark';
     try { Utils.setStorage('sh_theme', theme); } catch (e) {}
 
-    document.querySelectorAll('.theme-swatch').forEach(s => {
-        s.classList.toggle('active', s.dataset.theme === theme);
-    });
-
     const icon = document.querySelector('#themeToggle i');
     if (icon) {
         const icons = {
