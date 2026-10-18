@@ -31,7 +31,7 @@
     "desc": "Configure and administer MikroTik RouterOS on RouterBOARD and CHR platforms. Deploy IP addressing, bridges, VLANs, DHCP, DNS, static routing, NAT, and firewall rules. Configure PPPoE services, VPNs, bandwidth management.",
     "tags": "RouterOS|PPPoE|Firewall|Bandwidth|VPN",
     "order": 3,
-    "hidden": true
+    "hidden": false
   },
   {
     "id": "skill-5",
