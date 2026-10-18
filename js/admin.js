@@ -315,6 +315,7 @@ function navigateToPage(page) {
         case 'projects':      loadProjectsPage();      break;
         case 'certifications':loadCertificationsPage();break;
         case 'skills':        loadSkillsPage();        break;
+        case 'notes':         loadNotesPageAdmin();    break;
         case 'education':     loadEducationPage();     break;
         case 'experience':    loadExperiencePage();    break;
         case 'hero':          loadHeroPage();          break;
