@@ -26,49 +26,6 @@ window.applyTheme = function (theme) {
     }
 };
 
-function shInitThemeSwitcher() {
-    const switcher = document.getElementById('themeSwitcher');
-    const toggle = document.getElementById('themeSwitcherToggle');
-    const themeToggle = document.getElementById('themeToggle');
-
-    const savedTheme = Utils.getStorage('sh_theme', null);
-    const siteSettings = Utils.getStorage('sh_settings', {});
-    const currentTheme = savedTheme || siteSettings.defaultTheme || 'dark';
-    window.applyTheme(currentTheme);
-
-    if (toggle && switcher) {
-        toggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            switcher.classList.toggle('open');
-        });
-    }
-
-    document.addEventListener('click', function (e) {
-        if (switcher && !switcher.contains(e.target) && switcher.classList.contains('open')) {
-            switcher.classList.remove('open');
-        }
-    });
-
-    document.querySelectorAll('.theme-swatch').forEach(function (swatch) {
-        swatch.addEventListener('click', function (e) {
-            e.stopPropagation();
-            window.applyTheme(swatch.dataset.theme);
-            if (switcher) switcher.classList.remove('open');
-        });
-    });
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const cur = Utils.getStorage('sh_theme', currentTheme);
-            const idx = window.SH_THEMES.indexOf(cur);
-            const next = window.SH_THEMES[(idx + 1) % window.SH_THEMES.length];
-            window.applyTheme(next);
-        });
-    }
-}
-
 // ── Global Search ────────────────────────────────────────────
 function shInitGlobalSearch() {
     const trigger = document.getElementById('searchTrigger');
