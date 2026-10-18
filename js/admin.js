@@ -138,7 +138,7 @@ async function syncAllContentFromGitHub() {
     const sections = [
         'posts', 'projects', 'certifications', 'skills',
         'education', 'experience', 'hero-stats',
-        'about-domains', 'interests', 'contact-cards', 'matrix'
+        'about-domains', 'interests', 'contact-cards', 'matrix', 'notes'
     ];
     for (const s of sections) {
         try {
@@ -150,7 +150,7 @@ async function syncAllContentFromGitHub() {
                     'education': 'sh_education', 'experience': 'sh_experience',
                     'hero-stats': 'sh_hero_stats', 'about-domains': 'sh_domains',
                     'interests': 'sh_interests', 'contact-cards': 'sh_contact_cards',
-                    'matrix': 'sh_matrix'
+                    'matrix': 'sh_matrix', 'notes': 'sh_notes'
                 };
                 const key = keyMap[s];
                 if (key) Utils.setStorage(key, data.json);
