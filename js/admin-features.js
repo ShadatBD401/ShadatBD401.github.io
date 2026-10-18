@@ -341,15 +341,22 @@ function loadAllSettings() {
 
 function ensureSaveButton() {
     if (document.getElementById('saveSettingsBtn')) return;
-    const container = document.querySelector('.settings-container');
+    const container = document.querySelector('#page-settings .settings-container');
     if (!container) return;
+
+    // Make it sticky so it's always reachable
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:sticky;bottom:0;padding:var(--space-md) 0;' +
+        'background:var(--bg-primary);border-top:1px solid var(--border-color);' +
+        'margin-top:var(--space-lg);display:flex;justify-content:flex-end;z-index:5;';
+
     const btn = document.createElement('button');
     btn.className = 'btn btn-primary';
     btn.id = 'saveSettingsBtn';
-    btn.style.marginTop = 'var(--space-xl)';
     btn.innerHTML = '<i class="fas fa-save"></i> Save All Settings';
     btn.addEventListener('click', saveAllSettings);
-    container.appendChild(btn);
+    wrapper.appendChild(btn);
+    container.appendChild(wrapper);
 }
 
 function saveAllSettings() {
