@@ -434,7 +434,11 @@ function shApplySiteSettings() {
 
 // ── Bootstrap on DOM ready ───────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
-    try { shInitThemeSwitcher(); } catch (e) { console.error('Theme init failed:', e); }
+    // Initialize the saved theme (switcher UI is gone; navbar toggle still works)
+    const savedTheme = Utils.getStorage('sh_theme', null);
+    const siteSettings = Utils.getStorage('sh_settings', {});
+    window.applyTheme(savedTheme || siteSettings.defaultTheme || 'dark');
+
     try { shInitGlobalSearch(); } catch (e) { console.error('Search init failed:', e); }
     try { shInitCustomCursor(); } catch (e) { console.error('Cursor init failed:', e); }
     try { shInitTicketTracking(); } catch (e) { console.error('Tracking init failed:', e); }
