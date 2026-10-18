@@ -2400,6 +2400,243 @@ async function reorderDomains(ids)     { const r = reorderByKey(NEW_KEYS.domains
 async function reorderContactCards(ids){ const r = reorderByKey(NEW_KEYS.contactCards, ids);await saveContentToGitHub('contact-cards', r, 'Reorder contact cards'); }
 async function reorderMatrix(ids)      { const r = reorderByKey(NEW_KEYS.matrix, ids);      await saveContentToGitHub('matrix', r, 'Reorder matrix'); }
 
+/* ============================================================
+   NOTES ADMIN
+   ============================================================ */
+const NOTES_KEY_ADMIN = 'sh_notes';
+
+function loadNotesPageAdmin() {
+    renderNotesAdmin();
+    const btn = document.getElementById('newNoteBtn');
+    if (btn && !btn.dataset.wired) {
+        btn.dataset.wired = '1';
+        btn.onclick = () => openNoteEditor();
+    }
+}
+
+function renderNotesAdmin() {
+    const c = document.getElementById('notesAdminContainer');
+    if (!c) return;
+    const items = Utils.sortByOrder(Utils.getItems(NOTES_KEY_ADMIN), { includeHidden: true });
+    if (!items.length) {
+        c.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+            <i class="fas fa-sticky-note"></i><h3>No notes yet</h3>
+            <p>Click "New Note" to start.</p></div>`;
+        return;
+    }
+    c.innerHTML = items.map(n => `
+        <div class="admin-item-card" data-id="${n.id}" style="${n.hidden ? 'opacity:.55;' : ''}">
+            <div class="admin-item-header">
+                <div class="admin-item-icon">
+                    <i class="fas ${n.type === 'book' ? 'fa-book' : 'fa-sticky-note'}"></i>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="admin-item-btn" onclick="toggleNoteVisibility('${n.id}')"
+                            title="${n.hidden ? 'Show' : 'Hide'}">
+                        <i class="fas ${n.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                    </button>
+                    <button class="admin-item-btn" onclick="editNote('${n.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="admin-item-btn" onclick="readNote('${n.id}')" title="Read">
+                        <i class="fas fa-book-open"></i>
+                    </button>
+                    <button class="admin-item-btn delete" onclick="deleteNote('${n.id}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <h4 class="admin-item-title">${Utils.esc(n.title)}</h4>
+            <p class="admin-item-desc">
+                ${n.type === 'book' ? 'Reading' : 'Note'} • ${Utils.formatDate(n.createdAt)}
+            </p>
+        </div>
+    `).join('');
+    makeSortable('notesAdminContainer', 'notes', reorderNotes);
+}
+
+let noteEditorState = { bold: false, italic: false };
+
+function openNoteEditor(note = null) {
+    const colors = [
+        { key: 'default', val: '#1e293b', label: 'Default' },
+        { key: 'yellow',  val: '#fef3c7', label: 'Yellow' },
+        { key: 'blue',    val: '#dbeafe', label: 'Blue' },
+        { key: 'green',   val: '#d1fae5', label: 'Green' },
+        { key: 'pink',    val: '#fce7f3', label: 'Pink' },
+        { key: 'purple',  val: '#ede9fe', label: 'Purple' }
+    ];
+
+    const content = `
+        <div class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="noteType">
+                        <option value="note" ${note?.type === 'note' ? 'selected' : ''}>Note</option>
+                        <option value="book" ${note?.type === 'book' ? 'selected' : ''}>Book / Reading</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <select id="noteColor">
+                        ${colors.map(c => `<option value="${c.key}" ${note?.color === c.key ? 'selected' : ''}>${c.label}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="noteTitle" value="${note ? Utils.esc(note.title) : ''}" placeholder="Note title">
+            </div>
+            <div class="form-group">
+                <label>Content *</label>
+                <div class="note-editor-toolbar" id="noteToolbar">
+                    <button type="button" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                    <button type="button" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                    <button type="button" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                    <div class="divider"></div>
+                    <button type="button" data-cmd="formatBlock" data-value="h1" title="Heading 1">H1</button>
+                    <button type="button" data-cmd="formatBlock" data-value="h2" title="Heading 2">H2</button>
+                    <button type="button" data-cmd="formatBlock" data-value="p" title="Paragraph">¶</button>
+                    <div class="divider"></div>
+                    <button type="button" data-cmd="insertUnorderedList" title="Bullet list"><i class="fas fa-list-ul"></i></button>
+                    <button type="button" data-cmd="insertOrderedList" title="Numbered list"><i class="fas fa-list-ol"></i></button>
+                    <button type="button" data-cmd="createLink" title="Link"><i class="fas fa-link"></i></button>
+                    <div class="divider"></div>
+                    <button type="button" data-cmd="fontSize" data-value="2" title="Small">A-</button>
+                    <button type="button" data-cmd="fontSize" data-value="4" title="Medium">A</button>
+                    <button type="button" data-cmd="fontSize" data-value="6" title="Large">A+</button>
+                    <div class="divider"></div>
+                    <button type="button" data-cmd="removeFormat" title="Clear formatting">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                </div>
+                <div class="note-editor-area" id="noteContent" contenteditable="true">
+                    ${note?.content || ''}
+                </div>
+            </div>
+            <div class="admin-form-actions">
+                <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNote('${note?.id || ''}')">
+                    <i class="fas fa-save"></i> Save Note
+                </button>
+            </div>
+        </div>`;
+
+    Utils.openModal(note ? 'Edit Note' : 'New Note', content);
+
+    // Wire the toolbar
+    const toolbar = document.getElementById('noteToolbar');
+    const area = document.getElementById('noteContent');
+
+    toolbar.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        btn.addEventListener('click', () => {
+            const cmd = btn.dataset.cmd;
+            const val = btn.dataset.value || null;
+            area.focus();
+            if (cmd === 'createLink') {
+                const url = prompt('Enter URL:');
+                if (url) document.execCommand('createLink', false, url);
+            } else if (cmd === 'formatBlock') {
+                document.execCommand('formatBlock', false, val || 'p');
+            } else if (cmd === 'fontSize') {
+                document.execCommand('fontSize', false, val || '3');
+            } else {
+                document.execCommand(cmd, false, null);
+            }
+            updateToolbarState();
+        });
+    });
+
+    function updateToolbarState() {
+        toolbar.querySelectorAll('button').forEach(b => {
+            const c = b.dataset.cmd;
+            if (['bold', 'italic', 'underline'].includes(c)) {
+                b.classList.toggle('active', document.queryCommandState(c));
+            }
+        });
+    }
+
+    area.addEventListener('keyup', updateToolbarState);
+    area.addEventListener('mouseup', updateToolbarState);
+}
+
+window.editNote = id => {
+    const it = Utils.getItems(NOTES_KEY_ADMIN).find(x => x.id === id);
+    if (it) openNoteEditor(it);
+};
+
+window.readNote = id => {
+    const n = Utils.getItems(NOTES_KEY_ADMIN).find(x => x.id === id);
+    if (!n) return;
+    Utils.openModal(n.title, `
+        <div class="note-read-content">${n.content || '<p>(Empty)</p>'}</div>
+        <div style="margin-top:1.5rem; font-size:0.75rem; color:var(--text-muted);">
+            <i class="fas fa-calendar"></i> ${Utils.formatDate(n.createdAt)}
+        </div>
+    `);
+};
+
+window.saveNote = id => {
+    const type = document.getElementById('noteType').value;
+    const color = document.getElementById('noteColor').value;
+    const title = document.getElementById('noteTitle').value.trim();
+    const content = document.getElementById('noteContent').innerHTML.trim();
+
+    if (!title) { Utils.showToast('Title is required', 'error'); return; }
+    if (!content || content === '<br>') { Utils.showToast('Content is required', 'error'); return; }
+
+    const items = Utils.getItems(NOTES_KEY_ADMIN);
+    const now = new Date().toISOString();
+
+    if (id) {
+        const i = items.findIndex(x => x.id === id);
+        if (i > -1) {
+            items[i] = { ...items[i], type, color, title, content, updatedAt: now };
+        }
+    } else {
+        items.unshift({
+            id: Utils.uid(),
+            type, color, title, content,
+            createdAt: now, updatedAt: now,
+            order: 0
+        });
+        items.forEach((x, i) => x.order = i);
+    }
+    Utils.saveItems(NOTES_KEY_ADMIN, items);
+    saveContentToGitHub('notes', items, id ? 'Update note' : 'New note');
+    Utils.closeModal();
+    Utils.showToast(id ? 'Note updated' : 'Note created', 'success');
+    renderNotesAdmin();
+};
+
+window.deleteNote = async id => {
+    if (!confirm('Delete this note?')) return;
+    const items = Utils.getItems(NOTES_KEY_ADMIN).filter(x => x.id !== id);
+    Utils.saveItems(NOTES_KEY_ADMIN, items);
+    renderNotesAdmin();
+    await saveContentToGitHub('notes', items, 'Delete note');
+};
+
+window.toggleNoteVisibility = async id => {
+    const items = Utils.getItems(NOTES_KEY_ADMIN);
+    const n = items.find(x => x.id === id);
+    if (!n) return;
+    n.hidden = !n.hidden;
+    Utils.saveItems(NOTES_KEY_ADMIN, items);
+    renderNotesAdmin();
+    await saveContentToGitHub('notes', items, n.hidden ? 'Hide note' : 'Show note');
+    Utils.showToast(n.hidden ? 'Note hidden' : 'Note visible', 'success');
+};
+
+async function reorderNotes(ids) {
+    const r = reorderByKey(NOTES_KEY_ADMIN, ids);
+    await saveContentToGitHub('notes', r, 'Reorder notes');
+}
+
+
+
 // ── Export Admin Module ──────────────────────────────────────
 window.AdminPanel = {
     adminState,
