@@ -6,7 +6,7 @@
     "desc": "Understand and apply IPv4/IPv6 addressing, subnetting, VLSM, CIDR, and route summarization. Design and configure LAN/WAN networks with static and dynamic routing (OSPF). Configure inter-VLAN routing, DHCP, NAT/PAT, and essential IP services.",
     "tags": "OSPF|VLAN|NAT|ACL|HSRP",
     "order": 0,
-    "hidden": true
+    "hidden": false
   },
   {
     "id": "skill-2",
