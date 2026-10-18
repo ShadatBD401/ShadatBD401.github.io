@@ -437,6 +437,9 @@ function shApplySiteSettings() {
         if (visible === false) {
             if (section) section.style.display = 'none';
             if (navLink) navLink.style.display = 'none';
+        } else {
+            if (section) section.style.display = '';
+            if (navLink) navLink.style.display = '';
         }
     });
 }
