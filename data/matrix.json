@@ -1,0 +1,39 @@
+[
+  {
+    "id": "m1",
+    "name": "Cisco Networking",
+    "percent": 85,
+    "order": 0
+  },
+  {
+    "id": "m2",
+    "name": "MikroTik RouterOS",
+    "percent": 90,
+    "order": 1
+  },
+  {
+    "id": "m3",
+    "name": "Windows Server Administration",
+    "percent": 85,
+    "order": 2
+  },
+  {
+    "id": "m4",
+    "name": "Linux Administration",
+    "percent": 80,
+    "order": 3
+  },
+  {
+    "id": "m5",
+    "name": "Cybersecurity",
+    "percent": 75,
+    "order": 4
+  },
+  {
+    "id": "m6",
+    "name": "Virtualization",
+    "percent": 80,
+    "order": 5,
+    "hidden": true
+  }
+]
