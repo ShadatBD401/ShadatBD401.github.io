@@ -62,16 +62,21 @@ async function setHiddenGalleryIds(ids) {
     }
 }
 
-window.toggleGalleryVisibility = async function (id) {
+window.toggleGalleryVisibility = async function (idOrDriveId) {
+    // Normalise: always use the Google Drive file ID
+    const items = Utils.getItems('sh_gallery');
+    const item = items.find(i => i.id === idOrDriveId || i.driveId === idOrDriveId);
+    const driveId = item?.driveId || idOrDriveId;
+
     const hidden = await getHiddenGalleryIds();
-    const idx = hidden.indexOf(id);
+    const idx = hidden.indexOf(driveId);
 
     let updated;
     if (idx === -1) {
-        updated = [...hidden, id];
+        updated = [...hidden, driveId];
         Utils.showToast('Item hidden from visitors', 'success');
     } else {
-        updated = hidden.filter(x => x !== id);
+        updated = hidden.filter(x => x !== driveId);
         Utils.showToast('Item visible to visitors', 'success');
     }
 
