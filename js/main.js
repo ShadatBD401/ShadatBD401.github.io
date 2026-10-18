@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initCertifications();
     initLearning();
     initContactForm();
+    loadNotes();
     initModals();
     initScrollReveal();
 });
