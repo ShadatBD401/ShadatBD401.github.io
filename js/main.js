@@ -193,84 +193,114 @@ function updateActiveSection() {
     });
 }
 
-// ── Particles Effect ─────────────────────────────────────────
+// ── Particles Effect (theme-aware, always visible) ───────────
 function initParticles() {
     const canvas = document.getElementById('particleCanvas');
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     let particles = [];
-    let animationId;
-    
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    let animationId = null;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function cssVar(name, fallback) {
+        const v = getComputedStyle(document.documentElement)
+            .getPropertyValue(name).trim();
+        return v || fallback;
     }
-    
+
+    // Convert hex/rgb to "r,g,b" string for rgba()
+    function toRgb(str) {
+        if (!str) return '59,130,246';
+        str = str.trim();
+        if (str.startsWith('#')) {
+            const h = str.replace('#', '');
+            const n = h.length === 3
+                ? h.split('').map(c => c + c).join('')
+                : h;
+            const r = parseInt(n.slice(0, 2), 16);
+            const g = parseInt(n.slice(2, 4), 16);
+            const b = parseInt(n.slice(4, 6), 16);
+            return `${r},${g},${b}`;
+        }
+        const m = str.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+        return m ? `${m[1]},${m[2]},${m[3]}` : '59,130,246';
+    }
+
+    let accentRGB = toRgb(cssVar('--accent-primary', '#3b82f6'));
+
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width  = Math.floor(window.innerWidth  * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width  = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
     function createParticles() {
         particles = [];
-        const count = Math.min(Math.floor(window.innerWidth / 20), 80);
-        
+        const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 18000), 100);
         for (let i = 0; i < count; i++) {
             particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6,
                 radius: Math.random() * 2 + 1,
-                opacity: Math.random() * 0.5 + 0.1
+                opacity: Math.random() * 0.6 + 0.15
             });
         }
     }
-    
+
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        particles.forEach((p, i) => {
-            // Update position
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        ctx.clearRect(0, 0, W, H);
+
+        // Live-update accent colour per frame (theme may change at runtime)
+        accentRGB = toRgb(cssVar('--accent-primary', '#3b82f6'));
+
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
             p.x += p.vx;
             p.y += p.vy;
-            
-            // Wrap around
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width) p.x = 0;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.y > canvas.height) p.y = 0;
-            
-            // Draw particle
+            if (p.x < 0) p.x = W;
+            if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H;
+            if (p.y > H) p.y = 0;
+
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(59, 130, 246, ${p.opacity})`;
+            ctx.fillStyle = `rgba(${accentRGB}, ${p.opacity})`;
             ctx.fill();
-            
-            // Draw connections
-            particles.slice(i + 1).forEach(p2 => {
+
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
                 const dx = p.x - p2.x;
                 const dy = p.y - p2.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                if (dist < 150) {
+                if (dist < 140) {
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(p2.x, p2.y);
-                    ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 * (1 - dist / 150)})`;
-                    ctx.lineWidth = 0.5;
+                    ctx.strokeStyle = `rgba(${accentRGB}, ${0.18 * (1 - dist / 140)})`;
+                    ctx.lineWidth = 0.6;
                     ctx.stroke();
                 }
-            });
-        });
-        
+            }
+        }
         animationId = requestAnimationFrame(draw);
     }
-    
+
     resize();
     createParticles();
     draw();
-    
+
     window.addEventListener('resize', Utils.debounce(() => {
         resize();
         createParticles();
-    }, 250));
+    }, 200));
 }
 
 // ── Counter Animation ────────────────────────────────────────
