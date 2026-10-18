@@ -74,7 +74,7 @@ const GitHubContent = {
 
         return this._request('PUT', path, body);
     },
-
+   
     async delete(path, message = 'Delete content') {
         const existing = await this.read(path);
         if (!existing) return null;
