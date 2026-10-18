@@ -451,6 +451,138 @@ function renderSkills() {
     initScrollReveal();
 }
 
+// ── Render new admin-managed sections ────────────────────────
+function renderHeroStats() {
+    const wrap = document.querySelector('.hero-stats');
+    if (!wrap) return;
+    const items = Utils.sortByOrder(Utils.getItems('sh_hero_stats'));
+    if (!items.length) return;
+    wrap.innerHTML = items.map(s => `
+        <div class="stat-item">
+            <span class="stat-value" data-count="${s.value}">0</span>
+            <span class="stat-suffix">${Utils.esc(s.suffix || '')}</span>
+            <span class="stat-label">${Utils.esc(s.label)}</span>
+        </div>
+    `).join('');
+    initCounters();
+}
+
+function renderExperience() {
+    const wrap = document.querySelector('.timeline');
+    if (!wrap) return;
+    const items = Utils.sortByOrder(Utils.getItems('sh_experience'));
+    if (!items.length) return;
+    wrap.innerHTML = items.map((e, i) => `
+        <div class="timeline-item ${i === 0 ? 'current' : ''}">
+            <div class="timeline-marker">
+                <div class="marker-dot"></div>
+                <div class="marker-line"></div>
+            </div>
+            <div class="timeline-content">
+                <div class="timeline-header">
+                    <span class="timeline-date">${Utils.esc(e.date || '')}</span>
+                    ${e.badge ? `<span class="timeline-badge current">${Utils.esc(e.badge)}</span>` : ''}
+                </div>
+                <h3 class="timeline-title">${Utils.esc(e.title)}</h3>
+                <p class="timeline-company"><i class="fas fa-building"></i> ${Utils.esc(e.company || '')}</p>
+                ${e.bullets ? `<ul class="timeline-list">${
+                    e.bullets.split('|').map(b => `<li>${Utils.esc(b.trim())}</li>`).join('')
+                }</ul>` : ''}
+                ${e.tags ? `<div class="timeline-tags">${
+                    e.tags.split('|').map(t => `<span class="tag">${Utils.esc(t.trim())}</span>`).join('')
+                }</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderEducation() {
+    const wrap = document.querySelector('.education-grid');
+    if (!wrap) return;
+    const items = Utils.sortByOrder(Utils.getItems('sh_education'));
+    if (!items.length) return;
+    wrap.innerHTML = items.map(e => `
+        <div class="education-card">
+            <div class="education-icon"><i class="fas ${Utils.esc(e.icon || 'fa-university')}"></i></div>
+            <div class="education-content">
+                <span class="education-year">${Utils.esc(e.year || '')}</span>
+                <h3>${Utils.esc(e.title)}</h3>
+                <p class="education-institution">${Utils.esc(e.institution || '')}</p>
+                ${e.grade ? `<p class="education-grade">${Utils.esc(e.grade)}</p>` : ''}
+                ${e.modules ? `<div class="education-modules">${
+                    e.modules.split('|').map(m => `<span class="module-tag">${Utils.esc(m.trim())}</span>`).join('')
+                }</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderDomains() {
+    const wrap = document.querySelector('.about-domains');
+    if (!wrap) return;
+    const items = Utils.sortByOrder(Utils.getItems('sh_domains'));
+    if (!items.length) return;
+    wrap.innerHTML = items.map(d => `
+        <div class="domain-item ${Utils.esc(d.kind || 'primary')}">
+            <span class="domain-label">${Utils.esc(d.label)}</span>
+            <span class="domain-name">${Utils.esc(d.name)}</span>
+        </div>
+    `).join('');
+}
+
+function renderInterests() {
+    const wrap = document.querySelector('.interests-tags');
+    if (!wrap) return;
+    const tags = Utils.getStorage('sh_interests', null);
+    if (!tags || !tags.length) return;
+    wrap.innerHTML = tags.map(t => `<span class="interest-tag">${Utils.esc(t)}</span>`).join('');
+}
+
+function renderContactCards() {
+    const wrap = document.querySelector('.contact-info');
+    if (!wrap) return;
+    const items = Utils.sortByOrder(Utils.getItems('sh_contact_cards'));
+    if (!items.length) return;
+    // Keep the dynamic contact links div intact (last child)
+    const dyn = document.getElementById('dynamicContactLinks');
+    wrap.innerHTML = items.map(c => {
+        const inner = `
+            <div class="contact-icon"><i class="fas ${Utils.esc(c.icon)}"></i></div>
+            <div class="contact-details">
+                <div class="contact-label">${Utils.esc(c.label)}</div>
+                <div class="contact-value">${Utils.esc(c.value)}</div>
+            </div>`;
+        return c.href
+            ? `<a href="${Utils.esc(c.href)}" class="contact-card" target="_blank" rel="noopener">${inner}</a>`
+            : `<div class="contact-card">${inner}</div>`;
+    }).join('');
+    if (dyn) wrap.appendChild(dyn);
+}
+
+function renderMatrix() {
+    const wrap = document.querySelector('.matrix-container');
+    if (!wrap) return;
+    const items = Utils.sortByOrder(Utils.getItems('sh_matrix'));
+    if (!items.length) return;
+    wrap.innerHTML = items.map(m => `
+        <div class="matrix-item">
+            <div class="matrix-header">
+                <span class="matrix-name">${Utils.esc(m.name)}</span>
+                <span class="matrix-percent">${m.percent}%</span>
+            </div>
+            <div class="matrix-bar">
+                <div class="matrix-progress" data-width="${m.percent}"></div>
+            </div>
+        </div>
+    `).join('');
+    // Animate bars
+    setTimeout(() => {
+        wrap.querySelectorAll('.matrix-progress').forEach(p => {
+            p.style.width = p.dataset.width + '%';
+        });
+    }, 200);
+}
+
 // ── Projects Initialization ──────────────────────────────────
 function initProjects() {
     const defaultProjects = [
