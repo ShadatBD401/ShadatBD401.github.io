@@ -42,6 +42,6 @@
     "tags": "Samba|SMB|RHEL|File Sharing",
     "link": "#",
     "order": 4,
-    "hidden": true
+    "hidden": false
   }
 ]
