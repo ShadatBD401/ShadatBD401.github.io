@@ -59,15 +59,29 @@ function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
-    // Filter hidden items
+    // 1. Filter hidden items
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
-    const visibleItems = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));
+    let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));
 
-    const items = galleryPageState.filter === 'all'
-        ? visibleItems
-        : visibleItems.filter(i => i.type === galleryPageState.filter);
+    // 2. Apply Custom Order
+    const savedOrder = Utils.getStorage('sh_gallery_order', []);
+    if (savedOrder.length) {
+        items.sort((a, b) => {
+            const idxA = savedOrder.indexOf(a.id);
+            const idxB = savedOrder.indexOf(b.id);
+            if (idxA === -1 && idxB === -1) return 0;
+            if (idxA === -1) return 1; // Put new items at the end
+            if (idxB === -1) return -1;
+            return idxA - idxB;
+        });
+    }
+
+    // 3. Apply Filter (Photos/Videos)
+    const displayItems = galleryPageState.filter === 'all'
+        ? items
+        : items.filter(i => i.type === galleryPageState.filter);
    
-    if (!items.length) {
+    if (!displayItems.length) {
         grid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
                 <i class="fas fa-images" style="font-size:3rem;opacity:.5;margin-bottom:1rem;"></i>
@@ -76,7 +90,7 @@ function renderGalleryPage() {
         return;
     }
 
-    grid.innerHTML = items.map(item => {
+    grid.innerHTML = displayItems.map(item => {
         const title = item.title || item.caption || 'Untitled';
         const desc  = item.description || '';
         const date  = Utils.formatDate(item.createdAt);
@@ -116,7 +130,7 @@ function renderGalleryPage() {
 
     grid.querySelectorAll('.gallery-item').forEach(el => {
         el.addEventListener('click', () => {
-            const it = items.find(i => i.id === el.dataset.id);
+            const it = displayItems.find(i => i.id === el.dataset.id);
             if (it) openGalleryItem(it);
         });
     });
