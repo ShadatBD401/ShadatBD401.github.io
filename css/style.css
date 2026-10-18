@@ -3331,6 +3331,8 @@ main,
     border: 1px solid var(--border-color);
     transition: transform var(--transition-fast), border-color var(--transition-fast);
     margin: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* Styled <SH/> — big, gradient, recognisable */
