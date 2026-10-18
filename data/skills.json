@@ -62,6 +62,7 @@
     "title": "Hardware & Support",
     "desc": "PC Hardware Installation, Configuration, and Troubleshooting. Motherboards, CPUs, Memory (RAM), Storage Devices, and Power Supplies. RAID, SSD/HDD Management, and Peripheral Devices.",
     "tags": "CompTIA A+|RAID|Hardware|Troubleshooting",
-    "order": 7
+    "order": 7,
+    "hidden": true
   }
 ]
