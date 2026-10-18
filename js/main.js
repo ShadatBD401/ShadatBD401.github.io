@@ -50,15 +50,19 @@ async function fetchPublicContent() {
 
     for (const s of sections) {
         try {
-            // Added cache: 'no-store' to bypass GitHub's CDN caching
-            const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/data/${s}.json?t=${Date.now()}`;
-            const res = await fetch(url, { cache: 'no-store' });   
+            // Using GitHub API instead of raw.githubusercontent to bypass CDN cache
+            const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/${s}.json?ref=${BRANCH}&t=${Date.now()}`;
+            const res = await fetch(url, { 
+                cache: 'no-store',
+                headers: { 'Accept': 'application/vnd.github.v3.raw' } // Gets raw JSON directly
+            });
             if (!res.ok) continue;
             const json = await res.json();
+            
             if (Array.isArray(json)) {
                 const key = Utils.STORAGE_KEYS[s.toUpperCase()];
                 if (key) Utils.saveItems(key, json);
-                console.log(`⬇️ public: loaded fresh ${s}.json from GitHub`);
+                console.log(`⬇️ public: loaded fresh ${s}.json from GitHub API`);
             }
         } catch (e) {
             console.warn(`public: could not load ${s}.json`, e);
