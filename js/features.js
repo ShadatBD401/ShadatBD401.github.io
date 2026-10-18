@@ -443,44 +443,11 @@ function shInitCvViewer() {
 }
 
 // ── Apply Admin Settings to Public Site ──────────────────────
+// Avatar rendering is handled by site-settings-loader.js only.
+// This function handles social links, tagline, and visibility.
 function shApplySiteSettings() {
     const s = Utils.getStorage('sh_settings', {});
     if (!Object.keys(s).length) return;
-
-    function crispUrl(url, id, size) {
-        if (id) return 'https://lh3.googleusercontent.com/d/' + id + '=s' + size + '-c';
-        if (url && url.includes('lh3.googleusercontent.com')) {
-            return url.replace(/=w\d+.*$/, '=s' + size + '-c');
-        }
-        return url;
-    }
-
-    // Navbar avatar
-    const navAvatar = document.getElementById('navAvatar');
-    if (navAvatar) {
-        const fallbackLogo = '<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>';
-        if (s.profileImage) {
-            const src = crispUrl(s.profileImage, s.profileImageId, 200);
-            navAvatar.innerHTML = fallbackLogo + '<img src="' + src + '" alt="Profile">';
-        } else {
-            navAvatar.innerHTML = fallbackLogo;
-        }
-    }
-
-    // Hero terminal avatar
-    const heroTerminal = document.querySelector('.hero-terminal');
-    if (heroTerminal && s.heroImage) {
-        let heroAvatar = document.getElementById('heroProfileImg');
-        if (!heroAvatar) {
-            heroAvatar = document.createElement('div');
-            heroAvatar.id = 'heroProfileImg';
-            heroAvatar.title = 'Double-click for a surprise 🚀';
-            heroTerminal.style.position = 'relative';
-            heroTerminal.appendChild(heroAvatar);
-        }
-        const src = crispUrl(s.heroImage, s.heroImageId, 400);
-        heroAvatar.innerHTML = '<img src="' + src + '" alt="Profile">';
-    }
 
     // Navbar social links
     const navSocial = document.querySelector('.nav-social');
