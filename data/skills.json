@@ -42,12 +42,21 @@
     "order": 4
   },
   {
+    "id": "skill-8",
+    "icon": "💻",
+    "title": "Hardware & Support",
+    "desc": "PC Hardware Installation, Configuration, and Troubleshooting. Motherboards, CPUs, Memory (RAM), Storage Devices, and Power Supplies. RAID, SSD/HDD Management, and Peripheral Devices.",
+    "tags": "CompTIA A+|RAID|Hardware|Troubleshooting",
+    "order": 5,
+    "hidden": false
+  },
+  {
     "id": "skill-6",
     "icon": "🔒",
     "title": "Cybersecurity",
     "desc": "Authorized vulnerability assessment and web/API security research across common and advanced application weaknesses. XSS, IDOR, SSRF, CSRF, Authentication Bypass, File Upload issues.",
     "tags": "Burp Suite|Nmap|Metasploit|Wireshark|CTF",
-    "order": 5,
+    "order": 6,
     "hidden": false
   },
   {
@@ -56,15 +65,6 @@
     "title": "Virtualization & Cloud",
     "desc": "VMware, Microsoft Hyper-V, Virtual Machine Deployment, Management, Troubleshooting, Lab Environment Setup. Knowledge of Type 1 and Type 2 Hypervisors, Virtualization, and Cloud Computing Concepts.",
     "tags": "VMware|Hyper-V|KVM|Docker|Containers",
-    "order": 6,
-    "hidden": false
-  },
-  {
-    "id": "skill-8",
-    "icon": "💻",
-    "title": "Hardware & Support",
-    "desc": "PC Hardware Installation, Configuration, and Troubleshooting. Motherboards, CPUs, Memory (RAM), Storage Devices, and Power Supplies. RAID, SSD/HDD Management, and Peripheral Devices.",
-    "tags": "CompTIA A+|RAID|Hardware|Troubleshooting",
     "order": 7,
     "hidden": false
   }
