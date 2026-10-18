@@ -135,13 +135,25 @@ async function showDashboard() {
 // ── Sync every content file from GitHub into localStorage ────
 async function syncAllContentFromGitHub() {
     if (!window.GitHubContent) return;
-    const sections = ['posts', 'projects', 'certifications', 'skills'];
+    const sections = [
+        'posts', 'projects', 'certifications', 'skills',
+        'education', 'experience', 'hero-stats',
+        'about-domains', 'interests', 'contact-cards', 'matrix'
+    ];
     for (const s of sections) {
         try {
             const data = await window.GitHubContent.read(`data/${s}.json`);
             if (data && Array.isArray(data.json) && data.json.length) {
-                const key = Utils.STORAGE_KEYS[s.toUpperCase()];
-                if (key) Utils.saveItems(key, data.json);
+                const keyMap = {
+                    'posts': 'sh_posts', 'projects': 'sh_projects',
+                    'certifications': 'sh_certifications', 'skills': 'sh_skills',
+                    'education': 'sh_education', 'experience': 'sh_experience',
+                    'hero-stats': 'sh_hero_stats', 'about-domains': 'sh_domains',
+                    'interests': 'sh_interests', 'contact-cards': 'sh_contact_cards',
+                    'matrix': 'sh_matrix'
+                };
+                const key = keyMap[s];
+                if (key) Utils.setStorage(key, data.json);
                 console.log(`⬇️ synced ${s}.json from GitHub`);
             }
         } catch (e) { /* file may not exist yet */ }
