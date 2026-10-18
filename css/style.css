@@ -4148,3 +4148,166 @@ p:not([class]) { color: var(--text-secondary); }
         font-size: 1.1rem;
     }
 }
+
+/* ============================================================
+   NOTES & READING SECTION
+   ============================================================ */
+.notes-section { background: var(--bg-secondary); }
+
+.notes-filters {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-lg);
+}
+
+.note-card {
+    background: var(--note-bg, var(--bg-card));
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    min-height: 160px;
+    position: relative;
+    overflow: hidden;
+}
+
+.note-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-lg);
+}
+
+.note-card-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-primary);
+}
+
+.note-card-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+
+.note-card-preview {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.note-card-meta {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: var(--space-sm);
+}
+
+/* Note editor (modal) */
+.note-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.note-editor-toolbar button {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    background: transparent;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.note-editor-toolbar button:hover {
+    background: var(--bg-hover);
+    color: var(--accent-primary);
+}
+
+.note-editor-toolbar button.active {
+    background: var(--accent-primary);
+    color: #fff;
+}
+
+.note-editor-toolbar .divider {
+    width: 1px;
+    background: var(--border-color);
+    margin: 4px 2px;
+}
+
+.note-editor-area {
+    min-height: 280px;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    outline: none;
+}
+
+.note-editor-area:focus { border-color: var(--accent-primary); }
+.note-editor-area h1 { font-size: 1.5rem; margin: 0.5em 0; }
+.note-editor-area h2 { font-size: 1.25rem; margin: 0.5em 0; }
+.note-editor-area ul, .note-editor-area ol { padding-left: 1.5em; }
+.note-editor-area a { color: var(--accent-primary); text-decoration: underline; }
+
+/* Read-mode modal */
+.note-read-content {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--text-secondary);
+}
+.note-read-content h1,
+.note-read-content h2,
+.note-read-content h3 { color: var(--text-primary); margin: 1em 0 0.5em; }
+.note-read-content ul,
+.note-read-content ol { padding-left: 1.5em; }
+.note-read-content a { color: var(--accent-primary); text-decoration: underline; }
+.note-read-content blockquote {
+    border-left: 3px solid var(--accent-primary);
+    padding-left: 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
