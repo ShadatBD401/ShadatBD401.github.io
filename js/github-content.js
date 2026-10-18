@@ -58,23 +58,34 @@ const GitHubContent = {
     },
 
     async write(path, content, message = 'Update content') {
-        let sha = null;
-        try {
-            const existing = await this.read(path);
-            if (existing) sha = existing.sha;
-        } catch (e) { /* new file */ }
-
         const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));
-        const body = {
-            message,
-            content: encoded,
-            branch: this.branch
-        };
-        if (sha) body.sha = sha;
 
-        return this._request('PUT', path, body);
+        // Try up to 3 times (handles 409 Conflict retries)
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            let sha = null;
+            try {
+                const existing = await this.read(path);
+                if (existing) sha = existing.sha;
+            } catch (e) { /* new file */ }
+
+            const body = { message, content: encoded, branch: this.branch };
+            if (sha) body.sha = sha;
+
+            try {
+                return await this._request('PUT', path, body);
+            } catch (err) {
+                const msg = String(err.message || '');
+                // If 409 (SHA conflict) or 422, retry with fresh SHA
+                if ((msg.includes('409') || msg.includes('422')) && attempt < 3) {
+                    console.warn(`[GitHub] 409/422 on ${path} — retry ${attempt}/3 with fresh SHA`);
+                    await new Promise(r => setTimeout(r, 300 * attempt)); // wait 300ms, 600ms
+                    continue;
+                }
+                throw err;
+            }
+        }
     },
-   
+
     async delete(path, message = 'Delete content') {
         const existing = await this.read(path);
         if (!existing) return null;
