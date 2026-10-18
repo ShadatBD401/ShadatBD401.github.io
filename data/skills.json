@@ -57,7 +57,7 @@
     "desc": "VMware, Microsoft Hyper-V, Virtual Machine Deployment, Management, Troubleshooting, Lab Environment Setup. Knowledge of Type 1 and Type 2 Hypervisors, Virtualization, and Cloud Computing Concepts.",
     "tags": "VMware|Hyper-V|KVM|Docker|Containers",
     "order": 6,
-    "hidden": true
+    "hidden": false
   },
   {
     "id": "skill-8",
