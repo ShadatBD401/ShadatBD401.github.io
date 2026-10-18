@@ -15,7 +15,7 @@
     "tags": "RHEL|BIND|DNS|High Availability",
     "link": "#",
     "order": 1,
-    "hidden": true
+    "hidden": false
   },
   {
     "id": "proj-4",
@@ -24,7 +24,7 @@
     "tags": "Postfix|Dovecot|Backup|RHEL",
     "link": "#",
     "order": 2,
-    "hidden": true
+    "hidden": false
   },
   {
     "id": "proj-1",
