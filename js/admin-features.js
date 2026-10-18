@@ -21,7 +21,11 @@ function applyAdminSidebarAvatar() {
     if (!el) return;
     const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
     if (s.profileImage) {
-        el.innerHTML = `<img src="${s.profileImage}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+        const src = s.profileImageId
+            ? `https://drive.google.com/thumbnail?id=${s.profileImageId}&sz=w80`
+            : s.profileImage;
+        el.innerHTML = `<img src="${src}" alt=""
+            style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
     }
 }
 
