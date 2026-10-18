@@ -1903,7 +1903,7 @@ main,
 }
 
 .learning-image {
-    height: 180px;
+    height: 140px;
     background: var(--bg-tertiary);
     display: flex;
     align-items: center;
