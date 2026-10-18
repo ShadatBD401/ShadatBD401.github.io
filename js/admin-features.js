@@ -423,18 +423,21 @@ const GALLERY_KEY = 'sh_gallery';
 function renderAdminGallery() {
     const c = document.getElementById('galleryContainer');
     if (!c) return;
-    
-    // Sort by custom order if it exists
+
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     let items = Utils.getItems('sh_gallery');
-    
+
+    // Sort by custom order (Google Drive IDs), fallback to newest
     if (savedOrder.length > 0) {
         items.sort((a, b) => {
-            const idxA = savedOrder.indexOf(a.id);
-            const idxB = savedOrder.indexOf(b.id);
-            if (idxA === -1) return 1; // new items at end
-            if (idxB === -1) return -1;
-            return idxA - idxB;
+            const aKey = a.driveId || a.id;
+            const bKey = b.driveId || b.id;
+            const ia = savedOrder.indexOf(aKey);
+            const ib = savedOrder.indexOf(bKey);
+            if (ia === -1 && ib === -1) return 0;
+            if (ia === -1) return 1;
+            if (ib === -1) return -1;
+            return ia - ib;
         });
     }
 
@@ -446,7 +449,9 @@ function renderAdminGallery() {
         </div>`;
     } else {
         c.innerHTML = items.map(item => `
-            <div class="admin-item-card" data-id="${item.id}" style="${isGalleryHidden(item.id) ? 'opacity: 0.55;' : ''}">
+            <div class="admin-item-card" data-id="${item.id}"
+                 data-drive-id="${item.driveId || item.id}"
+                 style="${isGalleryHidden(item.driveId || item.id) ? 'opacity: 0.55;' : ''}">
                 <div class="admin-item-header">
                     <div class="admin-item-icon" style="padding:0;overflow:hidden;background:var(--bg-tertiary);">
                         ${item.type === 'video'
@@ -454,8 +459,8 @@ function renderAdminGallery() {
                             : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;">`}
                     </div>
                     <div class="admin-item-actions">
-                        <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.id}')" title="Hide/Show">
-                            <i class="fas ${isGalleryHidden(item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                        <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.driveId || item.id}')" title="Hide/Show">
+                            <i class="fas ${isGalleryHidden(item.driveId || item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
                         </button>
                         <button class="admin-item-btn" onclick="editGalleryItem('${item.id}')" title="Edit">
                             <i class="fas fa-edit"></i>
@@ -463,24 +468,43 @@ function renderAdminGallery() {
                         <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}'); renderAdminVideos();" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
-                    </div> 
+                    </div>
                 </div>
                 <h4 class="admin-item-title">
                     ${Utils.esc(item.title || item.caption || 'Untitled')}
-                    ${isGalleryHidden(item.id) ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;">HIDDEN</span>' : ''}
+                    ${isGalleryHidden(item.driveId || item.id) ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;">HIDDEN</span>' : ''}
                 </h4>
             </div>
         `).join('');
     }
 
-    // Enable Drag & Drop for Gallery
-    makeSortable('galleryContainer', 'gallery', reorderGallery);
+    // Enable Drag & Drop — uses data-drive-id so IDs match what the public page sees
+    makeGallerySortable();
 
     const btn = document.getElementById('newGalleryBtn');
     if (btn && !btn.dataset.wired) {
         btn.dataset.wired = '1';
         btn.addEventListener('click', () => openGalleryForm());
     }
+}
+
+function makeGallerySortable() {
+    const el = document.getElementById('galleryContainer');
+    if (!el || typeof Sortable === 'undefined') return;
+    if (el._sortable) el._sortable.destroy();
+
+    el._sortable = new Sortable(el, {
+        animation: 200,
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        onEnd: async () => {
+            const newOrder = [...el.querySelectorAll('.admin-item-card')]
+                .map(card => card.dataset.driveId)
+                .filter(Boolean);
+            if (!newOrder.length) return;
+            await reorderGallery(newOrder);
+        }
+    });
 }
 
 function openGalleryForm(item = null) {
