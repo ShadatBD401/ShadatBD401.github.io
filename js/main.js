@@ -1219,10 +1219,16 @@ function renderNotes() {
 }
 
 function openNoteRead(note) {
+    const mediaHtml = (note.media || []).map(m => m.type === 'image'
+        ? `<img src="${m.url}" style="width:100%;border-radius:var(--radius-lg);margin:8px 0;">`
+        : `<iframe src="${m.url}" width="100%" height="360" allowfullscreen style="border:none;border-radius:var(--radius-lg);margin:8px 0;"></iframe>`
+    ).join('');
+
     Utils.openModal(note.title, `
         <div class="note-read-content">
             ${note.content || '<p style="color:var(--text-muted);">(Empty note)</p>'}
         </div>
+        ${mediaHtml ? `<div style="margin-top:1rem;">${mediaHtml}</div>` : ''}
         <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color);
                     display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
             <span><i class="fas fa-calendar"></i> ${Utils.formatDate(note.createdAt)}</span>
