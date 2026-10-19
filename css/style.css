@@ -3520,11 +3520,12 @@ main,
     height: calc(100% - 16px);
     border-radius: 50%;
     object-fit: cover;
+    object-position: center top;
     z-index: 1;
     display: block;
     background: var(--bg-tertiary);
     border: 2px solid var(--bg-secondary);
-    transition: transform 0.35s ease;
+    transition: none;
 }
 
 #heroProfileImg:hover { transform: none; }
