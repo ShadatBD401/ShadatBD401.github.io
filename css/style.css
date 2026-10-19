@@ -387,6 +387,7 @@ main,
     gap: 6px;
     flex-shrink: 0;
     text-decoration: none;
+    margin-right: 8px;
 }
 
 .logo-icon {
