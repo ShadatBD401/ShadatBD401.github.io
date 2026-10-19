@@ -4416,3 +4416,33 @@ p:not([class]) { color: var(--text-secondary); }
 [data-theme="light"] .nav-link.active {
     background: rgba(29, 78, 216, 0.1);
 }
+
+/* ── Note Media Uploader ─────────────────────────────── */
+.note-media-uploader {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.note-media-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--radius-md);
+    background: var(--bg-tertiary); border: 1px dashed var(--border-color);
+    color: var(--text-secondary); font-size: 0.8125rem; cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.note-media-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.note-media-preview {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
+}
+.note-media-thumb {
+    position: relative; width: 96px; height: 96px; border-radius: var(--radius-md);
+    overflow: hidden; border: 1px solid var(--border-color); background: var(--bg-tertiary);
+}
+.note-media-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.note-media-video {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    color: var(--accent-primary); font-size: 1.5rem; background: rgba(59,130,246,0.1);
+}
+.note-media-remove {
+    position: absolute; top: 4px; right: 4px; width: 22px; height: 22px;
+    border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.65rem;
+    display: flex; align-items: center; justify-content: center;
+}
