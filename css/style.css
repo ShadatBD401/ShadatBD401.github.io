@@ -4330,7 +4330,7 @@ p:not([class]) { color: var(--text-secondary); }
    NAVBAR — PREMIUM DYNAMIC LINK STYLING
    ============================================================ */
 .nav-menu {
-    gap: 4px;
+    gap: 2px;
     position: relative;
 }
 
