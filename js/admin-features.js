@@ -90,6 +90,7 @@ window.toggleGalleryVisibility = async function (idOrDriveId) {
 
 async function reorderGallery(newOrderIds) {
     Utils.setStorage('sh_gallery_order', newOrderIds);
+    Utils.setStorage('sh_gallery_dirty', true); // Tell the public page to refresh
     try {
         const client = await initSupabase();
         const { error } = await client.from('site_settings').upsert(
