@@ -412,9 +412,10 @@ main,
 .logo-info {
     display: flex;
     flex-direction: column;
-    line-height: 1.15;
+    line-height: 1.05;
     margin: 0;
     padding: 0;
+    gap: 1px;
 }
 
 .logo-name {
