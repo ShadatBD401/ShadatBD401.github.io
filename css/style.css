@@ -3527,8 +3527,8 @@ main,
     transition: transform 0.35s ease;
 }
 
-#heroProfileImg:hover { transform: scale(1.04); }
-#heroProfileImg:hover > img { transform: scale(1.02); }
+#heroProfileImg:hover { transform: none; }
+#heroProfileImg:hover > img { transform: none; }
 
 @keyframes heroRingSpin { to { transform: rotate(360deg); } }
 @keyframes heroGlowPulse {
