@@ -3296,8 +3296,8 @@ main,
 /* ── Navbar Avatar (Restored & Fixed) ───────────────────────── */
 .nav-avatar {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 42px;      /* Slightly larger for better visibility */
+    height: 42px;
     border-radius: 50%;
     background: var(--bg-tertiary);
     display: flex;
@@ -3305,8 +3305,8 @@ main,
     justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    transition: transform var(--transition-fast), border-color var(--transition-fast);
+    border: 2px solid rgba(255, 255, 255, 0.1); /* Subtle border like social apps */
+    transition: none;
     margin: 0;
     padding: 0;
 }
@@ -3345,8 +3345,8 @@ main,
 }
 
 .nav-avatar:hover {
-    transform: none;
-    border-color: var(--border-color);
+    transform: none; /* Keeps it static */
+    border-color: var(--accent-primary);
 }
 
 /* Styled <SH/> — big, gradient, recognisable */
@@ -3376,18 +3376,18 @@ main,
 /* Uploaded image covers the <SH/> completely */
 .nav-avatar img {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
+    object-position: center 20%; /* Focuses on the face */
     display: block;
     z-index: 2;
+    /* Anti-blur fixes */
     image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    backface-visibility: hidden;
     transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .nav-avatar:hover {
