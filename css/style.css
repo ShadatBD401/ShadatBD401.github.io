@@ -3319,7 +3319,7 @@ main,
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center top;   /* face is in the top half */
     display: block;
     z-index: 2;
 }
