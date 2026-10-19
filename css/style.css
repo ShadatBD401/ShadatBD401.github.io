@@ -3344,6 +3344,11 @@ main,
     -webkit-text-fill-color: transparent;
 }
 
+.nav-avatar:hover {
+    transform: none;
+    border-color: var(--border-color);
+}
+
 /* Styled <SH/> — big, gradient, recognisable */
 .nav-avatar-logo {
     display: inline-flex;
@@ -3389,7 +3394,6 @@ main,
     transform: none;
     border-color: var(--border-color);
 }
-
 
 /* ── Navbar Compact Overrides ─────────────────────────────── */
 :root {
