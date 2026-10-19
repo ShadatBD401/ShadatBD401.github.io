@@ -384,10 +384,10 @@ main,
 .nav-logo {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 6px; /* Reduced from 8px */
     flex-shrink: 0;
     text-decoration: none;
-    margin-right: 8px;
+    margin-right: 0; 
 }
 
 .logo-icon {
@@ -412,10 +412,10 @@ main,
 .logo-info {
     display: flex;
     flex-direction: column;
-    line-height: 1.05;
+    line-height: 1.1; /* Tighter */
     margin: 0;
     padding: 0;
-    gap: 1px;
+    gap: 0px; /* Removed gap between Name and Role */
 }
 
 .logo-name {
