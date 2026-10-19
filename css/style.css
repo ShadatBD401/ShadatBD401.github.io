@@ -4517,3 +4517,23 @@ p:not([class]) { color: var(--text-secondary); }
 @media (max-width: 640px) {
     .photo-editor-body { grid-template-columns: 1fr; }
 }
+
+/* New Editor Additions */
+.photo-editor-preview-view {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+/* Fix Hero Terminal Blur */
+#heroProfileImg > img {
+    object-fit: cover;
+    object-position: center 20%; 
+    /* Forces the browser to render the image sharply */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    transform: translateZ(0); 
+}
