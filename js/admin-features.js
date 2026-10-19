@@ -621,18 +621,25 @@ window.saveGalleryItem = async function(id) {
             Utils.showToast(`File must be under ${maxBytes / 1024 / 1024}MB`, 'error');
             return;
         }
+
+        let toUpload = file;
+        if (type === 'image') {
+            const edited = await window.PhotoEditor.open(file);
+            if (!edited) return;
+            toUpload = edited;
+        }
+
         try {
             Utils.showToast('Uploading to Google Drive...', 'info');
             const folder = type === 'video' ? 'videos' : 'gallery';
-            // Encode title + description into filename so public page can read them
             const safeTitle = title.replace(/[^\w\s-]/g, '').slice(0, 60).trim();
             const safeDesc  = description.replace(/[^\w\s-]/g, '').slice(0, 100).trim();
             const renamed   = new File(
-                [file],
-                `${safeTitle}__${safeDesc || 'no-desc'}__${file.name}`,
-                { type: file.type }
+                [toUpload],
+                `${safeTitle}__${safeDesc || 'no-desc'}__${toUpload.name}`,
+                { type: toUpload.type }
             );
-            const result = await window.GDrive.upload(renamed, folder);      
+            const result = await window.GDrive.upload(renamed, folder);
             driveId = result.id;
             src = type === 'video' ? result.embedUrl : result.previewUrl;
         } catch (err) {
