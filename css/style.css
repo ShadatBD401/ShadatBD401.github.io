@@ -4836,3 +4836,45 @@ p:not([class]) { color: var(--text-secondary); }
     .pe-tool span { display: none; }
     .pe-tool { padding: 8px 10px; }
 }
+
+/* style.css */
+.contact-form-container {
+    max-width: 560px;
+    width: 100%;
+    padding: var(--space-xl);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-sizing: border-box;
+}
+
+/* responsive.css — mobile override */
+@media (max-width: 767px) {
+    .contact-form-container {
+        padding: var(--space-md) !important;
+        max-width: 100% !important;
+        border-radius: var(--radius-lg);
+    }
+    .contact-grid {
+        gap: var(--space-lg) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .contact-section .section-container {
+        padding: 0 var(--space-md) !important;
+    }
+    .contact-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .contact-form input,
+    .contact-form textarea,
+    .contact-form select {
+        font-size: 16px;   /* prevent iOS zoom-on-focus */
+    }
+}
+
+@media (max-width: 400px) {
+    .contact-form-container { padding: 12px !important; }
+    .contact-section .section-container { padding: 0 12px !important; }
+}
