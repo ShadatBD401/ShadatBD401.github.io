@@ -3344,11 +3344,6 @@ main,
     -webkit-text-fill-color: transparent;
 }
 
-.nav-avatar:hover {
-    transform: scale(1.05);
-    border-color: var(--accent-primary);
-}
-
 /* Styled <SH/> — big, gradient, recognisable */
 .nav-avatar-logo {
     display: inline-flex;
@@ -3391,8 +3386,8 @@ main,
 }
 
 .nav-avatar:hover {
-    transform: scale(1.05);
-    border-color: var(--accent-primary);
+    transform: none;
+    border-color: var(--border-color);
 }
 
 
