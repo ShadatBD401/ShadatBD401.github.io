@@ -267,12 +267,17 @@ async function initProfileSettings() {
 
     // ── Hero picture ─────────────────────────────────────────
     heroInput?.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
+        let file = e.target.files[0];
         if (!file) return;
-        if (file.size > 3 * 1024 * 1024) {
-            Utils.showToast('Image must be under 3MB', 'error');
+        if (file.size > 5 * 1024 * 1024) {
+            Utils.showToast('Image must be under 5MB', 'error');
             return;
         }
+
+        const edited = await window.PhotoEditor.open(file);
+        if (!edited) { e.target.value = ''; return; }
+        file = edited;
+
         try {
             Utils.showToast('Uploading...', 'info');
             const result = await window.GDrive.upload(file, 'profile');
@@ -286,8 +291,9 @@ async function initProfileSettings() {
             console.error(err);
             Utils.showToast('Upload failed: ' + err.message, 'error');
         }
+        e.target.value = '';
     });
-
+   
     removeHeroBtn?.addEventListener('click', async () => {
         if (settings.heroImageId) {
             try { await window.GDrive.delete(settings.heroImageId); } catch (e) {}
