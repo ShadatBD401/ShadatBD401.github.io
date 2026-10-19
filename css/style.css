@@ -3411,7 +3411,7 @@ main,
 
 .nav-link i { display: none; }  /* Hide icons, text-only menu */
 
-.nav-menu { gap: 2px; }
+.nav-menu { gap: 0px; }
 
 .nav-social a {
     width: 28px;
@@ -4333,7 +4333,7 @@ p:not([class]) { color: var(--text-secondary); }
    NAVBAR — PREMIUM DYNAMIC LINK STYLING
    ============================================================ */
 .nav-menu {
-    gap: 2px;
+    gap: 0px;
     position: relative;
 }
 
