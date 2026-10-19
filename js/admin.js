@@ -2542,6 +2542,81 @@ function openNoteEditor(note = null) {
 
     Utils.openModal(note ? 'Edit Note' : 'New Note', content);
 
+    // ── Media upload state ──────────────────────────────
+    let attachedMedia = note?.media ? [...note.media] : [];
+
+    function renderMediaPreview() {
+        const box = document.getElementById('noteMediaPreview');
+        if (!box) return;
+        box.innerHTML = attachedMedia.map((m, i) => `
+            <div class="note-media-thumb">
+                ${m.type === 'image'
+                    ? `<img src="${m.url}" alt="">`
+                    : `<div class="note-media-video"><i class="fas fa-play"></i></div>`}
+                <button type="button" class="note-media-remove" onclick="removeNoteMedia(${i})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+    renderMediaPreview();
+
+    window.removeNoteMedia = (i) => {
+        attachedMedia.splice(i, 1);
+        renderMediaPreview();
+    };
+
+    document.getElementById('noteImageInput')?.addEventListener('change', async (e) => {
+        let file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 8 * 1024 * 1024) {
+            Utils.showToast('Image must be under 8MB', 'error');
+            return;
+        }
+        const status = document.getElementById('noteMediaStatus');
+
+        // Photo editor with preview
+        const edited = await window.PhotoEditor.open(file);
+        if (!edited) { e.target.value = ''; return; }
+        file = edited;
+
+        status.textContent = 'Uploading image...';
+        try {
+            const result = await window.GDrive.upload(file, 'blog');
+            attachedMedia.push({ type: 'image', url: result.previewUrl, id: result.id });
+            renderMediaPreview();
+            status.textContent = '✓ Image uploaded';
+        } catch (err) {
+            status.textContent = '✗ Upload failed';
+            Utils.showToast('Image upload failed: ' + err.message, 'error');
+        }
+        e.target.value = '';
+    });
+
+    document.getElementById('noteVideoInput')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 50 * 1024 * 1024) {
+            Utils.showToast('Video must be under 50MB', 'error');
+            return;
+        }
+        const status = document.getElementById('noteMediaStatus');
+        status.textContent = 'Uploading video...';
+        try {
+            const result = await window.GDrive.upload(file, 'blog');
+            attachedMedia.push({ type: 'video', url: result.embedUrl, id: result.id });
+            renderMediaPreview();
+            status.textContent = '✓ Video uploaded';
+        } catch (err) {
+            status.textContent = '✗ Upload failed';
+            Utils.showToast('Video upload failed: ' + err.message, 'error');
+        }
+        e.target.value = '';
+    });
+
+    // Expose attachedMedia to saveNote via a global on the window
+    window._noteEditorMedia = () => attachedMedia;
+   
     // Wire the toolbar
     const toolbar = document.getElementById('noteToolbar');
     const area = document.getElementById('noteContent');
