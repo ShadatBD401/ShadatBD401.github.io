@@ -2517,6 +2517,21 @@ function openNoteEditor(note = null) {
                     ${note?.content || ''}
                 </div>
             </div>
+            <div class="form-group">
+                <label>Attach Media (optional — saved to Google Drive)</label>
+                <div class="note-media-uploader">
+                    <label class="note-media-btn">
+                        <i class="fas fa-image"></i> Add Image
+                        <input type="file" id="noteImageInput" accept="image/*" hidden>
+                    </label>
+                    <label class="note-media-btn">
+                        <i class="fas fa-video"></i> Add Video
+                        <input type="file" id="noteVideoInput" accept="video/*" hidden>
+                    </label>
+                    <span id="noteMediaStatus" style="font-size:0.75rem;color:var(--text-muted);"></span>
+                </div>
+                <div id="noteMediaPreview" class="note-media-preview"></div>
+            </div>           
             <div class="admin-form-actions">
                 <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveNote('${note?.id || ''}')">
