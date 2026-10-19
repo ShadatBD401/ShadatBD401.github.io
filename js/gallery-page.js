@@ -76,10 +76,10 @@ function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
-    // 1. Filter hidden items
+    // 1. Filter hidden items (compare against Drive IDs)
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
-    let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));
-
+    let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));   
+   
     // 2. Apply Custom Order
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     if (savedOrder.length) {
