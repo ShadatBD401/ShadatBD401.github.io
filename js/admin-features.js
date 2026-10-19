@@ -225,12 +225,18 @@ async function initProfileSettings() {
 
     // ── Navbar avatar ────────────────────────────────────────
     profileInput?.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
+        let file = e.target.files[0];
         if (!file) return;
-        if (file.size > 2 * 1024 * 1024) {
-            Utils.showToast('Image must be under 2MB', 'error');
+        if (file.size > 5 * 1024 * 1024) {
+            Utils.showToast('Image must be under 5MB', 'error');
             return;
         }
+
+        // Open photo editor
+        const edited = await window.PhotoEditor.open(file);
+        if (!edited) { e.target.value = ''; return; }
+        file = edited;
+
         try {
             Utils.showToast('Uploading to Google Drive...', 'info');
             const result = await window.GDrive.upload(file, 'profile');
@@ -244,8 +250,9 @@ async function initProfileSettings() {
             console.error(err);
             Utils.showToast('Upload failed: ' + err.message, 'error');
         }
+        e.target.value = '';
     });
-
+   
     removeBtn?.addEventListener('click', async () => {
         if (settings.profileImageId) {
             try { await window.GDrive.delete(settings.profileImageId); } catch (e) {}
