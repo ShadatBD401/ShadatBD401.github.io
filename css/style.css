@@ -4880,3 +4880,264 @@ p:not([class]) { color: var(--text-secondary); }
     .contact-form-container { padding: 12px !important; }
     .contact-section .section-container { padding: 0 12px !important; }
 }
+
+/* ============================================================
+   REFINED COLOR & TYPOGRAPHY SYSTEM
+   Eye-catching, professional, theme-aware
+   ============================================================ */
+
+/* Better text tokens across all themes */
+:root {
+    --text-primary:   #f1f5f9;
+    --text-secondary: #b1c0d1;   /* brighter than #94a3b8 — more legible */
+    --text-muted:     #7a8a9d;   /* brighter than #64748b */
+}
+
+[data-theme="light"] {
+    --text-primary:   #0f172a;
+    --text-secondary: #334155;
+    --text-muted:     #64748b;
+}
+
+/* Refined typography scale */
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    margin-bottom: var(--space-xl);
+}
+
+.gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: var(--space-sm);
+}
+
+.section-subtitle {
+    font-size: 1.0625rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+}
+
+.hero-description {
+    font-size: 1.0625rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    letter-spacing: -0.005em;
+    margin-bottom: var(--space-2xl);
+}
+
+/* Better section numbers — refined accent line */
+.section-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-primary);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+}
+
+.section-number::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent-primary);
+    opacity: 0.6;
+}
+
+/* Refined card hover states */
+.skill-card,
+.project-card,
+.cert-card,
+.learning-card,
+.education-card,
+.about-card,
+.timeline-content,
+.contact-card,
+.note-card,
+.gallery-item {
+    transition:
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.25s ease,
+        box-shadow 0.3s ease,
+        background 0.25s ease;
+}
+
+/* Refined link underline on hover */
+.footer-links a:hover {
+    color: var(--accent-primary);
+    padding-left: 0;
+    transform: translateX(2px);
+    display: inline-block;
+}
+
+/* Better hero badge */
+.hero-badge {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: var(--accent-success);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-xl);
+}
+
+/* Refined button hover */
+.btn-primary {
+    background: var(--gradient-primary);
+    box-shadow: 0 4px 14px rgba(59,130,246,0.3);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+.btn-primary:hover::after { transform: translateX(100%); }
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.45);
+}
+
+/* Smooth theme transitions */
+html, body, .navbar, .skill-card, .project-card,
+.cert-card, .learning-card, .education-card,
+.about-card, .contact-card, .footer {
+    transition: background-color 0.3s ease, color 0.3s ease,
+                border-color 0.3s ease;
+}
+
+/* Stat value — slightly more dramatic */
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+
+/* Refined tags */
+.tag {
+    padding: 4px 10px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    border-radius: var(--radius-full);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.18);
+    color: var(--accent-primary);
+    white-space: nowrap;
+}
+
+/* Refined timeline title */
+.timeline-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+}
+
+/* Better hero stats card */
+.hero-stats {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg) var(--space-md);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+}
+
+/* Better section spacing rhythm */
+.section {
+    padding: var(--space-4xl) var(--space-xl);
+    position: relative;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Focus rings for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Improve contrast on muted-text elements */
+.education-institution,
+.education-duration,
+.education-grade,
+.learning-meta,
+.info-label {
+    color: var(--text-secondary);
+    opacity: 0.9;
+}
+
+/* Alternate section backgrounds — subtle, not harsh */
+.about-section      { background: var(--bg-secondary); }
+.experience-section { background: var(--bg-primary);   }
+.technical-section  { background: var(--bg-secondary); }
+.projects-section   { background: var(--bg-primary);   }
+.certifications-section { background: var(--bg-secondary); }
+.education-section  { background: var(--bg-primary);   }
+.learning-section   { background: var(--bg-secondary); }
+.notes-section      { background: var(--bg-primary);   }
+.contact-section    { background: var(--bg-secondary); }
+
+/* Mobile-friendly contact form */
+@media (max-width: 640px) {
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-lg) !important;
+    }
+    .contact-form-container {
+        padding: var(--space-md) !important;
+        max-width: 100% !important;
+    }
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
+}
