@@ -76,6 +76,13 @@ function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
+    // Check if admin just changed the order
+    if (Utils.getStorage('sh_gallery_dirty', false)) {
+        Utils.removeStorage('sh_gallery_dirty'); // Reset the flag
+        loadGalleryPage(); // Force a fresh load from Google Drive
+        return;
+    }
+
     // 1. Filter hidden items (compare against Drive IDs)
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
     let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));   
