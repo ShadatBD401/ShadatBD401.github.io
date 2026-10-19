@@ -436,7 +436,10 @@ main,
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: 0;                    /* remove gap */
+    flex: 1;
+    justify-content: center;
+    margin: 0 12px;
 }
 
 .nav-link {
