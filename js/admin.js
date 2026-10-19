@@ -989,9 +989,7 @@ function renderPostsList() {
         return;
     }
     
-    container.innerHTML = `
-        <div class="items-container">
-            ${posts.map(post => `
+    container.innerHTML = posts.map(post => `
                 <div class="admin-item-card" data-id="${post.id}" style="${post.hidden ? 'opacity: 0.55;' : ''}">
                     <div class="admin-item-header">
                         <div class="admin-item-icon">${Utils.esc(post.emoji || '📝')}</div>
@@ -1018,9 +1016,7 @@ function renderPostsList() {
                         <span style="font-size: 0.6875rem; color: var(--text-muted);">${Utils.formatDate(post.createdAt)}</span>
                     </div>
                 </div>
-            `).join('')}
-        </div>
-    `;
+            `).join('');
     
     // Enable drag & drop
     makeSortable('postsContainer', 'posts', reorderPosts);
