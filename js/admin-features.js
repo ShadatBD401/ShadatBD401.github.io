@@ -44,9 +44,12 @@ async function getHiddenGalleryIds() {
     }
 }
 
-function isGalleryHidden(id) {
+function isGalleryHidden(idOrDriveId) {
     const list = Utils.getStorage('sh_hidden_gallery', []);
-    return list.includes(id);
+    const items = Utils.getItems('sh_gallery');
+    const item = items.find(i => i.id === idOrDriveId || i.driveId === idOrDriveId);
+    const driveId = item?.driveId || idOrDriveId;
+    return list.includes(driveId);
 }
 
 async function setHiddenGalleryIds(ids) {
