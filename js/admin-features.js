@@ -623,9 +623,10 @@ window.saveGalleryItem = async function(id) {
         }
 
         let toUpload = file;
+        // ⬇️ NEW: Open the advanced photo editor for images
         if (type === 'image') {
             const edited = await window.PhotoEditor.open(file);
-            if (!edited) return;
+            if (!edited) return; // User cancelled
             toUpload = edited;
         }
 
