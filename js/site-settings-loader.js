@@ -55,10 +55,10 @@
     if (navAvatar) {
         if (s.profileImage) {
             const src = crispUrl(s.profileImage, s.profileImageId, 80);
-            // If there's an image, ONLY show the image. Do not stack it with the text logo.
+            // Only show the image, no overlapping text
             navAvatar.innerHTML = `<img src="${src}" alt="Profile" onerror="this.style.display='none'">`;
         } else {
-            // If no image, show the <SH/> text logo.
+            // Only show text if no image
             navAvatar.innerHTML = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>`;
         }
     }
