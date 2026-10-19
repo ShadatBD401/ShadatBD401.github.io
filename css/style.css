@@ -4537,3 +4537,170 @@ p:not([class]) { color: var(--text-secondary); }
     image-rendering: crisp-edges;
     transform: translateZ(0); 
 }
+
+/* ============================================================
+   UPDATED STYLES FOR ADVANCED PHOTO EDITOR
+   ============================================================ */
+
+.photo-editor-panel {
+    max-width: 960px; /* Wider panel */
+}
+
+.photo-editor-body {
+    grid-template-columns: 1fr 280px; /* Wider controls */
+}
+
+.pe-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: var(--bg-tertiary);
+    padding: 4px;
+    border-radius: var(--radius-lg);
+}
+
+.pe-tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.pe-tab.active {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.pe-tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pe-tab-content.active {
+    display: flex;
+}
+
+.pe-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.pe-filter-grid button {
+    padding: 12px 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.pe-filter-grid button.active {
+    border-color: var(--accent-primary);
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 2px var(--border-accent);
+}
+
+.pe-button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pe-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* ============================================================
+   NAVBAR TEXT CLARITY & SPACING
+   ============================================================ */
+.logo-info {
+    gap: 0; /* Remove gap */
+}
+.logo-name {
+    font-size: 0.9375rem;
+    line-height: 1.2;
+}
+.logo-role {
+    font-size: 0.75rem; /* Slightly larger */
+    color: var(--text-secondary); /* Use secondary text color for better contrast */
+    margin-top: 2px; /* Small space */
+    font-weight: 500;
+}
+
+/* ============================================================
+   MOBILE CONTACT FORM WIDTH
+   ============================================================ */
+@media (max-width: 575px) {
+    .contact-form-container {
+        padding: var(--space-md) !important;
+        margin-left: var(--space-sm);
+        margin-right: var(--space-sm);
+        max-width: calc(100% - var(--space-md));
+    }
+}
+
+/* ============================================================
+   DYNAMIC TEXT STYLING - GRADIENT TEXT UTILITY
+   ============================================================ */
+.text-gradient-dynamic {
+    background: linear-gradient(
+        120deg,
+        var(--accent-primary) 0%,
+        var(--accent-secondary) 50%,
+        var(--accent-tertiary) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    font-weight: 700;
+}
+
+/* Apply it to specific headings */
+.section-title {
+    /* You can optionally apply the gradient here or keep the original */
+    /* For example: */
+    /* background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%); */
+    /* -webkit-background-clip: text; */
+    /* -webkit-text-fill-color: transparent; */
+}
+
+/* ============================================================
+   THEME COLOR REFINEMENTS FOR BETTER CONTRAST
+   ============================================================ */
+[data-theme="dark"] {
+    --text-secondary: #a0aec0; /* Lighter for better readability */
+    --text-muted: #718096;
+}
+
+[data-theme="light"] {
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+}
+
+[data-theme="ocean"] {
+    --text-secondary: #b0e0e6;
+    --text-muted: #7fcdd8;
+}
+
+[data-theme="forest"] {
+    --text-secondary: #b8e0c2;
+    --text-muted: #8fbf9a;
+}
+
+[data-theme="sunset"] {
+    --text-secondary: #f0c8e0;
+    --text-muted: #c4a3c7;
+}
