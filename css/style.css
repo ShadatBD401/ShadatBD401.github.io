@@ -3293,7 +3293,6 @@ main,
 
 /* ── Navbar Avatar ────────────────────────────────────────── */
 .nav-avatar {
-    position: relative;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -3304,7 +3303,7 @@ main,
     flex-shrink: 0;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    transition: transform var(--transition-fast), border-color var(--transition-fast);
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-avatar-logo {
@@ -3325,17 +3324,15 @@ main,
     -webkit-text-fill-color: transparent;
 }
 
+/* The image MUST be absolutely positioned to fill the circle perfectly */
 .nav-avatar img {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
     display: block;
-    image-rendering: -webkit-optimize-contrast;
-    backface-visibility: hidden;
-    transform: translateZ(0);
 }
 
 .nav-avatar:hover {
