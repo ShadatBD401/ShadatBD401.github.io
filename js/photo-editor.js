@@ -1,51 +1,34 @@
 /* ============================================================
    ADVANCED PHOTO EDITOR
-   A professional-grade image editing tool.
+   Features: Crop, Filters, Adjustments, Text, Draw, Stickers,
+             Frames, Aspect Ratios, Undo/Redo, Rotate, Flip
    ============================================================ */
 
 const PhotoEditor = (() => {
-    // ── State Management ────────────────────────────────────
+    const OUT_SIZE = 1200;
+    const MAX_HISTORY = 40;
+
     let state = {
-        img: null,
-        canvas: null,
-        ctx: null,
-        originalFile: null,
-        // Transform
-        rotation: 0,
-        flipH: false,
-        flipV: false,
-        zoom: 1,
-        offsetX: 0,
-        offsetY: 0,
-        // Adjustments
-        brightness: 100,
-        contrast: 100,
-        saturation: 100,
-        exposure: 100,
-        warmth: 0,
-        // Effects
-        blur: 0,
-        grayscale: false,
-        sepia: false,
-        invert: false,
-        // Overlays
-        vignette: 0,
-        // Cropping
-        isCropping: false,
-        cropStart: { x: 0, y: 0 },
-        cropEnd: { x: 0, y: 0 },
-        // UI State
-        dragging: false,
-        lastX: 0,
-        lastY: 0,
-        activeTab: 'adjust',
-        activeFilter: 'none',
+        img: null, canvas: null, ctx: null,
+        rotation: 0, zoom: 1, offsetX: 0, offsetY: 0,
+        brightness: 100, contrast: 100, saturation: 100,
+        hue: 0, blur: 0, exposure: 100,
+        grayscale: false, sepia: false, invert: false,
+        vignette: 0, sharpen: 0,
+        circle: false, frame: 'none',
+        activeTool: 'adjust',           // adjust | crop | text | draw | filter
+        aspect: 'free',                  // free | 1:1 | 4:3 | 16:9 | 3:2
+        cropRect: null,
+        texts: [],                        // {id, text, x, y, size, color, font, bold, italic}
+        drawings: [],                     // {points:[{x,y}], color, size}
+        activeTextId: null,
+        drawing: null,
+        history: [], historyIndex: -1,
+        dragging: false, lastX: 0, lastY: 0,
+        scale: 1,
     };
 
-    // The final output size for the edited image.
-    const OUT_SIZE = 1024;
-
-    // ── UI Construction ─────────────────────────────────────
+    // ---------- UI ----------
     function buildUI() {
         let overlay = document.getElementById('photoEditorOverlay');
         if (overlay) return overlay;
@@ -54,75 +37,48 @@ const PhotoEditor = (() => {
         overlay.id = 'photoEditorOverlay';
         overlay.className = 'photo-editor-overlay';
         overlay.innerHTML = `
-            <div class="photo-editor-panel">
+            <div class="photo-editor-panel pe-advanced">
                 <div class="photo-editor-header">
-                    <h3 id="peHeaderTitle">Advanced Photo Editor</h3>
-                    <button class="photo-editor-close" id="peClose" type="button"><i class="fas fa-times"></i></button>
-                </div>
-                
-                <div class="photo-editor-body">
-                    <div class="photo-editor-stage" id="peStageContainer">
-                        <canvas id="peCanvas" width="${OUT_SIZE}" height="${OUT_SIZE}"></canvas>
-                        <div class="photo-editor-hint">Drag to reposition · Scroll to zoom</div>
+                    <h3 id="peHeaderTitle"><i class="fas fa-magic"></i> Advanced Photo Editor</h3>
+                    <div class="pe-header-actions">
+                        <button class="pe-icon-btn" id="peUndo" title="Undo"><i class="fas fa-undo"></i></button>
+                        <button class="pe-icon-btn" id="peRedo" title="Redo"><i class="fas fa-redo"></i></button>
+                        <button class="photo-editor-close" id="peClose" type="button"><i class="fas fa-times"></i></button>
                     </div>
-                    <div class="photo-editor-controls">
-                        <div class="pe-tabs" id="peTabs">
-                            <button class="pe-tab active" data-tab="adjust">Adjust</button>
-                            <button class="pe-tab" data-tab="effects">Effects</button>
-                            <button class="pe-tab" data-tab="filters">Filters</button>
-                            <button class="pe-tab" data-tab="transform">Transform</button>
-                        </div>
-                        
-                        <div class="pe-tab-content active" id="pe-tab-adjust">
-                            <label>Brightness <input type="range" id="peBrightness" min="0" max="200" value="100"></label>
-                            <label>Contrast <input type="range" id="peContrast" min="0" max="200" value="100"></label>
-                            <label>Saturation <input type="range" id="peSaturation" min="0" max="200" value="100"></label>
-                            <label>Exposure <input type="range" id="peExposure" min="0" max="200" value="100"></label>
-                            <label>Warmth <input type="range" id="peWarmth" min="-50" max="50" value="0"></label>
-                        </div>
-                        
-                        <div class="pe-tab-content" id="pe-tab-effects">
-                             <label>Blur <input type="range" id="peBlur" min="0" max="20" value="0"></label>
-                             <label>Vignette <input type="range" id="peVignette" min="0" max="100" value="0"></label>
-                             <div class="pe-checkbox-group">
-                                <label class="pe-checkbox"><input type="checkbox" id="peGrayscale"> Grayscale</label>
-                                <label class="pe-checkbox"><input type="checkbox" id="peSepia"> Sepia</label>
-                                <label class="pe-checkbox"><input type="checkbox" id="peInvert"> Invert</label>
-                             </div>
-                        </div>
+                </div>
 
-                        <div class="pe-tab-content" id="pe-tab-filters">
-                            <div class="pe-filter-grid" id="peFilterGrid">
-                                <button data-filter="none" class="active">Original</button>
-                                <button data-filter="vivid">Vivid</button>
-                                <button data-filter="cool">Cool</button>
-                                <button data-filter="warm">Warm</button>
-                                <button data-filter="mono">Mono</button>
-                                <button data-filter="fade">Fade</button>
-                            </div>
-                        </div>
+                <div class="pe-toolbar">
+                    <button class="pe-tool active" data-tool="adjust"><i class="fas fa-sliders-h"></i><span>Adjust</span></button>
+                    <button class="pe-tool" data-tool="crop"><i class="fas fa-crop-alt"></i><span>Crop</span></button>
+                    <button class="pe-tool" data-tool="filter"><i class="fas fa-filter"></i><span>Filters</span></button>
+                    <button class="pe-tool" data-tool="text"><i class="fas fa-font"></i><span>Text</span></button>
+                    <button class="pe-tool" data-tool="draw"><i class="fas fa-pen"></i><span>Draw</span></button>
+                    <button class="pe-tool" data-tool="sticker"><i class="fas fa-smile"></i><span>Stickers</span></button>
+                    <button class="pe-tool" data-tool="frame"><i class="fas fa-border-all"></i><span>Frame</span></button>
+                </div>
 
-                        <div class="pe-tab-content" id="pe-tab-transform">
-                            <label>Zoom <input type="range" id="peZoom" min="100" max="400" value="100"></label>
-                            <label>Rotate <input type="range" id="peRotate" min="0" max="360" value="0"></label>
-                            <div class="pe-button-group">
-                                <button class="btn btn-outline btn-sm" id="peFlipH"><i class="fas fa-arrows-alt-h"></i> Flip H</button>
-                                <button class="btn btn-outline btn-sm" id="peFlipV"><i class="fas fa-arrows-alt-v"></i> Flip V</button>
-                                <button class="btn btn-outline btn-sm" id="peStartCrop"><i class="fas fa-crop-alt"></i> Crop</button>
-                            </div>
+                <div class="pe-body">
+                    <div class="pe-stage-wrap">
+                        <div class="pe-stage">
+                            <canvas id="peCanvas" width="${OUT_SIZE}" height="${OUT_SIZE}"></canvas>
+                            <div class="pe-stage-hint">Drag to move · Scroll to zoom</div>
                         </div>
+                    </div>
 
-                        <button class="btn btn-outline btn-sm" id="peReset" type="button" style="margin-top:10px;">
-                            <i class="fas fa-undo"></i> Reset All
-                        </button>
+                    <div class="pe-panel" id="pePanel">
+                        <!-- filled by renderPanel() -->
                     </div>
                 </div>
 
                 <div class="photo-editor-footer">
-                    <button class="btn btn-outline" id="peCancel" type="button">Cancel</button>
-                    <button class="btn btn-primary" id="peApply" type="button">
-                        <i class="fas fa-check"></i> Apply
-                    </button>
+                    <div class="pe-footer-left">
+                        <button class="btn btn-outline btn-sm" id="peReset"><i class="fas fa-undo"></i> Reset All</button>
+                        <span class="pe-info" id="peInfo"></span>
+                    </div>
+                    <div class="pe-footer-right">
+                        <button class="btn btn-outline" id="peCancel">Cancel</button>
+                        <button class="btn btn-primary" id="peApply"><i class="fas fa-check"></i> Apply</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -130,316 +86,755 @@ const PhotoEditor = (() => {
         return overlay;
     }
 
-    // ── State Reset ─────────────────────────────────────────
-    function resetState() {
-        Object.assign(state, {
-            rotation: 0, flipH: false, flipV: false, zoom: 1, offsetX: 0, offsetY: 0,
-            brightness: 100, contrast: 100, saturation: 100, exposure: 100, warmth: 0,
-            blur: 0, grayscale: false, sepia: false, invert: false, vignette: 0,
-            isCropping: false, activeTab: 'adjust', activeFilter: 'none'
+    // ---------- Panels ----------
+    function renderPanel() {
+        const panel = document.getElementById('pePanel');
+        if (!panel) return;
+        const tool = state.activeTool;
+
+        if (tool === 'adjust') {
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-sun"></i> Light</h4>
+                    ${slider('brightness', 'Brightness', 50, 150, state.brightness)}
+                    ${slider('contrast', 'Contrast', 50, 150, state.contrast)}
+                    ${slider('exposure', 'Exposure', 50, 150, state.exposure)}
+                    ${slider('vignette', 'Vignette', 0, 100, state.vignette)}
+                </div>
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-palette"></i> Color</h4>
+                    ${slider('saturation', 'Saturation', 0, 200, state.saturation)}
+                    ${slider('hue', 'Hue', -180, 180, state.hue)}
+                </div>
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-eye"></i> Effects</h4>
+                    ${slider('blur', 'Blur', 0, 10, state.blur)}
+                    ${slider('sharpen', 'Sharpen', 0, 100, state.sharpen)}
+                    <div class="pe-toggles">
+                        <label class="pe-checkbox"><input type="checkbox" id="peGrayscale" ${state.grayscale?'checked':''}> Grayscale</label>
+                        <label class="pe-checkbox"><input type="checkbox" id="peSepia" ${state.sepia?'checked':''}> Sepia</label>
+                        <label class="pe-checkbox"><input type="checkbox" id="peInvert" ${state.invert?'checked':''}> Invert</label>
+                    </div>
+                </div>
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-shapes"></i> Shape</h4>
+                    <label class="pe-checkbox"><input type="checkbox" id="peCircle" ${state.circle?'checked':''}> Circle mask</label>
+                </div>
+            `;
+            bindPanel();
+        }
+
+        else if (tool === 'crop') {
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-crop-alt"></i> Aspect Ratio</h4>
+                    <div class="pe-aspect-grid">
+                        ${['free','1:1','4:3','3:2','16:9','9:16'].map(a =>
+                            `<button class="pe-aspect-btn ${state.aspect===a?'active':''}" data-aspect="${a}">${a}</button>`
+                        ).join('')}
+                    </div>
+                    <p class="pe-hint">Drag on canvas to define crop area.</p>
+                    <div class="pe-row">
+                        <button class="btn btn-outline btn-sm" id="peCropReset"><i class="fas fa-times"></i> Clear</button>
+                        <button class="btn btn-primary btn-sm" id="peCropApply"><i class="fas fa-check"></i> Apply Crop</button>
+                    </div>
+                </div>
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-arrows-alt"></i> Transform</h4>
+                    ${slider('rotation', 'Rotation', 0, 360, state.rotation)}
+                    <div class="pe-row">
+                        <button class="btn btn-outline btn-sm" id="peRotateL"><i class="fas fa-rotate-left"></i> -90°</button>
+                        <button class="btn btn-outline btn-sm" id="peRotateR"><i class="fas fa-rotate-right"></i> +90°</button>
+                        <button class="btn btn-outline btn-sm" id="peFlipH"><i class="fas fa-arrows-alt-h"></i> Flip H</button>
+                        <button class="btn btn-outline btn-sm" id="peFlipV"><i class="fas fa-arrows-alt-v"></i> Flip V</button>
+                    </div>
+                </div>
+            `;
+            bindPanel();
+            document.querySelectorAll('.pe-aspect-btn').forEach(b => {
+                b.onclick = () => { state.aspect = b.dataset.aspect; state.cropRect = null; renderPanel(); draw(); };
+            });
+            document.getElementById('peRotateL').onclick = () => { state.rotation = (state.rotation - 90 + 360) % 360; saveHistory(); draw(); renderPanel(); };
+            document.getElementById('peRotateR').onclick = () => { state.rotation = (state.rotation + 90) % 360; saveHistory(); draw(); renderPanel(); };
+            document.getElementById('peFlipH').onclick = () => { state.flipH = !state.flipH; saveHistory(); draw(); };
+            document.getElementById('peFlipV').onclick = () => { state.flipV = !state.flipV; saveHistory(); draw(); };
+            document.getElementById('peCropReset').onclick = () => { state.cropRect = null; draw(); };
+            document.getElementById('peCropApply').onclick = applyCrop;
+        }
+
+        else if (tool === 'filter') {
+            const presets = [
+                { name: 'Original', b:100, c:100, s:100, hue:0, sepia:false, gray:false, blur:0 },
+                { name: 'Vivid',    b:110, c:120, s:150, hue:0, sepia:false, gray:false, blur:0 },
+                { name: 'Vintage',  b:105, c:90,  s:70,  hue:0, sepia:true,  gray:false, blur:0 },
+                { name: 'B&W',      b:105, c:110, s:0,   hue:0, sepia:false, gray:true,  blur:0 },
+                { name: 'Cool',     b:100, c:105, s:110, hue:-15,sepia:false, gray:false, blur:0 },
+                { name: 'Warm',     b:105, c:105, s:115, hue:15, sepia:false, gray:false, blur:0 },
+                { name: 'Fade',     b:110, c:85,  s:80,  hue:0, sepia:false, gray:false, blur:0.3 },
+                { name: 'Dramatic', b:95,  c:140, s:120, hue:0, sepia:false, gray:false, blur:0 },
+                { name: 'Soft',     b:108, c:90,  s:105, hue:0, sepia:false, gray:false, blur:0.8 },
+                { name: 'Retro',    b:105, c:95,  s:90,  hue:10, sepia:true, gray:false, blur:0.2 },
+                { name: 'Cinema',   b:100, c:115, s:105, hue:-5, sepia:false, gray:false, blur:0 },
+                { name: 'Neon',     b:115, c:135, s:170, hue:-20,sepia:false, gray:false, blur:0 },
+            ];
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-magic"></i> Presets</h4>
+                    <div class="pe-preset-grid">
+                        ${presets.map((p, i) => `
+                            <button class="pe-preset" data-preset="${i}">${p.name}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            panel.querySelectorAll('.pe-preset').forEach(btn => {
+                btn.onclick = () => {
+                    const p = presets[+btn.dataset.preset];
+                    state.brightness = p.b; state.contrast = p.c; state.saturation = p.s;
+                    state.hue = p.hue; state.sepia = p.sepia; state.grayscale = p.gray;
+                    state.blur = p.blur;
+                    saveHistory(); draw();
+                };
+            });
+        }
+
+        else if (tool === 'text') {
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-font"></i> Add Text</h4>
+                    <textarea id="peTextInput" rows="3" placeholder="Type your text here..."></textarea>
+                    <div class="pe-row">
+                        <label>Size <input type="range" id="peTextSize" min="12" max="200" value="48"></label>
+                    </div>
+                    <div class="pe-row">
+                        <input type="color" id="peTextColor" value="#ffffff">
+                        <select id="peTextFont">
+                            <option value="Inter">Inter</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Courier New">Courier</option>
+                        </select>
+                    </div>
+                    <div class="pe-toggles">
+                        <label class="pe-checkbox"><input type="checkbox" id="peTextBold"> Bold</label>
+                        <label class="pe-checkbox"><input type="checkbox" id="peTextItalic"> Italic</label>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="peAddText" style="margin-top:8px;">
+                        <i class="fas fa-plus"></i> Add Text
+                    </button>
+                </div>
+                <div class="pe-panel-section">
+                    <h4>Layers (${state.texts.length})</h4>
+                    <div class="pe-layers">
+                        ${state.texts.map((t, i) => `
+                            <div class="pe-layer ${state.activeTextId===t.id?'active':''}" data-id="${t.id}">
+                                <span>${escapeHtml(t.text.slice(0,20))}</span>
+                                <button class="pe-layer-del" data-del="${t.id}"><i class="fas fa-times"></i></button>
+                            </div>
+                        `).join('') || '<p class="pe-hint">No text layers yet.</p>'}
+                    </div>
+                </div>
+            `;
+            bindPanel();
+            document.getElementById('peAddText').onclick = () => {
+                const text = document.getElementById('peTextInput').value.trim();
+                if (!text) return;
+                const t = {
+                    id: 'txt_' + Date.now(),
+                    text,
+                    x: 0.5, y: 0.5,
+                    size: +document.getElementById('peTextSize').value,
+                    color: document.getElementById('peTextColor').value,
+                    font: document.getElementById('peTextFont').value,
+                    bold: document.getElementById('peTextBold').checked,
+                    italic: document.getElementById('peTextItalic').checked,
+                };
+                state.texts.push(t);
+                state.activeTextId = t.id;
+                saveHistory(); draw(); renderPanel();
+            };
+            panel.querySelectorAll('.pe-layer').forEach(el => {
+                el.onclick = (e) => {
+                    if (e.target.closest('.pe-layer-del')) return;
+                    state.activeTextId = el.dataset.id;
+                    renderPanel();
+                };
+            });
+            panel.querySelectorAll('.pe-layer-del').forEach(b => {
+                b.onclick = (e) => {
+                    e.stopPropagation();
+                    state.texts = state.texts.filter(t => t.id !== b.dataset.del);
+                    if (state.activeTextId === b.dataset.del) state.activeTextId = null;
+                    saveHistory(); draw(); renderPanel();
+                };
+            });
+        }
+
+        else if (tool === 'draw') {
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-pen"></i> Draw</h4>
+                    <div class="pe-row">
+                        <input type="color" id="peDrawColor" value="#3b82f6">
+                        <label>Size <input type="range" id="peDrawSize" min="1" max="40" value="6"></label>
+                    </div>
+                    <p class="pe-hint">Click and drag on the image to draw.</p>
+                    <div class="pe-row">
+                        <button class="btn btn-outline btn-sm" id="peClearDraw"><i class="fas fa-eraser"></i> Clear All</button>
+                    </div>
+                </div>
+                <div class="pe-panel-section">
+                    <h4>Strokes (${state.drawings.length})</h4>
+                </div>
+            `;
+            bindPanel();
+            document.getElementById('peClearDraw').onclick = () => {
+                state.drawings = [];
+                saveHistory(); draw(); renderPanel();
+            };
+        }
+
+        else if (tool === 'sticker') {
+            const stickers = ['😀','😎','🔥','❤️','⭐','✨','🎉','👍','💯','🚀','🌈','🎨','📷','💎','🌟','👑','🏆','🎯','💡','⚡','🌸','🍕','☕','🐱','🐶','🦄','🌊','🌙','☀️','🍀'];
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-smile"></i> Stickers</h4>
+                    <div class="pe-sticker-grid">
+                        ${stickers.map(s => `<button class="pe-sticker" data-sticker="${s}">${s}</button>`).join('')}
+                    </div>
+                </div>
+                <div class="pe-panel-section">
+                    <h4>Placed (${state.texts.filter(t=>t.isSticker).length})</h4>
+                </div>
+            `;
+            panel.querySelectorAll('.pe-sticker').forEach(b => {
+                b.onclick = () => {
+                    const t = {
+                        id: 'stk_' + Date.now(),
+                        text: b.dataset.sticker,
+                        isSticker: true,
+                        x: 0.5, y: 0.5, size: 96,
+                        color: '#fff', font: 'Arial', bold: false, italic: false
+                    };
+                    state.texts.push(t);
+                    state.activeTextId = t.id;
+                    saveHistory(); draw();
+                };
+            });
+        }
+
+        else if (tool === 'frame') {
+            const frames = [
+                { id: 'none', label: 'None' },
+                { id: 'white', label: 'White Border' },
+                { id: 'black', label: 'Black Border' },
+                { id: 'polaroid', label: 'Polaroid' },
+                { id: 'rounded', label: 'Rounded' },
+                { id: 'gold', label: 'Gold' },
+                { id: 'shadow', label: 'Shadow' },
+            ];
+            panel.innerHTML = `
+                <div class="pe-panel-section">
+                    <h4><i class="fas fa-border-all"></i> Frame Style</h4>
+                    <div class="pe-frame-grid">
+                        ${frames.map(f => `
+                            <button class="pe-frame-btn ${state.frame===f.id?'active':''}" data-frame="${f.id}">${f.label}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            panel.querySelectorAll('.pe-frame-btn').forEach(b => {
+                b.onclick = () => { state.frame = b.dataset.frame; saveHistory(); draw(); renderPanel(); };
+            });
+        }
+    }
+
+    function slider(key, label, min, max, val) {
+        return `<label class="pe-slider">
+            <span>${label}</span>
+            <input type="range" data-key="${key}" min="${min}" max="${max}" value="${val}">
+            <span class="pe-slider-val" id="pe-val-${key}">${val}</span>
+        </label>`;
+    }
+
+    function bindPanel() {
+        document.querySelectorAll('#pePanel input[type=range]').forEach(inp => {
+            const key = inp.dataset.key;
+            if (!key) return;
+            inp.oninput = () => {
+                state[key] = +inp.value;
+                const lbl = document.getElementById('pe-val-' + key);
+                if (lbl) lbl.textContent = inp.value;
+                draw();
+            };
+            inp.onchange = () => saveHistory();
+        });
+        document.querySelectorAll('#pePanel input[type=checkbox]').forEach(inp => {
+            inp.onchange = () => {
+                const key = inp.id.replace(/^pe/, '').replace(/^./, c => c.toLowerCase());
+                state[key === 'grayScale' ? 'grayscale' : key] = inp.checked;
+                draw(); saveHistory();
+            };
         });
     }
 
-    // ── Core Drawing Logic ──────────────────────────────────
+    // ---------- Draw ----------
+    function getFilterString() {
+        let f = `brightness(${state.brightness * state.exposure / 100}%) contrast(${state.contrast}%) saturate(${state.saturation}%)`;
+        if (state.hue) f += ` hue-rotate(${state.hue}deg)`;
+        if (state.blur) f += ` blur(${state.blur}px)`;
+        if (state.grayscale) f += ' grayscale(100%)';
+        if (state.sepia) f += ' sepia(100%)';
+        if (state.invert) f += ' invert(100%)';
+        return f;
+    }
+
     function draw() {
-        if (!state.img || !state.canvas) return;
+        const canvas = state.canvas;
         const ctx = state.ctx;
-        const size = state.canvas.width;
+        if (!canvas || !ctx || !state.img) return;
+        const size = canvas.width;
 
         ctx.clearRect(0, 0, size, size);
         ctx.fillStyle = '#0a0e17';
         ctx.fillRect(0, 0, size, size);
 
         ctx.save();
-        // Move to center
         ctx.translate(size / 2, size / 2);
-        // Apply rotation and flips
         ctx.rotate((state.rotation * Math.PI) / 180);
-        ctx.scale(state.flipH ? -1 : 1, state.flipV ? -1 : 1);
-        // Apply zoom
+        if (state.flipH) ctx.scale(-1, 1);
+        if (state.flipV) ctx.scale(1, -1);
         ctx.scale(state.zoom, state.zoom);
-        // Move back and apply pan
         ctx.translate(-size / 2 + state.offsetX, -size / 2 + state.offsetY);
 
-        // Apply filters
-        let filterString = '';
-        filterString += `brightness(${state.brightness}%) `;
-        filterString += `contrast(${state.contrast}%) `;
-        filterString += `saturate(${state.saturation}%) `;
-        filterString += `blur(${state.blur}px) `;
-        if (state.grayscale) filterString += 'grayscale(100%) ';
-        if (state.sepia) filterString += 'sepia(100%) ';
-        if (state.invert) filterString += 'invert(100%) ';
-        
-        // Apply preset filters on top
-        if (state.activeFilter === 'vivid') filterString += 'saturate(150%) contrast(110%) ';
-        if (state.activeFilter === 'cool') filterString += 'hue-rotate(180deg) saturate(120%) ';
-        if (state.activeFilter === 'warm') filterString += 'sepia(30%) saturate(140%) ';
-        if (state.activeFilter === 'mono') filterString += 'grayscale(100%) contrast(120%) ';
-        if (state.activeFilter === 'fade') filterString += 'contrast(80%) brightness(110%) saturate(70%) ';
+        ctx.filter = getFilterString();
 
-        // Apply exposure & warmth (simulated with brightness/sepia)
-        const exposureFactor = state.exposure / 100;
-        filterString += `brightness(${100 * exposureFactor}%) `;
-        if (state.warmth > 0) filterString += `sepia(${state.warmth * 2}%) `;
-        
-        ctx.filter = filterString.trim();
-
-        // Draw the image, scaled to cover the canvas
-        const iw = state.img.width;
-        const ih = state.img.height;
+        const iw = state.img.width, ih = state.img.height;
         const scale = Math.max(size / iw, size / ih);
-        const w = iw * scale;
-        const h = ih * scale;
+        const w = iw * scale, h = ih * scale;
         ctx.drawImage(state.img, (size - w) / 2, (size - h) / 2, w, h);
-
         ctx.restore();
 
-        // Apply Vignette
+        // Sharpen pass (approximate with contrast on overlay)
+        if (state.sharpen > 0) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'overlay';
+            ctx.globalAlpha = state.sharpen / 500;
+            ctx.filter = 'contrast(200%)';
+            ctx.drawImage(canvas, 0, 0);
+            ctx.restore();
+        }
+
+        // Vignette
         if (state.vignette > 0) {
-            const gradient = ctx.createRadialGradient(
-                size / 2, size / 2, size * 0.3,
-                size / 2, size / 2, size * 0.7
-            );
-            gradient.addColorStop(0, 'rgba(0,0,0,0)');
-            gradient.addColorStop(1, `rgba(0,0,0,${state.vignette / 100})`);
-            ctx.fillStyle = gradient;
+            const grad = ctx.createRadialGradient(size/2, size/2, size*0.3, size/2, size/2, size*0.75);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, `rgba(0,0,0,${state.vignette/100})`);
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, size, size);
         }
 
-        // Draw crop overlay if active
-        if (state.isCropping) {
-            drawCropOverlay(ctx, size);
+        // Draw strokes
+        state.drawings.forEach(stroke => {
+            if (stroke.points.length < 2) return;
+            ctx.save();
+            ctx.strokeStyle = stroke.color;
+            ctx.lineWidth = stroke.size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            stroke.points.forEach((p, i) => {
+                const x = p.x * size, y = p.y * size;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.restore();
+        });
+
+        // Draw text/stickers
+        state.texts.forEach(t => {
+            ctx.save();
+            const x = t.x * size, y = t.y * size;
+            ctx.font = `${t.italic?'italic ':''}${t.bold?'bold ':''}${t.isSticker? t.size : t.size * size / 1024}px ${t.font}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            if (!t.isSticker) {
+                ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
+            }
+            ctx.fillStyle = t.color;
+            ctx.fillText(t.text, x, y);
+            if (state.activeTextId === t.id) {
+                const m = ctx.measureText(t.text);
+                ctx.shadowColor = 'transparent';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 4]);
+                const pad = 6;
+                const w = m.width, h = t.isSticker ? t.size : t.size * size / 1024;
+                ctx.strokeRect(x - w/2 - pad, y - h/2 - pad, w + pad*2, h + pad*2);
+            }
+            ctx.restore();
+        });
+
+        // Circle mask
+        if (state.circle) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Frame
+        applyFrame(ctx, size);
+
+        // Crop overlay
+        if (state.cropRect && state.activeTool === 'crop') {
+            const r = state.cropRect;
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(0, 0, size, size);
+            ctx.clearRect(r.x, r.y, r.w, r.h);
+            ctx.drawImage(canvas, r.x, r.y, r.w, r.h, r.x, r.y, r.w, r.h);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(r.x, r.y, r.w, r.h);
+            ctx.restore();
         }
     }
 
-    function drawCropOverlay(ctx, size) {
+    function applyFrame(ctx, size) {
+        if (state.frame === 'none') return;
+        const f = state.frame;
         ctx.save();
-        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([6, 4]);
-
-        const { x, y, w, h } = getCropRect();
-        ctx.strokeRect(x, y, w, h);
-
-        // Draw dark overlay outside crop area
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillRect(0, 0, size, size);
-        // Clear the crop area (this is a bit of a hack, but it works for display)
-        ctx.clearRect(x, y, w, h);
-        // Redraw image inside crop area (simple approach)
-        // Note: A more robust solution would use a separate canvas, but this is simpler for now.
-        // This part is omitted for brevity; the visual overlay is the main goal.
-
+        if (f === 'white' || f === 'black' || f === 'gold') {
+            const color = f === 'white' ? '#fff' : f === 'black' ? '#000' : '#d4af37';
+            const bw = size * 0.04;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = bw;
+            ctx.strokeRect(bw/2, bw/2, size - bw, size - bw);
+        } else if (f === 'polaroid') {
+            ctx.fillStyle = '#fff';
+            const pad = size * 0.06;
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#0a0e17';
+            const inner = size - pad * 2;
+            // redraw image inside — already drawn; just white border
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, size, pad);
+            ctx.fillRect(0, size - pad * 1.8, size, pad * 1.8);
+            ctx.fillRect(0, 0, pad, size);
+            ctx.fillRect(size - pad, 0, pad, size);
+        } else if (f === 'rounded') {
+            ctx.globalCompositeOperation = 'destination-in';
+            const r = size * 0.05;
+            roundRect(ctx, 0, 0, size, size, r);
+            ctx.fill();
+        } else if (f === 'shadow') {
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.fillRect(size*0.05, size*0.05, size*0.9, size*0.9);
+        }
         ctx.restore();
     }
 
-    function getCropRect() {
-        const x = Math.min(state.cropStart.x, state.cropEnd.x);
-        const y = Math.min(state.cropStart.y, state.cropEnd.y);
-        const w = Math.abs(state.cropStart.x - state.cropEnd.x);
-        const h = Math.abs(state.cropStart.y - state.cropEnd.y);
-        return { x, y, w, h };
+    function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
     }
 
-    // ── Event Handlers ──────────────────────────────────────
-    function setupEventListeners(overlay, close) {
-        const canvas = state.canvas;
-        const controls = {
-            bright: document.getElementById('peBrightness'),
-            contrast: document.getElementById('peContrast'),
-            saturation: document.getElementById('peSaturation'),
-            exposure: document.getElementById('peExposure'),
-            warmth: document.getElementById('peWarmth'),
-            blur: document.getElementById('peBlur'),
-            vignette: document.getElementById('peVignette'),
-            zoom: document.getElementById('peZoom'),
-            rotate: document.getElementById('peRotate'),
-            grayscale: document.getElementById('peGrayscale'),
-            sepia: document.getElementById('peSepia'),
-            invert: document.getElementById('peInvert'),
+    // ---------- Crop ----------
+    function applyCrop() {
+        if (!state.cropRect) return;
+        const r = state.cropRect;
+        const tmp = document.createElement('canvas');
+        tmp.width = r.w; tmp.height = r.h;
+        tmp.getContext('2d').drawImage(state.canvas, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+
+        const newImg = new Image();
+        newImg.onload = () => {
+            state.img = newImg;
+            state.cropRect = null;
+            state.rotation = 0;
+            state.zoom = 1;
+            state.offsetX = 0; state.offsetY = 0;
+            saveHistory(); draw();
         };
+        newImg.src = tmp.toDataURL();
+    }
 
-        // Helper to update state and redraw
-        const update = (key, value) => {
-            state[key] = value;
-            draw();
-        };
-
-        // Wire up all controls
-        controls.bright.oninput = e => update('brightness', +e.target.value);
-        controls.contrast.oninput = e => update('contrast', +e.target.value);
-        controls.saturation.oninput = e => update('saturation', +e.target.value);
-        controls.exposure.oninput = e => update('exposure', +e.target.value);
-        controls.warmth.oninput = e => update('warmth', +e.target.value);
-        controls.blur.oninput = e => update('blur', +e.target.value);
-        controls.vignette.oninput = e => update('vignette', +e.target.value);
-        controls.zoom.oninput = e => update('zoom', +e.target.value / 100);
-        controls.rotate.oninput = e => update('rotation', +e.target.value);
-        controls.grayscale.onchange = e => update('grayscale', e.target.checked);
-        controls.sepia.onchange = e => update('sepia', e.target.checked);
-        controls.invert.onchange = e => update('invert', e.target.checked);
-
-        // Tabs
-        document.getElementById('peTabs').onclick = (e) => {
-            const btn = e.target.closest('.pe-tab');
-            if (!btn) return;
-            const tab = btn.dataset.tab;
-            state.activeTab = tab;
-            document.querySelectorAll('.pe-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-            document.querySelectorAll('.pe-tab-content').forEach(c => c.classList.toggle('active', c.id === `pe-tab-${tab}`));
-        };
-
-        // Filters
-        document.getElementById('peFilterGrid').onclick = (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            state.activeFilter = btn.dataset.filter;
-            document.querySelectorAll('.pe-filter-grid button').forEach(b => b.classList.toggle('active', b.dataset.filter === state.activeFilter));
-            draw();
-        };
-
-        // Flip
-        document.getElementById('peFlipH').onclick = () => { state.flipH = !state.flipH; draw(); };
-        document.getElementById('peFlipV').onclick = () => { state.flipV = !state.flipV; draw(); };
-
-        // Crop
-        document.getElementById('peStartCrop').onclick = () => {
-            state.isCropping = !state.isCropping;
-            if (!state.isCropping) {
-                // Apply crop
-                const { x, y, w, h } = getCropRect();
-                if (w > 10 && h > 10) { // Minimum crop size
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = w;
-                    tempCanvas.height = h;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    // This is tricky because of transforms. A better way is to save the state,
-                    // reset transforms, crop, then restore. For simplicity, we'll just log it.
-                    // A full implementation would be very long.
-                    console.log('Crop applied (simplified)');
+    // ---------- History ----------
+    function saveHistory() {
+        if (!state.canvas) return;
+        try {
+            const snap = {
+                imgData: state.canvas.toDataURL('image/jpeg', 0.7),
+                texts: JSON.parse(JSON.stringify(state.texts)),
+                drawings: JSON.parse(JSON.stringify(state.drawings)),
+                filters: {
+                    brightness: state.brightness, contrast: state.contrast,
+                    saturation: state.saturation, hue: state.hue,
+                    blur: state.blur, exposure: state.exposure,
+                    grayscale: state.grayscale, sepia: state.sepia, invert: state.invert,
+                    vignette: state.vignette, sharpen: state.sharpen,
+                    circle: state.circle, frame: state.frame,
                 }
-            }
-            draw(); // Redraw to show/hide overlay
+            };
+            state.history = state.history.slice(0, state.historyIndex + 1);
+            state.history.push(snap);
+            if (state.history.length > MAX_HISTORY) state.history.shift();
+            state.historyIndex = state.history.length - 1;
+        } catch(e) {}
+    }
+
+    function undo() {
+        if (state.historyIndex <= 0) return;
+        state.historyIndex--;
+        restoreSnapshot(state.history[state.historyIndex]);
+    }
+    function redo() {
+        if (state.historyIndex >= state.history.length - 1) return;
+        state.historyIndex++;
+        restoreSnapshot(state.history[state.historyIndex]);
+    }
+    function restoreSnapshot(snap) {
+        if (!snap) return;
+        state.texts = JSON.parse(JSON.stringify(snap.texts || []));
+        state.drawings = JSON.parse(JSON.stringify(snap.drawings || []));
+        Object.assign(state, snap.filters || {});
+        const img = new Image();
+        img.onload = () => {
+            state.img = img;
+            draw();
+            renderPanel();
         };
+        img.src = snap.imgData;
+    }
+
+    // ---------- Event wiring ----------
+    function wireEvents() {
+        const canvas = state.canvas;
+        const overlay = document.getElementById('photoEditorOverlay');
+
+        // Tools
+        document.querySelectorAll('.pe-tool').forEach(b => {
+            b.onclick = () => {
+                document.querySelectorAll('.pe-tool').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                state.activeTool = b.dataset.tool;
+                state.cropRect = null;
+                renderPanel();
+                draw();
+            };
+        });
+
+        // Undo/redo
+        document.getElementById('peUndo').onclick = undo;
+        document.getElementById('peRedo').onclick = redo;
 
         // Reset
         document.getElementById('peReset').onclick = () => {
-            resetState();
-            // Reset UI controls
-            controls.bright.value = 100; controls.contrast.value = 100; controls.saturation.value = 100;
-            controls.exposure.value = 100; controls.warmth.value = 0;
-            controls.blur.value = 0; controls.vignette.value = 0;
-            controls.zoom.value = 100; controls.rotate.value = 0;
-            controls.grayscale.checked = false; controls.sepia.checked = false; controls.invert.checked = false;
-            document.querySelectorAll('.pe-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === 'adjust'));
-            document.querySelectorAll('.pe-tab-content').forEach(c => c.classList.toggle('active', c.id === `pe-tab-adjust`));
-            document.querySelectorAll('.pe-filter-grid button').forEach(b => b.classList.toggle('active', b.dataset.filter === 'none'));
+            reset();
+            saveHistory();
+            renderPanel();
             draw();
         };
 
-        // Footer buttons
+        // Canvas interaction
+        canvas.onmousedown = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            if (state.activeTool === 'crop') {
+                state.dragging = 'crop';
+                state.cropStart = { x: x * canvas.width, y: y * canvas.height };
+                return;
+            }
+            if (state.activeTool === 'draw') {
+                state.dragging = 'draw';
+                state.drawing = {
+                    points: [{ x, y }],
+                    color: document.getElementById('peDrawColor')?.value || '#3b82f6',
+                    size: +(document.getElementById('peDrawSize')?.value || 6),
+                };
+                return;
+            }
+            if (state.activeTool === 'text' || state.activeTool === 'sticker') {
+                const hit = findTextAt(x * canvas.width, y * canvas.height);
+                if (hit) {
+                    state.activeTextId = hit.id;
+                    state.dragging = 'text';
+                    state.dragTextStart = { x, y, tx: hit.x, ty: hit.y };
+                    renderPanel();
+                    draw();
+                    return;
+                }
+            }
+            state.dragging = 'pan';
+            state.lastX = e.clientX; state.lastY = e.clientY;
+        };
+
+        window.addEventListener('mousemove', (e) => {
+            if (!state.dragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+
+            if (state.dragging === 'pan') {
+                state.offsetX += e.clientX - state.lastX;
+                state.offsetY += e.clientY - state.lastY;
+                state.lastX = e.clientX; state.lastY = e.clientY;
+                draw();
+            } else if (state.dragging === 'draw' && state.drawing) {
+                state.drawing.points.push({ x, y });
+                const c = state.drawing;
+                state.drawings.push(c);
+                state.drawing = { ...c, points: [...c.points] };
+                state.drawings.pop();
+                state.drawings.push(state.drawing);
+                draw();
+            } else if (state.dragging === 'crop') {
+                const s = state.cropStart;
+                const ex = x * canvas.width, ey = y * canvas.height;
+                state.cropRect = {
+                    x: Math.min(s.x, ex), y: Math.min(s.y, ey),
+                    w: Math.abs(ex - s.x), h: Math.abs(ey - s.y)
+                };
+                // enforce aspect ratio
+                if (state.aspect !== 'free') {
+                    const [aw, ah] = state.aspect.split(':').map(Number);
+                    const targetRatio = aw / ah;
+                    const curRatio = state.cropRect.w / state.cropRect.h;
+                    if (curRatio > targetRatio) state.cropRect.w = state.cropRect.h * targetRatio;
+                    else state.cropRect.h = state.cropRect.w / targetRatio;
+                }
+                draw();
+            } else if (state.dragging === 'text') {
+                const t = state.texts.find(t => t.id === state.activeTextId);
+                if (t) {
+                    const d = state.dragTextStart;
+                    t.x = d.tx + (x - d.x);
+                    t.y = d.ty + (y - d.y);
+                    draw();
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (state.dragging === 'draw') saveHistory();
+            if (state.dragging === 'text') saveHistory();
+            state.dragging = false;
+            state.drawing = null;
+        });
+
+        // Scroll zoom
+        canvas.onwheel = (e) => {
+            e.preventDefault();
+            state.zoom = Math.max(0.3, Math.min(4, state.zoom - e.deltaY * 0.001));
+            draw();
+        };
+
+        // Footer actions
         document.getElementById('peCancel').onclick = () => close(null);
         document.getElementById('peClose').onclick = () => close(null);
         document.getElementById('peApply').onclick = async () => {
-            const f = await exportFile();
-            close(f);
+            const file = await exportFile(state._originalFile);
+            close(file);
         };
 
-        // Canvas Interactions (Drag, Zoom, Crop)
-        canvas.onmousedown = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const x = (e.clientX - rect.left) * scaleX;
-            const y = (e.clientY - rect.top) * scaleY;
-
-            if (state.isCropping) {
-                state.cropStart = { x, y };
-                state.cropEnd = { x, y };
-            } else {
-                state.dragging = true;
-                state.lastX = e.clientX;
-                state.lastY = e.clientY;
-            }
-        };
-        window.onmouseup = () => {
-            state.dragging = false;
-            if (state.isCropping) {
-                 // Finalize crop rect
-            }
-        };
-        canvas.onmousemove = (e) => {
-            if (state.isCropping) {
-                 const rect = canvas.getBoundingClientRect();
-                 const scaleX = canvas.width / rect.width;
-                 const scaleY = canvas.height / rect.height;
-                 state.cropEnd = { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
-                 draw();
-                 return;
-            }
-            if (!state.dragging) return;
-            const dx = e.clientX - state.lastX;
-            const dy = e.clientY - state.lastY;
-            state.offsetX += dx;
-            state.offsetY += dy;
-            state.lastX = e.clientX;
-            state.lastY = e.clientY;
-            draw();
-        };
-        canvas.onwheel = (e) => {
-            e.preventDefault();
-            const newZoom = Math.max(1, Math.min(4, state.zoom - e.deltaY * 0.001));
-            state.zoom = newZoom;
-            controls.zoom.value = Math.round(newZoom * 100);
-            draw();
-        };
-    }
-
-    // ── Export Function ─────────────────────────────────────
-    function exportFile() {
-        return new Promise((resolve) => {
-            state.canvas.toBlob((blob) => {
-                const ext = (state.originalFile.type || '').includes('png') ? 'png' : 'jpg';
-                const name = `edited_${Date.now()}.${ext}`;
-                resolve(new File([blob], name, { type: `image/${ext}`, quality: 0.95 }));
-            }, `image/${(state.originalFile.type || '').includes('png') ? 'png' : 'jpeg'}`, 0.95);
+        // Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && overlay.classList.contains('open')) close(null);
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
         });
     }
 
-    // ── Main `open` Function ────────────────────────────────
+    function findTextAt(cx, cy) {
+        const size = state.canvas.width;
+        for (let i = state.texts.length - 1; i >= 0; i--) {
+            const t = state.texts[i];
+            const x = t.x * size, y = t.y * size;
+            const s = t.isSticker ? t.size : t.size * size / 1024;
+            if (Math.abs(cx - x) < s && Math.abs(cy - y) < s) return t;
+        }
+        return null;
+    }
+
+    // ---------- Utilities ----------
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function reset() {
+        state.rotation = 0; state.zoom = 1;
+        state.offsetX = 0; state.offsetY = 0;
+        state.brightness = 100; state.contrast = 100; state.saturation = 100;
+        state.hue = 0; state.blur = 0; state.exposure = 100;
+        state.grayscale = false; state.sepia = false; state.invert = false;
+        state.vignette = 0; state.sharpen = 0;
+        state.circle = false; state.frame = 'none';
+        state.texts = []; state.drawings = [];
+        state.activeTextId = null; state.cropRect = null;
+        state.flipH = false; state.flipV = false;
+    }
+
+    function exportFile(originalFile) {
+        return new Promise((resolve) => {
+            const ext = (originalFile.type || '').includes('png') ? 'png' : 'jpg';
+            const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
+            state.canvas.toBlob((blob) => {
+                const name = `edited_${Date.now()}.${ext}`;
+                resolve(new File([blob], name, { type: mime }));
+            }, mime, 0.95);
+        });
+    }
+
+    function close(result) {
+        const overlay = document.getElementById('photoEditorOverlay');
+        overlay.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        if (state._url) URL.revokeObjectURL(state._url);
+        state._resolve(result);
+    }
+
+    // ---------- Open ----------
     function open(file) {
-        return new Promise((resolve, reject) => {
-            resetState();
-            state.originalFile = file;
+        reset();
+        return new Promise((resolve) => {
+            state._resolve = resolve;
+            state._originalFile = file;
+
             const overlay = buildUI();
             overlay.classList.add('open');
             document.body.classList.add('modal-open');
 
-            const canvas = document.getElementById('peCanvas');
-            state.canvas = canvas;
-            state.ctx = canvas.getContext('2d');
+            state.canvas = document.getElementById('peCanvas');
+            state.ctx = state.canvas.getContext('2d');
 
             const img = new Image();
             const url = URL.createObjectURL(file);
             img.onload = () => {
                 state.img = img;
                 draw();
-                setupEventListeners(overlay, (result) => {
-                    overlay.classList.remove('open');
-                    document.body.classList.remove('modal-open');
-                    URL.revokeObjectURL(url);
-                    state.img = null;
-                    resolve(result);
-                });
+                saveHistory();
+                renderPanel();
+                wireEvents();
             };
-            img.onerror = () => {
-                URL.revokeObjectURL(url);
-                overlay.classList.remove('open');
-                document.body.classList.remove('modal-open');
-                reject(new Error('Image load failed'));
-            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
             img.src = url;
+            state._url = url;
         });
     }
 
