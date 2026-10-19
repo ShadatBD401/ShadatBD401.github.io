@@ -1146,3 +1146,138 @@
 }
 .profile-preview img { width: 100%; height: 100%; object-fit: cover; }
 .profile-preview.has-image { border-style: solid; border-color: var(--accent-primary); }
+
+/* ============================================================
+   UNIFORM CONTENT CARDS — match gallery card size
+   ============================================================ */
+#postsContainer,
+#projectsContainer,
+#certsContainer,
+#skillsContainer,
+#educationContainer,
+#experienceContainer,
+#contactCardsContainer,
+#matrixContainer,
+#notesAdminContainer,
+#galleryContainer,
+#videosContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-md);
+    align-items: stretch;
+}
+
+#postsContainer .admin-item-card,
+#projectsContainer .admin-item-card,
+#certsContainer .admin-item-card,
+#skillsContainer .admin-item-card,
+#educationContainer .admin-item-card,
+#experienceContainer .admin-item-card,
+#contactCardsContainer .admin-item-card,
+#matrixContainer .admin-item-card,
+#notesAdminContainer .admin-item-card,
+#galleryContainer .admin-item-card,
+#videosContainer .admin-item-card {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
+    max-height: 220px;
+    overflow: hidden;
+}
+
+#postsContainer .admin-item-title,
+#projectsContainer .admin-item-title,
+#certsContainer .admin-item-title,
+#skillsContainer .admin-item-title,
+#educationContainer .admin-item-title,
+#experienceContainer .admin-item-title,
+#contactCardsContainer .admin-item-title,
+#matrixContainer .admin-item-title,
+#notesAdminContainer .admin-item-title,
+#galleryContainer .admin-item-title,
+#videosContainer .admin-item-title {
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+#postsContainer .admin-item-desc,
+#projectsContainer .admin-item-desc,
+#certsContainer .admin-item-desc,
+#skillsContainer .admin-item-desc,
+#educationContainer .admin-item-desc,
+#experienceContainer .admin-item-desc,
+#contactCardsContainer .admin-item-desc,
+#matrixContainer .admin-item-desc,
+#notesAdminContainer .admin-item-desc,
+#galleryContainer .admin-item-desc,
+#videosContainer .admin-item-desc {
+    font-size: 0.75rem;
+    -webkit-line-clamp: 2;
+}
+
+#postsContainer .admin-item-header,
+#projectsContainer .admin-item-header,
+#certsContainer .admin-item-header,
+#skillsContainer .admin-item-header,
+#educationContainer .admin-item-header,
+#experienceContainer .admin-item-header,
+#contactCardsContainer .admin-item-header,
+#matrixContainer .admin-item-header,
+#notesAdminContainer .admin-item-header,
+#galleryContainer .admin-item-header,
+#videosContainer .admin-item-header {
+    margin-bottom: 8px;
+}
+
+#postsContainer .admin-item-icon,
+#projectsContainer .admin-item-icon,
+#certsContainer .admin-item-icon,
+#skillsContainer .admin-item-icon,
+#educationContainer .admin-item-icon,
+#experienceContainer .admin-item-icon,
+#contactCardsContainer .admin-item-icon,
+#matrixContainer .admin-item-icon,
+#notesAdminContainer .admin-item-icon,
+#galleryContainer .admin-item-icon,
+#videosContainer .admin-item-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+}
+
+#postsContainer .admin-item-btn,
+#projectsContainer .admin-item-btn,
+#certsContainer .admin-item-btn,
+#skillsContainer .admin-item-btn,
+#educationContainer .admin-item-btn,
+#experienceContainer .admin-item-btn,
+#contactCardsContainer .admin-item-btn,
+#matrixContainer .admin-item-btn,
+#notesAdminContainer .admin-item-btn,
+#galleryContainer .admin-item-btn,
+#videosContainer .admin-item-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+}
+
+@media (max-width: 768px) {
+    #postsContainer,
+    #projectsContainer,
+    #certsContainer,
+    #skillsContainer,
+    #educationContainer,
+    #experienceContainer,
+    #contactCardsContainer,
+    #matrixContainer,
+    #notesAdminContainer,
+    #galleryContainer,
+    #videosContainer {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}
