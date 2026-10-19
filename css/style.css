@@ -3291,8 +3291,9 @@ main,
     }
 }
 
-/* ── Navbar Avatar ────────────────────────────────────────── */
+/* ── Navbar Avatar (Restored & Fixed) ───────────────────────── */
 .nav-avatar {
+    position: relative;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -3303,9 +3304,25 @@ main,
     flex-shrink: 0;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: transform var(--transition-fast), border-color var(--transition-fast);
+    margin: 0;
+    padding: 0;
 }
 
+/* The image MUST be absolutely positioned to fill the circle without distortion */
+.nav-avatar img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    z-index: 2;
+}
+
+/* The fallback text logo */
 .nav-avatar-logo {
     display: inline-flex;
     align-items: center;
@@ -3314,6 +3331,7 @@ main,
     font-weight: 700;
     font-size: 0.875rem;
     line-height: 1;
+    z-index: 1;
 }
 
 .nav-avatar-logo .logo-bracket { color: var(--accent-primary); }
@@ -3322,17 +3340,6 @@ main,
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-/* The image MUST be absolutely positioned to fill the circle perfectly */
-.nav-avatar img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
 }
 
 .nav-avatar:hover {
