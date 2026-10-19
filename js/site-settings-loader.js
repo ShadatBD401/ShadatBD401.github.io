@@ -102,8 +102,4 @@
         }
     });
 
-    // Theme default from admin settings (only if user has no saved theme)
-    if (!Utils.getStorage(Utils.STORAGE_KEYS.THEME, null) && s.defaultTheme) {
-        document.documentElement.setAttribute('data-theme', s.defaultTheme);
-    }
 })();
