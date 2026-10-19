@@ -2679,18 +2679,22 @@ window.saveNote = id => {
     if (!title) { Utils.showToast('Title is required', 'error'); return; }
     if (!content || content === '<br>') { Utils.showToast('Content is required', 'error'); return; }
 
+    const media = (typeof window._noteEditorMedia === 'function')
+        ? window._noteEditorMedia()
+        : [];
+
     const items = Utils.getItems(NOTES_KEY_ADMIN);
     const now = new Date().toISOString();
 
     if (id) {
         const i = items.findIndex(x => x.id === id);
         if (i > -1) {
-            items[i] = { ...items[i], type, color, title, content, updatedAt: now };
+            items[i] = { ...items[i], type, color, title, content, media, updatedAt: now };
         }
     } else {
         items.unshift({
             id: Utils.uid(),
-            type, color, title, content,
+            type, color, title, content, media,
             createdAt: now, updatedAt: now,
             order: 0
         });
