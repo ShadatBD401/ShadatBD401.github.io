@@ -53,15 +53,13 @@
     // Navbar avatar
     const navAvatar = document.getElementById('navAvatar');
     if (navAvatar) {
-        const fallbackLogo = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>`;
         if (s.profileImage) {
             const src = crispUrl(s.profileImage, s.profileImageId, 80);
-            navAvatar.innerHTML = fallbackLogo +
-                `<img src="${src}" alt="Profile"
-                      onerror="this.style.display='none'"
-                      style="width:100%;height:100%;object-fit:cover;">`;
+            // If there's an image, ONLY show the image. Do not stack it with the text logo.
+            navAvatar.innerHTML = `<img src="${src}" alt="Profile" onerror="this.style.display='none'">`;
         } else {
-            navAvatar.innerHTML = fallbackLogo;
+            // If no image, show the <SH/> text logo.
+            navAvatar.innerHTML = `<span class="nav-avatar-logo"><span class="logo-bracket">&lt;</span><span class="logo-text">SH</span><span class="logo-bracket">/&gt;</span></span>`;
         }
     }
    
