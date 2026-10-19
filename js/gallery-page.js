@@ -72,14 +72,15 @@ async function loadGalleryPage() {
     }
 }
 
-function renderGalleryPage() {
+async function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
-    // Check if admin just changed the order
     if (Utils.getStorage('sh_gallery_dirty', false)) {
-        Utils.removeStorage('sh_gallery_dirty'); // Reset the flag
-        loadGalleryPage(); // Force a fresh load from Google Drive
+        Utils.removeStorage('sh_gallery_dirty');
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i></div>`;
+        await loadGalleryPage();
         return;
     }
 
