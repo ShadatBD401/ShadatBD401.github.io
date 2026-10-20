@@ -1796,7 +1796,15 @@ const NEW_KEYS = {
 };
 
 // ── Education ────────────────────────────────────────────────
-function loadEducationPage() {
+async function loadEducationPage() {
+    if (window.GitHubContent) {
+        try {
+            const data = await window.GitHubContent.read('data/education.json');
+            if (data && Array.isArray(data.json)) {
+                Utils.setStorage('sh_education', data.json);
+            }
+        } catch (e) { /* file may not exist yet */ }
+    }
     renderEducationList();
     const btn = document.getElementById('newEduBtn');
     if (btn && !btn.dataset.wired) {
