@@ -226,7 +226,7 @@ input, textarea, select { font-family:inherit; font-size:inherit; color:var(--te
 [data-theme="light"] .navbar { background:#ffffff; }
 .nav-container { max-width:var(--container-max); margin:0 auto;
     padding:0 20px; height:100%; display:flex; align-items:center;
-    justify-content:space-between; gap:6px; }
+    justify-content:space-between; gap:5px; }
 
 .nav-logo { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 .nav-avatar { position:relative; width:40px; height:40px; border-radius:50%;
