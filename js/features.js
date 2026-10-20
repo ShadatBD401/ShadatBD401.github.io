@@ -511,4 +511,37 @@ document.addEventListener('mousemove', (e) => {
     });
 });
 
+// ============================================================
+// SMOOTH SMOKEY CURSOR LOGIC
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Skip on mobile
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    let cursor = document.querySelector('.smokey-cursor');
+    if (!cursor) {
+        cursor = document.createElement('div');
+        cursor.className = 'smokey-cursor';
+        document.body.appendChild(cursor);
+    }
+
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+    let cursorX = mouseX, cursorY = mouseY;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function animateCursor() {
+        // 0.15 creates the smooth "trailing/smokey" lag effect
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
+
+        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+});
+
 console.log('✅ features.js loaded successfully');
