@@ -32,18 +32,19 @@
     "title": "Linux Mail Server with Backup & Recovery",
     "description": "Built a Red Hat Linux mail-server environment with backup and recovery considerations for continuity.\n\n• Deployed Postfix and Dovecot\n• Configured SMTP relay with authentication\n• Implemented automated backup scripts\n• Tested recovery procedures",
     "tags": "Postfix|Dovecot|Backup|RHEL",
-    "link": "https://drive.google.com/drive/folders/17oVYQgefKVsX3L40TJ_hk2CphI0TeUBk",
+    "link": "https://drive.google.com/drive/folders/1a1F3aug9Z_MzSnzR7mCi1xovINlfr1Of",
     "order": 3,
     "hidden": false,
-    "updatedAt": "2026-10-20T16:14:50.213Z"
+    "updatedAt": "2026-10-20T16:11:42.187Z"
   },
   {
     "id": "proj-5",
     "title": "Secure Samba File Sharing",
     "description": "Configured secure network file sharing on Red Hat Linux with permissions and access-control considerations.\n\n• Deployed Samba server on RHEL\n• Configured user-level access controls\n• Integrated with Windows Active Directory\n• Implemented audit logging",
     "tags": "Samba|SMB|RHEL|File Sharing",
-    "link": "#",
+    "link": "https://drive.google.com/drive/folders/1BXhLCJzgNg0n0Bphhuywv_G2ef0y0Nkf",
     "order": 4,
-    "hidden": false
+    "hidden": false,
+    "updatedAt": "2026-10-20T16:15:47.771Z"
   }
 ]
