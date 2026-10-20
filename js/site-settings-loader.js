@@ -101,5 +101,7 @@
             if (section) section.style.display = 'none';
         }
     });
-
+   
+    // Tell the rest of the website that settings (and avatar) are ready
+    document.dispatchEvent(new CustomEvent('sh:settings-ready', { detail: s }));
 })();
