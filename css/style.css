@@ -1316,81 +1316,59 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 .matrix-bar { height: 6px; }
 
 /* ============================================================
-   FINAL OVERRIDES: SMOKEY CURSOR & ROTATING MATRIX HOVER
+   EXACT MATRIX SCANNER HOVER EFFECT (Like testing3 site)
    ============================================================ */
 
-/* 1. Smokey Cursor Styling */
-.smokey-cursor {
-    position: fixed;
-    top: 0; left: 0;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 9999;
-    filter: blur(20px);
-    transition: width 0.3s, height 0.3s;
-    will-change: transform;
-}
-/* Hide default cursor entirely if you want ONLY the smoke */
-body {
-    cursor: crosshair; /* Or set to 'none' if you want to hide it completely */
-}
-
-/* 2. Rotating Matrix Circle on Cards */
-.skill-card,
-.project-card,
-.cert-card,
-.education-card,
-.learning-card {
+/* 1. Ensure cards have hidden overflow and relative positioning */
+.skill-card, .project-card, .cert-card, .education-card, .learning-card {
     position: relative;
     overflow: hidden;
     z-index: 1;
 }
 
-/* The rotating matrix circle */
-.skill-card::after,
-.project-card::after,
-.cert-card::after,
-.education-card::after,
-.learning-card::after {
+/* 2. The rotating gradient beam */
+.skill-card::after, .project-card::after, .cert-card::after, .education-card::after, .learning-card::after {
     content: '';
     position: absolute;
-    /* Start at center */
     top: 50%; left: 50%;
-    width: 0; height: 0;
+    width: 200%; height: 200%; /* Large enough to cover corners when rotating */
     background: conic-gradient(
-        from 0deg,
-        transparent 0deg,
-        rgba(59, 130, 246, 0.4) 60deg,
-        rgba(139, 92, 246, 0.4) 140deg,
-        rgba(6, 182, 212, 0.4) 220deg,
+        transparent 0deg, 
+        transparent 70deg, 
+        var(--accent-primary) 90deg, 
+        transparent 110deg, 
         transparent 360deg
     );
-    border-radius: 50%;
-    z-index: -1; /* Keep behind card content */
-    transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+    transform: translate(-50%, -50%) rotate(0deg);
+    z-index: -1; /* Keeps it behind the card content */
     opacity: 0;
+    transition: opacity 0.3s ease;
     pointer-events: none;
-    /* Center the circle */
-    transform: translate(-50%, -50%);
-    filter: blur(25px); /* Makes it look like a glowing matrix */
 }
 
-/* When you hover the card, the matrix grows and spins */
-.skill-card:hover::after,
-.project-card:hover::after,
-.cert-card:hover::after,
-.education-card:hover::after,
+/* 3. On hover, turn on the beam and start spinning */
+.skill-card:hover::after, 
+.project-card:hover::after, 
+.cert-card:hover::after, 
+.education-card:hover::after, 
 .learning-card:hover::after {
-    width: 250%;
-    height: 250%;
     opacity: 1;
-    animation: spinMatrix 4s linear infinite;
+    animation: matrixSpin 3s linear infinite;
 }
 
-@keyframes spinMatrix {
+/* 4. Add an inner mask so the middle is dark, creating the "border" effect */
+.skill-card::before, .project-card::before, .cert-card::before, .education-card::before, .learning-card::before {
+    content: '';
+    position: absolute;
+    inset: 2px; /* 2px is the thickness of the border */
+    background: var(--bg-card);
+    border-radius: inherit;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 5. The rotation animation */
+@keyframes matrixSpin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
