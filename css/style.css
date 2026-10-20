@@ -1316,87 +1316,86 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 .matrix-bar { height: 6px; }
 
 /* ============================================================
-   EXACT MATRIX SCANNER HOVER EFFECT (Like testing3 site)
+   SUBTLE SMOKEY MATRIX & CURSOR (Like testing3 site)
    ============================================================ */
 
-/* 1. Ensure cards have hidden overflow and relative positioning */
+/* 1. The Soft Smokey Cursor */
+.smokey-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 200px; 
+    height: 200px;
+    border-radius: 50%;
+    /* Very low opacity, heavily blurred smoke */
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 9999;
+    filter: blur(25px); /* High blur = smokey */
+    will-change: transform;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+}
+
+/* Hide default cursor to make the smoke the star */
+body {
+    cursor: none; 
+}
+/* Keep text cursor for typing areas */
+input, textarea, select, [contenteditable] {
+    cursor: text;
+}
+
+/* 2. The Subtle Matrix Card Backgrounds */
 .skill-card, .project-card, .cert-card, .education-card, .learning-card {
     position: relative;
     overflow: hidden;
     z-index: 1;
 }
 
-/* 2. The rotating gradient beam */
+/* The rotating matrix glow - very low opacity */
 .skill-card::after, .project-card::after, .cert-card::after, .education-card::after, .learning-card::after {
     content: '';
     position: absolute;
     top: 50%; left: 50%;
-    width: 200%; height: 200%; /* Large enough to cover corners when rotating */
+    width: 250%; height: 250%; 
+    /* Low opacity colors so it's not bright */
     background: conic-gradient(
         transparent 0deg, 
-        transparent 70deg, 
-        var(--accent-primary) 90deg, 
-        transparent 110deg, 
+        transparent 60deg, 
+        rgba(59, 130, 246, 0.15) 90deg, 
+        transparent 120deg, 
         transparent 360deg
     );
     transform: translate(-50%, -50%) rotate(0deg);
-    z-index: -1; /* Keeps it behind the card content */
+    z-index: -1; 
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.5s ease;
     pointer-events: none;
+    filter: blur(30px); /* Blur it so it looks like moving smoke */
 }
 
-/* 3. On hover, turn on the beam and start spinning */
+/* On hover, fade it in and spin it slowly */
 .skill-card:hover::after, 
 .project-card:hover::after, 
 .cert-card:hover::after, 
 .education-card:hover::after, 
 .learning-card:hover::after {
     opacity: 1;
-    animation: matrixSpin 3s linear infinite;
+    animation: subtleMatrixSpin 6s linear infinite; /* Slow and elegant */
 }
 
-/* 4. Add an inner mask so the middle is dark, creating the "border" effect */
+/* Dark inner mask to keep the card readable */
 .skill-card::before, .project-card::before, .cert-card::before, .education-card::before, .learning-card::before {
     content: '';
     position: absolute;
-    inset: 2px; /* 2px is the thickness of the border */
+    inset: 1px; /* Very thin edge */
     background: var(--bg-card);
     border-radius: inherit;
     z-index: -1;
     pointer-events: none;
 }
 
-/* 5. The rotation animation */
-@keyframes matrixSpin {
+@keyframes subtleMatrixSpin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* ============================================================
-   SMOOTH SMOKEY MOUSE POINTER
-   ============================================================ */
-.smokey-cursor {
-    position: fixed;
-    top: 0; left: 0;
-    width: 150px; /* Smaller, more subtle */
-    height: 150px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 9999;
-    filter: blur(15px);
-    transition: width 0.3s, height 0.3s;
-    will-change: transform;
-    transform: translate(-50%, -50%);
-}
-
-/* Optional: Hide the default cursor if you want ONLY the smoke */
-body {
-    cursor: none; 
-}
-
-/* But keep the text cursor for inputs */
-input, textarea, select, [contenteditable] {
-    cursor: text;
 }
