@@ -123,31 +123,53 @@ function shInitGlobalSearch() {
     });
 }
 
-// ── SMOOTH SMOKE CURSOR — single, fast (issue #6) ───────────
+// ── CURSOR: round dot + smooth smoke trail (fast, no lag) ──
 function shInitSmokeCursor() {
     if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
-    if (document.querySelector('.smokey-cursor')) return;
+    if (document.querySelector('.custom-cursor')) return;   // already created
 
-    const cursor = document.createElement('div');
-    cursor.className = 'smokey-cursor';
-    document.body.appendChild(cursor);
+    // Round dot
+    const dot = document.createElement('div');
+    dot.className = 'custom-cursor';
+    document.body.appendChild(dot);
+
+    // Smoke blob
+    const smoke = document.createElement('div');
+    smoke.className = 'smokey-cursor';
+    document.body.appendChild(smoke);
 
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-    let cursorX = mouseX, cursorY = mouseY;
+    let dotX = mouseX, dotY = mouseY;
+    let smokeX = mouseX, smokeY = mouseY;
 
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
     }, { passive: true });
 
-    function animateCursor() {
-        // 0.18 = fast but smooth (was 0.08 = too laggy)
-        cursorX += (mouseX - cursorX) * 0.18;
-        cursorY += (mouseY - cursorY) * 0.18;
-        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
-        requestAnimationFrame(animateCursor);
+    // Hover scale on interactive elements
+    const hoverTargets = 'a, button, input, textarea, select, .gallery-item, .project-card, .skill-card, .cert-card, .learning-card, .note-card, .contact-card, .filter-btn, .nav-link';
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.closest(hoverTargets)) dot.classList.add('hovering');
+    });
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.closest(hoverTargets)) dot.classList.remove('hovering');
+    });
+
+    function animate() {
+        // Dot follows instantly (snappy)
+        dotX += (mouseX - dotX) * 0.55;
+        dotY += (mouseY - dotY) * 0.55;
+        dot.style.transform = `translate(${dotX}px, ${dotY}px) translate(-50%, -50%)`;
+
+        // Smoke trails slightly behind (smooth)
+        smokeX += (mouseX - smokeX) * 0.15;
+        smokeY += (mouseY - smokeY) * 0.15;
+        smoke.style.transform = `translate(${smokeX}px, ${smokeY}px) translate(-50%, -50%)`;
+
+        requestAnimationFrame(animate);
     }
-    animateCursor();
+    animate();
 }
 
 // ── Ticket Tracking ──────────────────────────────────────────
