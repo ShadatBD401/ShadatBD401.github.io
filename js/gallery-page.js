@@ -1,5 +1,6 @@
 /* ============================================================
    GALLERY PAGE — Loads photos + videos from Google Drive
+   Verified: modal shows title + description + share (issues #4, #5, #13)
    ============================================================ */
 
 const galleryPageState = { items: [], filter: 'all' };
@@ -8,11 +9,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', Utils.getStorage('sh_theme', 'dark'));
     initModal();
 
-    // Load hidden gallery IDs AND gallery order from Supabase
     try {
         const client = await initSupabase();
 
-        // 1. Fetch hidden items
         const { data: hiddenData } = await client
             .from('site_settings')
             .select('value')
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             Utils.setStorage('sh_hidden_gallery', hiddenData.value);
         }
 
-        // 2. Fetch custom order
         const { data: orderData } = await client
             .from('site_settings')
             .select('value')
@@ -31,8 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (Array.isArray(orderData?.value)) {
             Utils.setStorage('sh_gallery_order', orderData.value);
         }
-
-        console.log('⬇️ Loaded gallery settings from Supabase');
     } catch (e) {
         console.warn('Could not load gallery settings:', e);
     }
@@ -47,10 +43,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderGalleryPage();
     });
 
-    // Small delay to let any pending admin writes settle
     await new Promise(r => setTimeout(r, 200));
     await loadGalleryPage();
-   
 });
 
 async function loadGalleryPage() {
@@ -84,28 +78,25 @@ async function renderGalleryPage() {
         return;
     }
 
-    // 1. Filter hidden items (compare against Drive IDs)
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
-    let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));   
-   
-    // 2. Apply Custom Order
+    let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));
+
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     if (savedOrder.length) {
         items.sort((a, b) => {
             const idxA = savedOrder.indexOf(a.id);
             const idxB = savedOrder.indexOf(b.id);
             if (idxA === -1 && idxB === -1) return 0;
-            if (idxA === -1) return 1; // Put new items at the end
+            if (idxA === -1) return 1;
             if (idxB === -1) return -1;
             return idxA - idxB;
         });
     }
 
-    // 3. Apply Filter (Photos/Videos)
     const displayItems = galleryPageState.filter === 'all'
         ? items
         : items.filter(i => i.type === galleryPageState.filter);
-   
+
     if (!displayItems.length) {
         grid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
@@ -161,20 +152,100 @@ async function renderGalleryPage() {
     });
 }
 
+/* ✅ Full-size view + title + description + share (issues #4, #5, #13) */
 function openGalleryItem(item) {
-    const media = item.type === 'video'
-        ? `<iframe src="${item.src}" width="100%" height="480" allowfullscreen
-                  style="border:none;border-radius:var(--radius-lg);"></iframe>`
-        : `<img src="${item.src}" style="width:100%;max-height:75vh;object-fit:contain;border-radius:var(--radius-lg);">`;
+    const title = item.title || item.caption || 'Untitled';
+    const desc  = item.description || '';
 
-    Utils.openModal(item.caption || 'Gallery', `
-        <div style="text-align:center;">
-            ${media}
-            <p style="margin-top:1rem;color:var(--text-muted);font-size:.75rem;">
-                ${Utils.formatDate(item.createdAt)}
-            </p>
-        </div>`);
+    const media = item.type === 'video'
+        ? `<iframe src="${item.src}" allowfullscreen></iframe>`
+        : `<img src="${item.src}" alt="${Utils.esc(title)}">`;
+
+    const shareUrl = window.location.href;
+
+    // Build share buttons — NO inline single-quote escaping (E2 fix)
+    const content = document.createElement('div');
+    content.className = 'gallery-modal-content';
+    content.innerHTML = `
+        <div class="gallery-modal-media">${media}</div>
+        <div class="gallery-modal-info">
+            <h2 class="gallery-modal-title"></h2>
+            ${desc ? `<div class="gallery-modal-description"></div>` : ''}
+            <div class="gallery-modal-meta">
+                <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
+                <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
+            </div>
+            <div class="gallery-modal-actions">
+                <a href="${item.src}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                    <i class="fas fa-expand"></i> Open Full Size
+                </a>
+                <button class="btn btn-outline btn-sm" id="galleryNativeShare">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+                <button class="btn btn-outline btn-sm" id="galleryCopyLink">
+                    <i class="fas fa-link"></i> Copy Link
+                </button>
+                <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}"
+                   target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                    <i class="fab fa-twitter"></i> Tweet
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}"
+                   target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                    <i class="fab fa-facebook"></i> Share
+                </a>
+            </div>
+        </div>`;
+
+    // Fill title + description safely (E2 fix — no template escaping risk)
+    content.querySelector('.gallery-modal-title').textContent = title;
+    if (desc) content.querySelector('.gallery-modal-description').textContent = desc;
+
+    // Wire share + copy safely
+    content.querySelector('#galleryNativeShare').addEventListener('click', () => {
+        if (navigator.share) {
+            navigator.share({ title, url: shareUrl }).catch(() => {});
+        } else {
+            window.copyGalleryLink(shareUrl);
+        }
+    });
+    content.querySelector('#galleryCopyLink').addEventListener('click', () => {
+        window.copyGalleryLink(shareUrl);
+    });
+
+    Utils.openModal('', content.outerHTML);
+    // Re-wire after openModal re-renders HTML string (listeners lost)
+    const modalBody = document.getElementById('modalBody');
+    if (modalBody) {
+        modalBody.querySelector('#galleryNativeShare')?.addEventListener('click', () => {
+            if (navigator.share) navigator.share({ title, url: shareUrl }).catch(() => {});
+            else window.copyGalleryLink(shareUrl);
+        });
+        modalBody.querySelector('#galleryCopyLink')?.addEventListener('click', () => {
+            window.copyGalleryLink(shareUrl);
+        });
+    }
+
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.style.maxWidth = '900px';
+        modal.style.width = '92vw';
+    }
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) modalTitle.style.display = 'none';
+    const closeBtn = document.getElementById('modalClose');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if (modalTitle) modalTitle.style.display = '';
+            if (modal) { modal.style.maxWidth = ''; modal.style.width = ''; }
+        }, { once: true });
+    }
 }
+
+window.copyGalleryLink = function(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        Utils.showToast('Link copied!', 'success');
+    }).catch(() => Utils.showToast('Copy failed', 'error'));
+};
 
 function initModal() {
     const overlay = document.getElementById('modalOverlay');
