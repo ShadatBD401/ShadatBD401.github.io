@@ -70,6 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Session Check ────────────────────────────────────────────
 async function checkSession() {
+    const local = Utils.getStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
+    const TWO_HOURS = 2 * 60 * 60 * 1000;
+    
+    if (local && (Date.now() - local.loginAt > TWO_HOURS)) {
+        Utils.removeStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
+        try { await window.SupabaseAuth.signOut(); } catch(e) {}
+        showLogin();
+        Utils.showToast('Session expired. Please log in again.', 'warning');
+        return;
+    }
+
     try {
         const supaSession = await window.SupabaseAuth.getSession();
         if (supaSession) {
@@ -89,7 +100,6 @@ async function checkSession() {
         console.warn('Supabase session check failed:', e);
     }
 
-    const local = Utils.getStorage(Utils.STORAGE_KEYS.ADMIN_SESSION);
     if (local && local.expiresAt > Date.now()) {
         adminState.isAuthenticated = true;
         adminState.user = local;
