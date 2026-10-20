@@ -1372,3 +1372,31 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+/* ============================================================
+   SMOOTH SMOKEY MOUSE POINTER
+   ============================================================ */
+.smokey-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 150px; /* Smaller, more subtle */
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 9999;
+    filter: blur(15px);
+    transition: width 0.3s, height 0.3s;
+    will-change: transform;
+    transform: translate(-50%, -50%);
+}
+
+/* Optional: Hide the default cursor if you want ONLY the smoke */
+body {
+    cursor: none; 
+}
+
+/* But keep the text cursor for inputs */
+input, textarea, select, [contenteditable] {
+    cursor: text;
+}
