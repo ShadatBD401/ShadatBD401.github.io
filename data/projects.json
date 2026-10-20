@@ -4,9 +4,10 @@
     "title": "Windows Server Enterprise Infrastructure",
     "description": "Built an enterprise-style Windows Server environment around Active Directory, DNS, DHCP and IPAM.\n\n• Deployed AD DS with multiple domain controllers\n• Configured DNS and DHCP for centralized management\n• Implemented IPAM for IP address tracking\n• Created Group Policies for security compliance",
     "tags": "AD DS|DNS|DHCP|IPAM|GPO",
-    "link": "#",
+    "link": "https://drive.google.com/drive/folders/1plPTuzWWFviz857Q5As0ReIN_dhv-18Z",
     "order": 0,
-    "hidden": false
+    "hidden": false,
+    "updatedAt": "2026-10-20T16:21:25.620Z"
   },
   {
     "id": "proj-1",
