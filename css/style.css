@@ -1399,3 +1399,18 @@ input, textarea, select, [contenteditable] {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+
+/* ============================================================
+   NAVBAR TEXT CLARITY
+   ============================================================ */
+.logo-name {
+    font-size: 0.9375rem;
+    line-height: 1.2;
+}
+.logo-role {
+    font-size: 0.75rem; /* Slightly larger */
+    color: var(--text-secondary); /* Use secondary text color for better contrast */
+    margin-top: 2px; /* Small space */
+    font-weight: 500;
+}
