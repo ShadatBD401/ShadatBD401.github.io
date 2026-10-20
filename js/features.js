@@ -1,12 +1,11 @@
 /* ============================================================
-   FEATURES: THEMES, GLOBAL SEARCH, CUSTOM CURSOR,
-             TICKET TRACKING, CV, GALLERY
+   FEATURES: THEMES, GLOBAL SEARCH, SMOOTH CURSOR,
+             TICKET TRACKING, CV
+   Verified: single cursor, no lag (issue #6)
    ============================================================ */
 
-// ── Theme Constants ──────────────────────────────────────────
 window.SH_THEMES = ['dark', 'light', 'ocean', 'forest', 'sunset'];
 
-// ── Theme Management ─────────────────────────────────────────
 window.applyTheme = function (theme) {
     if (!window.SH_THEMES.includes(theme)) theme = 'dark';
     document.documentElement.setAttribute('data-theme', theme);
@@ -16,23 +15,18 @@ window.applyTheme = function (theme) {
     const icon = document.querySelector('#themeToggle i');
     if (icon) {
         const icons = {
-            dark:   'fa-moon',
-            light:  'fa-sun',
-            ocean:  'fa-water',
-            forest: 'fa-tree',
-            sunset: 'fa-fire'
+            dark: 'fa-moon', light: 'fa-sun', ocean: 'fa-water',
+            forest: 'fa-tree', sunset: 'fa-fire'
         };
         icon.className = 'fas ' + (icons[theme] || 'fa-palette');
     }
 };
 
-// ── Cycle through themes on toggle click ────────────────────
 window.cycleTheme = function () {
     const current = Utils.getStorage('sh_theme', 'dark');
     const idx = window.SH_THEMES.indexOf(current);
     const next = window.SH_THEMES[(idx + 1) % window.SH_THEMES.length];
     window.applyTheme(next);
-    // Message removed so it doesn't show in monitor
 };
 
 // ── Global Search ────────────────────────────────────────────
@@ -129,83 +123,31 @@ function shInitGlobalSearch() {
     });
 }
 
-// ── Custom Mouse Cursor ──────────────────────────────────────
-function shInitCustomCursor() {
-    if (window.matchMedia('(hover: none)').matches) return;
-    if (document.querySelector('.custom-cursor')) return;
-    document.body.classList.add('custom-cursor-active');
+// ── SMOOTH SMOKE CURSOR — single, fast (issue #6) ───────────
+function shInitSmokeCursor() {
+    if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+    if (document.querySelector('.smokey-cursor')) return;
 
     const cursor = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    const follower = document.createElement('div');
-    follower.className = 'cursor-follower';
-    const smoke = document.createElement('div');
-    smoke.className = 'cursor-smoke';
-
+    cursor.className = 'smokey-cursor';
     document.body.appendChild(cursor);
-    document.body.appendChild(follower);
-    document.body.appendChild(smoke);
 
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-    let cX = mouseX, cY = mouseY, fX = mouseX, fY = mouseY, sX = mouseX, sY = mouseY;
-    let smokeTimer = null;
+    let cursorX = mouseX, cursorY = mouseY;
 
-    document.addEventListener('mousemove', e => {
+    document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-        smoke.classList.add('active');
-        clearTimeout(smokeTimer);
-        smokeTimer = setTimeout(() => smoke.classList.remove('active'), 600);
-    });
+    }, { passive: true });
 
-    function animate() {
-        cX += (mouseX - cX) * 0.85; cY += (mouseY - cY) * 0.85;
-        cursor.style.transform = 'translate(' + (cX - 6) + 'px, ' + (cY - 6) + 'px)';
-        fX += (mouseX - fX) * 0.45; fY += (mouseY - fY) * 0.45;
-        follower.style.transform = 'translate(' + (fX - 20) + 'px, ' + (fY - 20) + 'px)';
-        sX += (mouseX - sX) * 0.25; sY += (mouseY - sY) * 0.25;
-        smoke.style.transform = 'translate(' + (sX - 100) + 'px, ' + (sY - 100) + 'px)';
-        requestAnimationFrame(animate);
+    function animateCursor() {
+        // 0.18 = fast but smooth (was 0.08 = too laggy)
+        cursorX += (mouseX - cursorX) * 0.18;
+        cursorY += (mouseY - cursorY) * 0.18;
+        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(animateCursor);
     }
-    animate();
-
-    const selector = 'a, button, input, textarea, select, .project-card, .skill-card, .cert-card, .learning-card, .theme-swatch';
-    document.addEventListener('mouseover', e => {
-        if (e.target.closest(selector)) {
-            cursor.classList.add('hovering');
-            follower.classList.add('hovering');
-        }
-    });
-    document.addEventListener('mouseout', e => {
-        if (e.target.closest(selector)) {
-            cursor.classList.remove('hovering');
-            follower.classList.remove('hovering');
-        }
-    });
-    document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
-    document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
-
-    // ── Idle: hide after 5s of no movement, reappear instantly on move ──
-    let idleTimer = null;
-    const startIdle = () => {
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => {
-            cursor.style.opacity = '0';
-            follower.style.opacity = '0';
-            smoke.style.opacity = '0';
-        }, 5000);
-    };
-    document.addEventListener('mousemove', () => {
-        cursor.style.opacity = '1';
-        follower.style.opacity = '';
-        startIdle();
-    });
-    document.addEventListener('mousedown', () => {
-        cursor.style.opacity = '1';
-        follower.style.opacity = '';
-        startIdle();
-    });
-    startIdle();
+    animateCursor();
 }
 
 // ── Ticket Tracking ──────────────────────────────────────────
@@ -227,32 +169,21 @@ function shInitTicketTracking() {
         trackBtn.disabled = true;
 
         let ticket = null;
-
-        // Try Supabase RPC
         try {
             if (window.SupabaseTickets) {
                 const row = await window.SupabaseTickets.findByTicketId(id);
                 if (row) {
                     ticket = {
-                        id: row.ticket_id,
-                        name: row.name,
-                        email: row.email,
-                        subject: row.subject,
-                        message: row.message,
-                        status: row.status,
-                        priority: row.priority,
-                        category: row.category,
-                        createdAt: row.created_at,
-                        updatedAt: row.updated_at,
-                        replies: row.replies || []
+                        id: row.ticket_id, name: row.name, email: row.email,
+                        subject: row.subject, message: row.message,
+                        status: row.status, priority: row.priority,
+                        category: row.category, createdAt: row.created_at,
+                        updatedAt: row.updated_at, replies: row.replies || []
                     };
                 }
             }
-        } catch (err) {
-            console.warn('Supabase lookup failed:', err);
-        }
+        } catch (err) { console.warn('Supabase lookup failed:', err); }
 
-        // Fallback: localStorage
         if (!ticket) {
             const tickets = Utils.getItems('sh_tickets');
             ticket = tickets.find(t => t.id.toUpperCase() === id.toUpperCase());
@@ -279,8 +210,7 @@ function shInitTicketTracking() {
         const priorities = (window.TicketSystem && window.TicketSystem.TICKET_PRIORITIES) || {};
         const st = statuses[ticket.status] || { label: ticket.status, color: '#3b82f6', icon: 'fa-folder-open' };
         const pr = priorities[ticket.priority] || { label: ticket.priority, color: '#3b82f6', icon: 'fa-minus' };
-       
-        // ── Build the replies thread HTML ─────────────────────────
+
         let repliesHtml = '';
         if (ticket.replies && ticket.replies.length > 0) {
             repliesHtml =
@@ -317,23 +247,17 @@ function shInitTicketTracking() {
                 '</div>';
         }
 
-        // ── Render the full ticket status card ────────────────────
         resultBox.innerHTML =
             '<div class="ticket-status-card">' +
-                // Header: ID + Status badge
                 '<div class="ticket-status-header">' +
                     '<span class="ticket-status-id">' + Utils.esc(ticket.id) + '</span>' +
                     '<span class="ticket-status-badge" style="background: ' + st.color + '20; color: ' + st.color + ';">' +
                         '<i class="fas ' + st.icon + '"></i> ' + st.label +
                     '</span>' +
                 '</div>' +
-
-                // Subject
                 '<h4 style="margin: var(--space-sm) 0; color: var(--text-primary);">' +
                     Utils.esc(ticket.subject) +
                 '</h4>' +
-
-                // Meta row: date, priority, category
                 '<div style="display: flex; gap: var(--space-md); font-size: 0.8125rem;' +
                     'color: var(--text-muted); margin-bottom: var(--space-md); flex-wrap: wrap;">' +
                     '<span><i class="fas fa-calendar"></i> ' + Utils.formatDate(ticket.createdAt) + '</span>' +
@@ -345,8 +269,6 @@ function shInitTicketTracking() {
                         '<span><i class="fas fa-tag"></i> ' + Utils.esc(ticket.category) + '</span>'
                         : '') +
                 '</div>' +
-
-                // Original message
                 '<div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md);' +
                     'border-left: 3px solid var(--accent-primary);">' +
                     '<div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);' +
@@ -357,10 +279,8 @@ function shInitTicketTracking() {
                         Utils.esc(ticket.message).replace(/\n/g, '<br>') +
                     '</p>' +
                 '</div>' +
-
-                // Replies thread
                 repliesHtml +
-            '</div>';       
+            '</div>';
     }
 
     trackBtn.addEventListener('click', track);
@@ -387,11 +307,9 @@ function shInitCvViewer() {
         const previewSrc = fileId
             ? 'https://drive.google.com/file/d/' + fileId + '/preview'
             : s.cvFile;
-
         const viewSrc = fileId
             ? 'https://drive.google.com/file/d/' + fileId + '/view'
             : s.cvFile;
-
         const downloadSrc = fileId
             ? 'https://drive.google.com/uc?export=download&id=' + fileId
             : s.cvFile;
@@ -427,13 +345,10 @@ function shInitCvViewer() {
 }
 
 // ── Apply Admin Settings to Public Site ──────────────────────
-// Avatar rendering is handled by site-settings-loader.js only.
-// This function handles social links, tagline, and visibility.
 function shApplySiteSettings() {
     const s = Utils.getStorage('sh_settings', {});
     if (!Object.keys(s).length) return;
 
-    // Navbar social links
     const navSocial = document.querySelector('.nav-social');
     if (navSocial) {
         const links = [];
@@ -445,13 +360,11 @@ function shApplySiteSettings() {
         if (links.length) navSocial.innerHTML = links.join('');
     }
 
-    // Hero badge tagline
     if (s.tagline) {
         const badge = document.querySelector('.hero-badge span:last-child');
         if (badge) badge.textContent = s.tagline;
     }
 
-    // Section visibility
     const visibility = s.visibility || {};
     Object.entries(visibility).forEach(([key, visible]) => {
         const section = document.getElementById(key);
@@ -466,81 +379,28 @@ function shApplySiteSettings() {
     });
 }
 
-// ── Bootstrap on DOM ready ───────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize the saved theme (switcher UI is gone; navbar toggle still works)
     const savedTheme = Utils.getStorage('sh_theme', null);
     const siteSettings = Utils.getStorage('sh_settings', {});
     window.applyTheme(savedTheme || siteSettings.defaultTheme || 'dark');
-       // Wire the navbar theme toggle button
+
     const themeBtn = document.getElementById('themeToggle');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', window.cycleTheme);
-    }
+    if (themeBtn) themeBtn.addEventListener('click', window.cycleTheme);
 
     try { shInitGlobalSearch(); } catch (e) { console.error('Search init failed:', e); }
-    try { shInitCustomCursor(); } catch (e) { console.error('Cursor init failed:', e); }
+    try { shInitSmokeCursor(); } catch (e) { console.error('Cursor init failed:', e); }
     try { shInitTicketTracking(); } catch (e) { console.error('Tracking init failed:', e); }
     try { shInitCvViewer(); } catch (e) { console.error('CV init failed:', e); }
     try { shApplySiteSettings(); } catch (e) { console.error('Settings apply failed:', e); }
 });
 
-// Mouse tracking for dynamic project card glow
 document.addEventListener('mousemove', (e) => {
     const cards = document.querySelectorAll('.project-card');
     cards.forEach(card => {
         const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
+        card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
     });
-});
-
-// Mouse tracking for dynamic card glow
-document.addEventListener('mousemove', (e) => {
-    const cards = document.querySelectorAll('.skill-card, .project-card, .cert-card, .education-card, .learning-card');
-    cards.forEach(card => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Update CSS variables so the glow follows the mouse
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
-    });
-});
-
-// ============================================================
-// SMOOTH SMOKEY TRAILING CURSOR
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.matchMedia('(hover: none)').matches) return;
-
-    let cursor = document.querySelector('.smokey-cursor');
-    if (!cursor) {
-        cursor = document.createElement('div');
-        cursor.className = 'smokey-cursor';
-        document.body.appendChild(cursor);
-    }
-
-    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-    let cursorX = mouseX, cursorY = mouseY;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    function animateCursor() {
-        // 0.08 makes it lag behind smoothly, creating the "smoke trail" effect
-        cursorX += (mouseX - cursorX) * 0.08;
-        cursorY += (mouseY - cursorY) * 0.08;
-
-        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
-        requestAnimationFrame(animateCursor);
-    }
-    animateCursor();
 });
 
 console.log('✅ features.js loaded successfully');
