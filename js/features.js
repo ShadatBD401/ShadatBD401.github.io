@@ -497,34 +497,18 @@ document.addEventListener('mousemove', (e) => {
     });
 });
 
-// ============================================================
-// SMOKEY MOUSE POINTER (Smooth trailing effect)
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.matchMedia('(hover: none)').matches) return;
-    if (document.querySelector('.smokey-cursor')) return; // Prevent duplicates
-
-    const cursor = document.createElement('div');
-    cursor.className = 'smokey-cursor';
-    document.body.appendChild(cursor);
-
-    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-    let cursorX = mouseX, cursorY = mouseY;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+// Mouse tracking for dynamic card glow
+document.addEventListener('mousemove', (e) => {
+    const cards = document.querySelectorAll('.skill-card, .project-card, .cert-card, .education-card, .learning-card');
+    cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Update CSS variables so the glow follows the mouse
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
     });
-
-    function animate() {
-        // Smooth easing calculation for trailing effect
-        cursorX += (mouseX - cursorX) * 0.15;
-        cursorY += (mouseY - cursorY) * 0.15;
-
-        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
-        requestAnimationFrame(animate);
-    }
-    animate();
 });
 
 console.log('✅ features.js loaded successfully');
