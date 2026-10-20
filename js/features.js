@@ -512,10 +512,9 @@ document.addEventListener('mousemove', (e) => {
 });
 
 // ============================================================
-// SMOOTH SMOKEY CURSOR LOGIC
+// SMOOTH SMOKEY TRAILING CURSOR
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Skip on mobile
     if (window.matchMedia('(hover: none)').matches) return;
 
     let cursor = document.querySelector('.smokey-cursor');
@@ -534,9 +533,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function animateCursor() {
-        // 0.15 creates the smooth "trailing/smokey" lag effect
-        cursorX += (mouseX - cursorX) * 0.15;
-        cursorY += (mouseY - cursorY) * 0.15;
+        // 0.08 makes it lag behind smoothly, creating the "smoke trail" effect
+        cursorX += (mouseX - cursorX) * 0.08;
+        cursorY += (mouseY - cursorY) * 0.08;
 
         cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
         requestAnimationFrame(animateCursor);
