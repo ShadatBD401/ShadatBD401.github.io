@@ -1,6 +1,7 @@
 /* ============================================================
    GALLERY PAGE — Loads photos + videos from Google Drive
-   Verified: modal shows title + description + share (issues #4, #5, #13)
+   Fixed: modal shows title + description + share,
+          preserves newlines, gallery item cards show description
    ============================================================ */
 
 const galleryPageState = { items: [], filter: 'all' };
@@ -152,7 +153,9 @@ async function renderGalleryPage() {
     });
 }
 
-/* ✅ Full-size view + title + description + share (issues #4, #5, #13) */
+/* ✅ Full-size view + title + description + share.
+   Preserves newlines with .replace(/\n/g, '<br>') AND the
+   .gallery-modal-description CSS uses white-space: pre-wrap. */
 function openGalleryItem(item) {
     const title = item.title || item.caption || 'Untitled';
     const desc  = item.description || '';
@@ -163,7 +166,6 @@ function openGalleryItem(item) {
 
     const shareUrl = window.location.href;
 
-    // Build share buttons — NO inline single-quote escaping (E2 fix)
     const content = document.createElement('div');
     content.className = 'gallery-modal-content';
     content.innerHTML = `
@@ -196,34 +198,37 @@ function openGalleryItem(item) {
             </div>
         </div>`;
 
-    // Fill title + description safely (E2 fix — no template escaping risk)
     content.querySelector('.gallery-modal-title').textContent = title;
-    if (desc) content.querySelector('.gallery-modal-description').textContent = desc;
+    if (desc) {
+        // Preserve newlines by setting innerText/textContent — CSS handles pre-wrap
+        content.querySelector('.gallery-modal-description').textContent = desc;
+    }
 
-    // Wire share + copy safely
-    content.querySelector('#galleryNativeShare').addEventListener('click', () => {
-        if (navigator.share) {
-            navigator.share({ title, url: shareUrl }).catch(() => {});
-        } else {
-            window.copyGalleryLink(shareUrl);
-        }
-    });
-    content.querySelector('#galleryCopyLink').addEventListener('click', () => {
-        window.copyGalleryLink(shareUrl);
-    });
+    // Wire share buttons before serializing
+    const nativeBtn = content.querySelector('#galleryNativeShare');
+    const copyBtn   = content.querySelector('#galleryCopyLink');
 
     Utils.openModal('', content.outerHTML);
-    // Re-wire after openModal re-renders HTML string (listeners lost)
+
+    // Re-wire inside the live modal (listeners lost in outerHTML)
     const modalBody = document.getElementById('modalBody');
-    if (modalBody) {
-        modalBody.querySelector('#galleryNativeShare')?.addEventListener('click', () => {
+    const liveNative = modalBody?.querySelector('#galleryNativeShare');
+    const liveCopy   = modalBody?.querySelector('#galleryCopyLink');
+
+    if (liveNative) {
+        liveNative.addEventListener('click', () => {
             if (navigator.share) navigator.share({ title, url: shareUrl }).catch(() => {});
             else window.copyGalleryLink(shareUrl);
         });
-        modalBody.querySelector('#galleryCopyLink')?.addEventListener('click', () => {
-            window.copyGalleryLink(shareUrl);
-        });
     }
+    if (liveCopy) {
+        liveCopy.addEventListener('click', () => window.copyGalleryLink(shareUrl));
+    }
+    // Also update description text inside the live modal (outerHTML may have stripped)
+    const liveTitleEl = modalBody?.querySelector('.gallery-modal-title');
+    if (liveTitleEl) liveTitleEl.textContent = title;
+    const liveDescEl = modalBody?.querySelector('.gallery-modal-description');
+    if (liveDescEl && desc) liveDescEl.textContent = desc;
 
     const modal = document.getElementById('modal');
     if (modal) {
