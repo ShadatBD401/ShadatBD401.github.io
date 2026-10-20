@@ -1,5 +1,7 @@
 /* ============================================================
    ADMIN FEATURES: PROFILE UPLOAD, SOCIAL LINKS, CV, SETTINGS, GALLERY
+   Verified: long-press 1s reorder (#7), Supabase sync (#8),
+             read button (#9), admin theme icon (#10), GitHub sync (#12)
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -9,13 +11,91 @@ document.addEventListener('DOMContentLoaded', async () => {
     ensureSaveButton();
     initDriveConnectButton();
     applyAdminSidebarAvatar();
+    initAdminThemeToggle();
 
-    // Preload hidden gallery list
     const ids = await getHiddenGalleryIds();
     Utils.setStorage('sh_hidden_gallery', ids);
+
+    await syncGalleryFromSupabase();
+    await syncExtraContent();
 });
 
-// ── Show profile pic in admin sidebar ────────────────────────
+// ── Admin Theme Toggle (issue #10) ──────────────────────────
+function initAdminThemeToggle() {
+    const topbar = document.querySelector('.topbar-actions');
+    if (!topbar || document.getElementById('adminThemeToggle')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'topbar-btn';
+    btn.id = 'adminThemeToggle';
+    btn.title = 'Cycle Theme';
+    btn.innerHTML = '<i class="fas fa-moon"></i>';
+    topbar.insertBefore(btn, document.getElementById('refreshBtn'));
+
+    btn.addEventListener('click', () => {
+        if (typeof window.cycleTheme === 'function') {
+            window.cycleTheme();
+            const theme = document.documentElement.getAttribute('data-theme');
+            const icons = { dark:'fa-moon', light:'fa-sun', ocean:'fa-water', forest:'fa-tree', sunset:'fa-fire' };
+            btn.innerHTML = `<i class="fas ${icons[theme] || 'fa-moon'}"></i>`;
+            Utils.showToast('Theme: ' + theme, 'success', 1000);
+        }
+    });
+}
+
+// ── Sync extra content from GitHub (issue #12) ──────────────
+async function syncExtraContent() {
+    if (!window.GitHubContent) return;
+    const sections = ['education', 'experience', 'hero-stats', 'about-domains',
+                      'interests', 'contact-cards', 'matrix', 'notes'];
+    const keyMap = {
+        'education': 'sh_education', 'experience': 'sh_experience',
+        'hero-stats': 'sh_hero_stats', 'about-domains': 'sh_domains',
+        'interests': 'sh_interests', 'contact-cards': 'sh_contact_cards',
+        'matrix': 'sh_matrix', 'notes': 'sh_notes'
+    };
+    for (const s of sections) {
+        try {
+            const data = await window.GitHubContent.read(`data/${s}.json`);
+            if (data && Array.isArray(data.json)) {
+                Utils.setStorage(keyMap[s], data.json);
+                console.log(`⬇️ synced ${s} from GitHub`);
+            }
+        } catch (e) { /* file may not exist yet */ }
+    }
+}
+
+// ── Sync gallery from Supabase (issue #8) ───────────────────
+async function syncGalleryFromSupabase() {
+    try {
+        const client = await initSupabase();
+        const { data } = await client
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'gallery_items')
+            .maybeSingle();
+        if (Array.isArray(data?.value) && data.value.length) {
+            Utils.setStorage('sh_gallery', data.value);
+            console.log(`⬇️ ${data.value.length} gallery items loaded from Supabase`);
+        }
+    } catch (e) {
+        console.warn('Gallery sync failed:', e);
+    }
+}
+
+async function pushGalleryToSupabase(items) {
+    try {
+        const client = await initSupabase();
+        await client.from('site_settings').upsert(
+            { key: 'gallery_items', value: items, updated_at: new Date().toISOString() },
+            { onConflict: 'key' }
+        );
+        console.log('✅ Gallery pushed to Supabase');
+    } catch (e) {
+        console.warn('Gallery push failed:', e);
+    }
+}
+
 function applyAdminSidebarAvatar() {
     const el = document.getElementById('adminSidebarAvatar');
     if (!el) return;
@@ -29,7 +109,6 @@ function applyAdminSidebarAvatar() {
     }
 }
 
-// ── Hidden Gallery Logic ─────────────────────────────
 async function getHiddenGalleryIds() {
     try {
         const client = await initSupabase();
@@ -66,7 +145,6 @@ async function setHiddenGalleryIds(ids) {
 }
 
 window.toggleGalleryVisibility = async function (idOrDriveId) {
-    // Normalise: always use the Google Drive file ID
     const items = Utils.getItems('sh_gallery');
     const item = items.find(i => i.id === idOrDriveId || i.driveId === idOrDriveId);
     const driveId = item?.driveId || idOrDriveId;
@@ -90,7 +168,7 @@ window.toggleGalleryVisibility = async function (idOrDriveId) {
 
 async function reorderGallery(newOrderIds) {
     Utils.setStorage('sh_gallery_order', newOrderIds);
-    Utils.setStorage('sh_gallery_dirty', true); // Tell the public page to refresh
+    Utils.setStorage('sh_gallery_dirty', true);
     try {
         const client = await initSupabase();
         const { error } = await client.from('site_settings').upsert(
@@ -116,7 +194,6 @@ function initDriveConnectButton() {
         <h2>Google Drive Connection</h2>
         <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:var(--space-md);">
             You must authorize Google Drive before uploading images or CV files.
-            Click below to sign in with Google — this only needs to be done once per session.
         </p>
         <div style="display:flex;align-items:center;gap:var(--space-md);">
             <button class="btn btn-primary" id="driveConnectBtn">
@@ -132,7 +209,6 @@ function initDriveConnectButton() {
     const label = document.getElementById('driveConnectLabel');
     const status = document.getElementById('driveStatus');
 
-    // Check if token already exists on load
     const saved = sessionStorage.getItem('gdrive_access_token');
     const savedExp = parseInt(sessionStorage.getItem('gdrive_token_expiry') || '0');
     if (saved && Date.now() < savedExp - 60000) {
@@ -172,10 +248,8 @@ async function initProfileSettings() {
     const cvInput = document.getElementById('cvFileInput');
     const cvFileName = document.getElementById('cvFileName');
 
-    // Load existing settings from Supabase (falls back to localStorage)
     let settings = {};
     try {
-        // Read from public site_settings table (same one visitors read)
         const client = await initSupabase();
         const { data } = await client
             .from('site_settings')
@@ -185,7 +259,6 @@ async function initProfileSettings() {
         if (data?.value) {
             settings = data.value;
         } else {
-            // Fallback: try legacy secrets table
             const remote = await window.SupabaseSecrets.get('site_settings').catch(() => null);
             settings = remote ? JSON.parse(remote) : Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
         }
@@ -193,10 +266,8 @@ async function initProfileSettings() {
         settings = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
     }
 
-    // Cache into localStorage for public-site reads
     Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
 
-    // Restore visuals
     if (settings.profileImage && profilePreview) {
         profilePreview.innerHTML = `<img src="${settings.profileImage}" alt="Profile">`;
         profilePreview.classList.add('has-image');
@@ -212,7 +283,6 @@ async function initProfileSettings() {
     async function persist() {
         Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, settings);
         try {
-            // Write to public site_settings table
             const client = await initSupabase();
             await client.from('site_settings').upsert(
                 { key: 'main', value: settings, updated_at: new Date().toISOString() },
@@ -223,20 +293,13 @@ async function initProfileSettings() {
         }
     }
 
-    // ── Navbar avatar ────────────────────────────────────────
     profileInput?.addEventListener('change', async (e) => {
         let file = e.target.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) {
-            Utils.showToast('Image must be under 5MB', 'error');
-            return;
-        }
-
-        // Open photo editor
+        if (file.size > 5 * 1024 * 1024) { Utils.showToast('Image must be under 5MB', 'error'); return; }
         const edited = await window.PhotoEditor.open(file);
         if (!edited) { e.target.value = ''; return; }
         file = edited;
-
         try {
             Utils.showToast('Uploading to Google Drive...', 'info');
             const result = await window.GDrive.upload(file, 'profile');
@@ -252,7 +315,7 @@ async function initProfileSettings() {
         }
         e.target.value = '';
     });
-   
+
     removeBtn?.addEventListener('click', async () => {
         if (settings.profileImageId) {
             try { await window.GDrive.delete(settings.profileImageId); } catch (e) {}
@@ -265,19 +328,13 @@ async function initProfileSettings() {
         Utils.showToast('Avatar removed', 'success');
     });
 
-    // ── Hero picture ─────────────────────────────────────────
     heroInput?.addEventListener('change', async (e) => {
         let file = e.target.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) {
-            Utils.showToast('Image must be under 5MB', 'error');
-            return;
-        }
-
+        if (file.size > 5 * 1024 * 1024) { Utils.showToast('Image must be under 5MB', 'error'); return; }
         const edited = await window.PhotoEditor.open(file);
         if (!edited) { e.target.value = ''; return; }
         file = edited;
-
         try {
             Utils.showToast('Uploading...', 'info');
             const result = await window.GDrive.upload(file, 'profile');
@@ -293,7 +350,7 @@ async function initProfileSettings() {
         }
         e.target.value = '';
     });
-   
+
     removeHeroBtn?.addEventListener('click', async () => {
         if (settings.heroImageId) {
             try { await window.GDrive.delete(settings.heroImageId); } catch (e) {}
@@ -306,14 +363,10 @@ async function initProfileSettings() {
         Utils.showToast('Hero picture removed', 'success');
     });
 
-    // ── CV upload ────────────────────────────────────────────
     cvInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) {
-            Utils.showToast('CV must be under 5MB', 'error');
-            return;
-        }
+        if (file.size > 5 * 1024 * 1024) { Utils.showToast('CV must be under 5MB', 'error'); return; }
         try {
             Utils.showToast('Uploading CV...', 'info');
             const result = await window.GDrive.upload(file, 'cv');
@@ -332,10 +385,9 @@ async function initProfileSettings() {
 
 function loadAllSettings() {
     const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
-    // Load visibility toggles
     ['about','experience','technical','projects','certifications','education','learning','gallery','contact','notes'].forEach(sec => {
         const el = document.getElementById('vis_' + sec);
-        if (el) el.checked = (s.visibility || {})[sec] !== false;   // default true
+        if (el) el.checked = (s.visibility || {})[sec] !== false;
     });
     const map = {
         settingSiteTitle: s.siteTitle || 'Shadat Hossain',
@@ -367,7 +419,6 @@ function ensureSaveButton() {
     const container = document.querySelector('#page-settings .settings-container');
     if (!container) return;
 
-    // Make it sticky so it's always reachable
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'position:sticky;bottom:0;padding:var(--space-md) 0;' +
         'background:var(--bg-primary);border-top:1px solid var(--border-color);' +
@@ -384,14 +435,11 @@ function ensureSaveButton() {
 
 function saveAllSettings() {
     const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
-
-    // Save visibility
     s.visibility = s.visibility || {};
     ['about','experience','technical','projects','certifications','education','learning','gallery','contact','notes'].forEach(sec => {
         const el = document.getElementById('vis_' + sec);
         if (el) s.visibility[sec] = el.checked;
     });
-
     const fields = [
         'settingSiteTitle', 'settingSiteDesc', 'settingDisplayName', 'settingTitle',
         'settingTagline', 'settingCvButtonText', 'settingGithub', 'settingLinkedin',
@@ -408,7 +456,6 @@ function saveAllSettings() {
     if (autoReply) s.autoReply = autoReply.checked;
 
     Utils.setStorage(Utils.STORAGE_KEYS.SETTINGS, s);
-    // Persist to public table so visitors can read
     (async () => {
         try {
             const client = await initSupabase();
@@ -431,7 +478,6 @@ function saveAllSettings() {
 
 const GALLERY_KEY = 'sh_gallery';
 
-// Wrap existing navigateToPage
 (function hookNavigation() {
     const orig = window.navigateToPage;
     if (typeof orig !== 'function') return;
@@ -442,7 +488,6 @@ const GALLERY_KEY = 'sh_gallery';
     };
 })();
 
-// ── Gallery ──────────────────────────────────────────────────
 function renderAdminGallery() {
     const c = document.getElementById('galleryContainer');
     if (!c) return;
@@ -450,7 +495,6 @@ function renderAdminGallery() {
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     let items = Utils.getItems('sh_gallery');
 
-    // Sort by custom order (Google Drive IDs), fallback to newest
     if (savedOrder.length > 0) {
         items.sort((a, b) => {
             const aKey = a.driveId || a.id;
@@ -482,6 +526,9 @@ function renderAdminGallery() {
                             : `<img src="${Utils.esc(item.src)}" alt="" style="width:100%;height:100%;object-fit:cover;">`}
                     </div>
                     <div class="admin-item-actions">
+                        <button class="admin-item-btn" onclick="readGalleryItem('${item.id}')" title="Read">
+                            <i class="fas fa-book-open"></i>
+                        </button>
                         <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.driveId || item.id}')" title="Hide/Show">
                             <i class="fas ${isGalleryHidden(item.driveId || item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
                         </button>
@@ -501,7 +548,6 @@ function renderAdminGallery() {
         `).join('');
     }
 
-    // Enable Drag & Drop — uses data-drive-id so IDs match what the public page sees
     makeGallerySortable();
 
     const btn = document.getElementById('newGalleryBtn');
@@ -511,6 +557,47 @@ function renderAdminGallery() {
     }
 }
 
+// ── Read mode (issue #9) ────────────────────────────────────
+window.readGalleryItem = function(id) {
+    const item = Utils.getItems(GALLERY_KEY).find(i => i.id === id);
+    if (!item) return;
+
+    const media = item.type === 'video'
+        ? `<iframe src="${item.src}" allowfullscreen></iframe>`
+        : `<img src="${item.src}" alt="${Utils.esc(item.title || '')}">`;
+
+    const content = document.createElement('div');
+    content.className = 'gallery-modal-content';
+    content.innerHTML = `
+        <div class="gallery-modal-media">${media}</div>
+        <div class="gallery-modal-info">
+            <h2 class="gallery-modal-title"></h2>
+            ${item.description ? `<div class="gallery-modal-description"></div>` : ''}
+            <div class="gallery-modal-meta">
+                <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
+                <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
+            </div>
+        </div>`;
+
+    content.querySelector('.gallery-modal-title').textContent = item.title || item.caption || 'Untitled';
+    if (item.description) content.querySelector('.gallery-modal-description').textContent = item.description;
+
+    Utils.openModal('', content.outerHTML);
+
+    const modal = document.getElementById('modal');
+    if (modal) { modal.style.maxWidth = '900px'; modal.style.width = '92vw'; }
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) modalTitle.style.display = 'none';
+    const closeBtn = document.getElementById('modalClose');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if (modalTitle) modalTitle.style.display = '';
+            if (modal) { modal.style.maxWidth = ''; modal.style.width = ''; }
+        }, { once: true });
+    }
+};
+
+// ── LONG-PRESS 1s reorder (issue #7) ────────────────────────
 function makeGallerySortable() {
     const el = document.getElementById('galleryContainer');
     if (!el || typeof Sortable === 'undefined') return;
@@ -520,6 +607,12 @@ function makeGallerySortable() {
         animation: 200,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
+        delay: 1000,
+        delayOnTouchOnly: false,
+        touchStartThreshold: 8,
+        forceFallback: true,
+        fallbackClass: 'sortable-drag',
+        fallbackOnBody: true,
         onEnd: async () => {
             const newOrder = [...el.querySelectorAll('.admin-item-card')]
                 .map(card => card.dataset.driveId)
@@ -593,7 +686,9 @@ window.deleteGalleryItem = async function(id) {
         }
     }
 
-    Utils.saveItems(GALLERY_KEY, items.filter(i => i.id !== id));
+    const filtered = items.filter(i => i.id !== id);
+    Utils.saveItems(GALLERY_KEY, filtered);
+    await pushGalleryToSupabase(filtered);
     Utils.showToast('Deleted', 'success');
     renderAdminGallery();
     renderAdminVideos();
@@ -607,10 +702,7 @@ window.saveGalleryItem = async function(id) {
     const fileInput   = document.getElementById('galFile');
     const file        = fileInput?.files[0];
 
-    if (!title) {
-        Utils.showToast('Title is required', 'error');
-        return;
-    }
+    if (!title) { Utils.showToast('Title is required', 'error'); return; }
 
     let src = url;
     let driveId = null;
@@ -621,15 +713,12 @@ window.saveGalleryItem = async function(id) {
             Utils.showToast(`File must be under ${maxBytes / 1024 / 1024}MB`, 'error');
             return;
         }
-
         let toUpload = file;
-        // ⬇️ NEW: Open the advanced photo editor for images
         if (type === 'image') {
             const edited = await window.PhotoEditor.open(file);
-            if (!edited) return; // User cancelled
+            if (!edited) return;
             toUpload = edited;
         }
-
         try {
             Utils.showToast('Uploading to Google Drive...', 'info');
             const folder = type === 'video' ? 'videos' : 'gallery';
@@ -650,10 +739,7 @@ window.saveGalleryItem = async function(id) {
         }
     }
 
-    if (!src) {
-        Utils.showToast('Please provide a URL or upload a file', 'error');
-        return;
-    }
+    if (!src) { Utils.showToast('Please provide a URL or upload a file', 'error'); return; }
 
     const items = Utils.getItems(GALLERY_KEY);
     if (id) {
@@ -667,12 +753,12 @@ window.saveGalleryItem = async function(id) {
         });
     }
     Utils.saveItems(GALLERY_KEY, items);
+    await pushGalleryToSupabase(items);
     Utils.closeModal();
     Utils.showToast(id ? 'Updated ✓' : 'Uploaded ✓', 'success');
     renderAdminGallery();
 };
 
-// ── POC Videos (uses same store, filtered to type=video) ─────
 function renderAdminVideos() {
     const c = document.getElementById('videosContainer');
     if (!c) return;
@@ -692,6 +778,9 @@ function renderAdminVideos() {
                 <div class="admin-item-header">
                     <div class="admin-item-icon"><i class="fas fa-video"></i></div>
                     <div class="admin-item-actions">
+                        <button class="admin-item-btn" onclick="readGalleryItem('${item.id}')" title="Read">
+                            <i class="fas fa-book-open"></i>
+                        </button>
                         <button class="admin-item-btn" onclick="toggleGalleryVisibility('${item.id}')"
                                 title="${isGalleryHidden(item.id) ? 'Show to visitors' : 'Hide from visitors'}">
                             <i class="fas ${isGalleryHidden(item.id) ? 'fa-eye-slash' : 'fa-eye'}"></i>
@@ -702,12 +791,12 @@ function renderAdminVideos() {
                         <button class="admin-item-btn delete" onclick="deleteGalleryItem('${item.id}'); renderAdminVideos();" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
-                    </div>                    
+                    </div>
                 </div>
                 <h4 class="admin-item-title">
                     ${Utils.esc(item.title || item.caption || 'Untitled')}
                     ${isGalleryHidden(item.id) ? '<span style="font-size:0.625rem;background:var(--accent-warning);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;text-transform:uppercase;font-weight:600;">Hidden</span>' : ''}
-                </h4>      
+                </h4>
                 <p class="admin-item-desc">${Utils.esc(item.src)}</p>
             </div>
         `).join('');
@@ -717,8 +806,7 @@ function renderAdminVideos() {
     if (btn && !btn.dataset.wired) {
         btn.dataset.wired = '1';
         btn.addEventListener('click', () => {
-            // Force type=video by pre-opening form
-            openGalleryForm({ type: 'video', caption: '', src: '' });
+            openGalleryForm({ type: 'video' });
             setTimeout(() => {
                 const sel = document.getElementById('galType');
                 if (sel) sel.value = 'video';
@@ -733,7 +821,6 @@ function renderAdminVideos() {
 document.addEventListener('DOMContentLoaded', () => {
     if (!document.getElementById('adminDashboard')) return;
 
-    // Small debounce so rapid toggles don't hammer Supabase
     const autoSave = Utils.debounce(() => {
         const s = Utils.getStorage(Utils.STORAGE_KEYS.SETTINGS, {});
         s.visibility = s.visibility || {};
@@ -758,7 +845,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })();
     }, 400);
 
-    // Wire each vis_* checkbox once it exists
     ['about','experience','technical','projects','certifications',
      'education','learning','gallery','contact','notes'].forEach(sec => {
         const el = document.getElementById('vis_' + sec);
