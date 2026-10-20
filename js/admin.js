@@ -1900,7 +1900,15 @@ window.deleteEdu = async id => {
 };
 
 // ── Experience ───────────────────────────────────────────────
-function loadExperiencePage() {
+async function loadExperiencePage() {
+    if (window.GitHubContent) {
+        try {
+            const data = await window.GitHubContent.read('data/experience.json');
+            if (data && Array.isArray(data.json)) {
+                Utils.setStorage('sh_experience', data.json);
+            }
+        } catch (e) { /* file may not exist yet */ }
+    }
     renderExperienceList();
     const btn = document.getElementById('newExpBtn');
     if (btn && !btn.dataset.wired) {
