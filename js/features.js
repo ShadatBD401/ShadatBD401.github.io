@@ -32,7 +32,7 @@ window.cycleTheme = function () {
     const idx = window.SH_THEMES.indexOf(current);
     const next = window.SH_THEMES[(idx + 1) % window.SH_THEMES.length];
     window.applyTheme(next);
-    if (Utils.showToast) Utils.showToast(`Theme: ${next}`, 'info', 1500);
+    // Message removed so it doesn't show in monitor
 };
 
 // ── Global Search ────────────────────────────────────────────
