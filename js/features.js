@@ -115,7 +115,7 @@ function shInitGlobalSearch() {
     });
 }
 
-// ── PERFECT CURSOR (dot + trailing circle + smoke) ──────────
+// ── PERFECT CURSOR (dot + ring + smoke) ──────────────────────
 function shInitSmokeCursor() {
     if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
     if (document.querySelector('.custom-cursor')) return; 
@@ -143,7 +143,6 @@ function shInitSmokeCursor() {
         mouseY = e.clientY;
     }, { passive: true });
 
-    // Scale up on interactive elements
     const hoverTargets = 'a, button, input, textarea, select, .gallery-item, .project-card, .skill-card, .cert-card, .learning-card, .note-card, .contact-card, .filter-btn, .nav-link';
     document.addEventListener('mouseover', (e) => {
         if (e.target.closest(hoverTargets)) {
@@ -159,17 +158,14 @@ function shInitSmokeCursor() {
     });
 
     function animate() {
-        // 1. Inner dot (fast)
         dotX += (mouseX - dotX) * 0.6;
         dotY += (mouseY - dotY) * 0.6;
         dot.style.transform = `translate(${dotX}px, ${dotY}px) translate(-50%, -50%)`;
 
-        // 2. Outer ring (smooth trail)
         fX += (mouseX - fX) * 0.25;
         fY += (mouseY - fY) * 0.25;
         follower.style.transform = `translate(${fX}px, ${fY}px) translate(-50%, -50%)`;
 
-        // 3. Smoke glow (slowest trail)
         sX += (mouseX - sX) * 0.1;
         sY += (mouseY - sY) * 0.1;
         smoke.style.transform = `translate(${sX}px, ${sY}px) translate(-50%, -50%)`;
