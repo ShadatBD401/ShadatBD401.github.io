@@ -1,7 +1,5 @@
 /* ============================================================
-   FEATURES: THEMES, GLOBAL SEARCH, SMOOTH CURSOR,
-             TICKET TRACKING, CV
-   Verified: single cursor, no lag (issue #6)
+   FEATURES: THEMES, SEARCH, PERFECT CURSOR, TICKET, CV
    ============================================================ */
 
 window.SH_THEMES = ['dark', 'light', 'ocean', 'forest', 'sunset'];
@@ -14,10 +12,7 @@ window.applyTheme = function (theme) {
 
     const icon = document.querySelector('#themeToggle i');
     if (icon) {
-        const icons = {
-            dark: 'fa-moon', light: 'fa-sun', ocean: 'fa-water',
-            forest: 'fa-tree', sunset: 'fa-fire'
-        };
+        const icons = { dark: 'fa-moon', light: 'fa-sun', ocean: 'fa-water', forest: 'fa-tree', sunset: 'fa-fire' };
         icon.className = 'fas ' + (icons[theme] || 'fa-palette');
     }
 };
@@ -56,10 +51,7 @@ function shInitGlobalSearch() {
 
     function goTo(sectionId) {
         closeSearch();
-        if (sectionId === 'gallery') {
-            window.location.href = 'gallery/';
-            return;
-        }
+        if (sectionId === 'gallery') { window.location.href = 'gallery/'; return; }
         const target = document.getElementById(sectionId);
         if (target) {
             const navHeight = document.getElementById('navbar')?.offsetHeight || 80;
@@ -123,49 +115,64 @@ function shInitGlobalSearch() {
     });
 }
 
-// ── CURSOR: round dot + smooth smoke trail (fast, no lag) ──
+// ── PERFECT CURSOR (dot + trailing circle + smoke) ──────────
 function shInitSmokeCursor() {
     if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
-    if (document.querySelector('.custom-cursor')) return;   // already created
+    if (document.querySelector('.custom-cursor')) return; 
 
-    // Round dot
     const dot = document.createElement('div');
     dot.className = 'custom-cursor';
-    document.body.appendChild(dot);
+    
+    const follower = document.createElement('div');
+    follower.className = 'cursor-follower';
 
-    // Smoke blob
     const smoke = document.createElement('div');
     smoke.className = 'smokey-cursor';
+
+    document.body.appendChild(dot);
+    document.body.appendChild(follower);
     document.body.appendChild(smoke);
 
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
     let dotX = mouseX, dotY = mouseY;
-    let smokeX = mouseX, smokeY = mouseY;
+    let fX = mouseX, fY = mouseY;
+    let sX = mouseX, sY = mouseY;
 
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
     }, { passive: true });
 
-    // Hover scale on interactive elements
+    // Scale up on interactive elements
     const hoverTargets = 'a, button, input, textarea, select, .gallery-item, .project-card, .skill-card, .cert-card, .learning-card, .note-card, .contact-card, .filter-btn, .nav-link';
     document.addEventListener('mouseover', (e) => {
-        if (e.target.closest(hoverTargets)) dot.classList.add('hovering');
+        if (e.target.closest(hoverTargets)) {
+            dot.classList.add('hovering');
+            follower.classList.add('hovering');
+        }
     });
     document.addEventListener('mouseout', (e) => {
-        if (e.target.closest(hoverTargets)) dot.classList.remove('hovering');
+        if (e.target.closest(hoverTargets)) {
+            dot.classList.remove('hovering');
+            follower.classList.remove('hovering');
+        }
     });
 
     function animate() {
-        // Dot follows instantly (snappy)
-        dotX += (mouseX - dotX) * 0.55;
-        dotY += (mouseY - dotY) * 0.55;
+        // 1. Inner dot (fast)
+        dotX += (mouseX - dotX) * 0.6;
+        dotY += (mouseY - dotY) * 0.6;
         dot.style.transform = `translate(${dotX}px, ${dotY}px) translate(-50%, -50%)`;
 
-        // Smoke trails slightly behind (smooth)
-        smokeX += (mouseX - smokeX) * 0.15;
-        smokeY += (mouseY - smokeY) * 0.15;
-        smoke.style.transform = `translate(${smokeX}px, ${smokeY}px) translate(-50%, -50%)`;
+        // 2. Outer ring (smooth trail)
+        fX += (mouseX - fX) * 0.25;
+        fY += (mouseY - fY) * 0.25;
+        follower.style.transform = `translate(${fX}px, ${fY}px) translate(-50%, -50%)`;
+
+        // 3. Smoke glow (slowest trail)
+        sX += (mouseX - sX) * 0.1;
+        sY += (mouseY - sY) * 0.1;
+        smoke.style.transform = `translate(${sX}px, ${sY}px) translate(-50%, -50%)`;
 
         requestAnimationFrame(animate);
     }
@@ -414,15 +421,6 @@ document.addEventListener('DOMContentLoaded', function () {
     try { shInitTicketTracking(); } catch (e) { console.error('Tracking init failed:', e); }
     try { shInitCvViewer(); } catch (e) { console.error('CV init failed:', e); }
     try { shApplySiteSettings(); } catch (e) { console.error('Settings apply failed:', e); }
-});
-
-document.addEventListener('mousemove', (e) => {
-    const cards = document.querySelectorAll('.project-card');
-    cards.forEach(card => {
-        const rect = card.getBoundingClientRect();
-        card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-        card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-    });
 });
 
 console.log('✅ features.js loaded successfully');
