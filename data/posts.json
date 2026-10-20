@@ -1,18 +1,5 @@
 [
   {
-    "id": "mv71ma39837dh97pm",
-    "title": "ssdfg",
-    "category": "network",
-    "emoji": "📝",
-    "summary": "sadf",
-    "content": "asdfasdfasdf",
-    "tags": "sdfasdf",
-    "createdAt": "2026-10-13T18:57:24.885Z",
-    "order": 3,
-    "views": 0,
-    "hidden": false
-  },
-  {
     "id": "post-1",
     "title": "Routing & Switching Foundations",
     "summary": "Subnetting → VLANs → trunking → inter-VLAN routing → dynamic routing → ACL validation.",
