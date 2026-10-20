@@ -248,7 +248,7 @@ input, textarea, select { font-family:inherit; font-size:inherit; color:var(--te
 
 .nav-menu { display:flex; align-items:center; gap:0; flex:1;
     justify-content:center; margin:0 16px; }
-.nav-link { position:relative; padding:4px 12px; font-size:.8125rem;
+.nav-link { position:relative; padding:4px 8px; font-size:.8125rem;
     font-weight:500; color:var(--text-secondary); border-radius:var(--radius-md);
     transition:color .2s, background .25s, transform .2s; overflow:hidden; }
 .nav-link:hover { color:var(--text-primary); background:var(--bg-hover); transform:translateY(-1px); }
