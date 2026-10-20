@@ -497,4 +497,34 @@ document.addEventListener('mousemove', (e) => {
     });
 });
 
+// ============================================================
+// SMOKEY MOUSE POINTER (Smooth trailing effect)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.matchMedia('(hover: none)').matches) return;
+    if (document.querySelector('.smokey-cursor')) return; // Prevent duplicates
+
+    const cursor = document.createElement('div');
+    cursor.className = 'smokey-cursor';
+    document.body.appendChild(cursor);
+
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+    let cursorX = mouseX, cursorY = mouseY;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function animate() {
+        // Smooth easing calculation for trailing effect
+        cursorX += (mouseX - cursorX) * 0.15;
+        cursorY += (mouseY - cursorY) * 0.15;
+
+        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+        requestAnimationFrame(animate);
+    }
+    animate();
+});
+
 console.log('✅ features.js loaded successfully');
