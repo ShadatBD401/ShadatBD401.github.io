@@ -32,10 +32,10 @@
     "title": "Linux Mail Server with Backup & Recovery",
     "description": "Built a Red Hat Linux mail-server environment with backup and recovery considerations for continuity.\n\n• Deployed Postfix and Dovecot\n• Configured SMTP relay with authentication\n• Implemented automated backup scripts\n• Tested recovery procedures",
     "tags": "Postfix|Dovecot|Backup|RHEL",
-    "link": "https://drive.google.com/drive/folders/1a1F3aug9Z_MzSnzR7mCi1xovINlfr1Of",
+    "link": "https://drive.google.com/drive/folders/17oVYQgefKVsX3L40TJ_hk2CphI0TeUBk",
     "order": 3,
     "hidden": false,
-    "updatedAt": "2026-10-20T16:11:42.187Z"
+    "updatedAt": "2026-10-20T16:18:41.953Z"
   },
   {
     "id": "proj-5",
