@@ -16,6 +16,9 @@ const state = {
 
 // ── Initialization ───────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+    // Never run public-site init code on the admin page
+    if (document.body.classList.contains('admin-body')) return;
+
     if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
     }
@@ -24,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // ⬇️ Fetch latest content from GitHub's public raw endpoint FIRST
     await fetchPublicContent();
 
     initTheme();
