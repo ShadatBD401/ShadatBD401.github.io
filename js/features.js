@@ -51,7 +51,7 @@ function shInitGlobalSearch() {
 
     function goTo(sectionId) {
         closeSearch();
-        if (sectionId === 'gallery') { window.location.href = 'gallery/'; return; }
+        if (sectionId === 'gallery') { window.location.href = 'gallery.html'; return; }
         const target = document.getElementById(sectionId);
         if (target) {
             const navHeight = document.getElementById('navbar')?.offsetHeight || 80;
