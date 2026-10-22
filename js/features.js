@@ -404,7 +404,7 @@ function shApplySiteSettings() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function shBootFeatures() {
     const savedTheme = Utils.getStorage('sh_theme', null);
     const siteSettings = Utils.getStorage('sh_settings', {});
     window.applyTheme(savedTheme || siteSettings.defaultTheme || 'dark');
@@ -417,6 +417,13 @@ document.addEventListener('DOMContentLoaded', function () {
     try { shInitTicketTracking(); } catch (e) { console.error('Tracking init failed:', e); }
     try { shInitCvViewer(); } catch (e) { console.error('CV init failed:', e); }
     try { shApplySiteSettings(); } catch (e) { console.error('Settings apply failed:', e); }
-});
+}
+
+// This file is loaded last, so DOMContentLoaded may already have fired.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', shBootFeatures, { once: true });
+} else {
+    shBootFeatures();
+}
 
 console.log('✅ features.js loaded successfully');
