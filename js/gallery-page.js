@@ -51,8 +51,31 @@ async function loadGalleryPage() {
     if (!grid) return;
 
     try {
-        if (!window.GDrivePublic) throw new Error('GDrivePublic not loaded');
-        const items = await window.GDrivePublic.listGalleryItems();
+        // ── PRIMARY: Supabase (has full title + description) ──
+        let items = null;
+        try {
+            const client = await initSupabase();
+            const { data, error } = await client
+                .from('site_settings')
+                .select('value')
+                .eq('key', 'gallery_items')
+                .maybeSingle();
+            if (error) throw error;
+            if (Array.isArray(data?.value) && data.value.length) {
+                items = data.value;
+                console.log('✅ Gallery loaded from Supabase:', items.length);
+            }
+        } catch (e) {
+            console.warn('Supabase gallery failed, falling back to Drive:', e);
+        }
+
+        // ── FALLBACK: Google Drive filenames ──
+        if (!items || !items.length) {
+            if (!window.GDrivePublic) throw new Error('GDrivePublic not loaded');
+            items = await window.GDrivePublic.listGalleryItems();
+            console.log('⚠️ Gallery loaded from Drive (descriptions may be truncated)');
+        }
+
         galleryPageState.items = items;
         renderGalleryPage();
     } catch (err) {
