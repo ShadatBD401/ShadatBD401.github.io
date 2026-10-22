@@ -8,8 +8,18 @@
    ============================================================ */
 
 (async function () {
+    // Body may not exist yet because this script runs from <head>
+    if (!document.body) {
+        await new Promise(resolve => {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', resolve, { once: true });
+            } else {
+                resolve();
+            }
+        });
+    }
     // Don't run on admin — admin has its own logic
-    if (document.body.classList.contains('admin-body')) return;
+    if (document.body && document.body.classList.contains('admin-body')) return;
 
     try {
         // Wait for supabase to be ready
