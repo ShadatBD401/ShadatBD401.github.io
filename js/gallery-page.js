@@ -264,7 +264,11 @@ function openGalleryItem(item) {
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             if (modalTitle) modalTitle.style.display = '';
-            if (modal) { modal.style.maxWidth = ''; modal.style.width = ''; }
+            if (modal) { 
+                modal.style.maxWidth = ''; 
+                modal.style.width = ''; 
+                modal.style.minWidth = '';
+            }
         }, { once: true });
     }
 }
