@@ -9,9 +9,10 @@ img, video, canvas, svg, iframe {
     max-width: 100%;
     height: auto;
 }
-.bg-effects, #particleCanvas, .glow-orb {
+.bg-effects, .glow-orb {
     max-width: 100vw;
 }
+/* #particleCanvas is sized in JS — do not cap it here */
 
 /* ============================================================
    CONTACT FORM — mobile fix (issue #3)
