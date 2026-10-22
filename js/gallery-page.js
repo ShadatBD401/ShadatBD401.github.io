@@ -1,7 +1,5 @@
 /* ============================================================
    GALLERY PAGE — Loads photos + videos from Google Drive
-   Fixed: modal shows title + description + share,
-          preserves newlines, gallery item cards show description
    ============================================================ */
 
 const galleryPageState = { items: [], filter: 'all' };
@@ -153,12 +151,11 @@ async function renderGalleryPage() {
     });
 }
 
-/* ✅ Full-size view + title + description + share.
-   Preserves newlines with .replace(/\n/g, '<br>') AND the
-   .gallery-modal-description CSS uses white-space: pre-wrap. */
+/* ✅ Fixed: Public modal now shows the description perfectly */
 function openGalleryItem(item) {
     const title = item.title || item.caption || 'Untitled';
-    const desc  = item.description || '';
+    // Replace actual \n strings with real line breaks
+    const desc  = (item.description || '').replace(/\\n/g, '\n');
 
     const media = item.type === 'video'
         ? `<iframe src="${item.src}" allowfullscreen></iframe>`
@@ -187,48 +184,35 @@ function openGalleryItem(item) {
                 <button class="btn btn-outline btn-sm" id="galleryCopyLink">
                     <i class="fas fa-link"></i> Copy Link
                 </button>
-                <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}"
-                   target="_blank" rel="noopener" class="btn btn-outline btn-sm">
-                    <i class="fab fa-twitter"></i> Tweet
-                </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}"
-                   target="_blank" rel="noopener" class="btn btn-outline btn-sm">
-                    <i class="fab fa-facebook"></i> Share
-                </a>
             </div>
         </div>`;
 
+    // Force the title and description into the DOM safely
     content.querySelector('.gallery-modal-title').textContent = title;
     if (desc) {
-        // Preserve newlines by setting innerText/textContent — CSS handles pre-wrap
         content.querySelector('.gallery-modal-description').textContent = desc;
     }
 
-    // Wire share buttons before serializing
-    const nativeBtn = content.querySelector('#galleryNativeShare');
-    const copyBtn   = content.querySelector('#galleryCopyLink');
-
     Utils.openModal('', content.outerHTML);
 
-    // Re-wire inside the live modal (listeners lost in outerHTML)
+    // Re-wire buttons inside the live modal
     const modalBody = document.getElementById('modalBody');
-    const liveNative = modalBody?.querySelector('#galleryNativeShare');
-    const liveCopy   = modalBody?.querySelector('#galleryCopyLink');
+    if (modalBody) {
+        const liveNative = modalBody.querySelector('#galleryNativeShare');
+        const liveCopy   = modalBody.querySelector('#galleryCopyLink');
+        const liveTitle  = modalBody.querySelector('.gallery-modal-title');
+        const liveDesc   = modalBody.querySelector('.gallery-modal-description');
 
-    if (liveNative) {
-        liveNative.addEventListener('click', () => {
+        if (liveNative) liveNative.addEventListener('click', () => {
             if (navigator.share) navigator.share({ title, url: shareUrl }).catch(() => {});
             else window.copyGalleryLink(shareUrl);
         });
+        if (liveCopy) liveCopy.addEventListener('click', () => window.copyGalleryLink(shareUrl));
+        
+        // Re-apply text to live modal just in case outerHTML stripped it
+        if (liveTitle) liveTitle.textContent = title;
+        if (liveDesc && desc) liveDesc.textContent = desc;
     }
-    if (liveCopy) {
-        liveCopy.addEventListener('click', () => window.copyGalleryLink(shareUrl));
-    }
-    // Also update description text inside the live modal (outerHTML may have stripped)
-    const liveTitleEl = modalBody?.querySelector('.gallery-modal-title');
-    if (liveTitleEl) liveTitleEl.textContent = title;
-    const liveDescEl = modalBody?.querySelector('.gallery-modal-description');
-    if (liveDescEl && desc) liveDescEl.textContent = desc;
 
     const modal = document.getElementById('modal');
     if (modal) {
@@ -237,6 +221,7 @@ function openGalleryItem(item) {
     }
     const modalTitle = document.getElementById('modalTitle');
     if (modalTitle) modalTitle.style.display = 'none';
+    
     const closeBtn = document.getElementById('modalClose');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
