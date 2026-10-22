@@ -251,9 +251,12 @@ function openGalleryItem(item) {
 
     const modal = document.getElementById('modal');
     if (modal) {
-        modal.style.maxWidth = '900px';
-        modal.style.width = '92vw';
+        // Let the modal size dynamically based on the image width, up to 90vw
+        modal.style.maxWidth = '90vw';
+        modal.style.width = 'auto'; 
+        modal.style.minWidth = '300px';
     }
+   
     const modalTitle = document.getElementById('modalTitle');
     if (modalTitle) modalTitle.style.display = 'none';
 
