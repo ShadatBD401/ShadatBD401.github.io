@@ -568,14 +568,19 @@ window.readGalleryItem = function(id) {
 
     const content = document.createElement('div');
     content.className = 'gallery-modal-content';
+    // Inside readGalleryItem, after creating `content`:
     content.innerHTML = `
-        <div class="gallery-modal-media">${media}</div>
-        <div class="gallery-modal-info">
-            <h2 class="gallery-modal-title"></h2>
-            ${item.description ? `<div class="gallery-modal-description"></div>` : ''}
-            <div class="gallery-modal-meta">
-                <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
-                <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
+        <div class="gallery-modal-content">
+            <div class="gallery-modal-media" style="flex-shrink: 0; min-height: 200px;">
+                ${media}
+            </div>
+            <div class="gallery-modal-info" style="overflow-y: auto;">
+                <h2 class="gallery-modal-title"></h2>
+                ${item.description ? `<div class="gallery-modal-description"></div>` : ''}
+                <div class="gallery-modal-meta">
+                    <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
+                    <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
+                </div>
             </div>
         </div>`;
 
