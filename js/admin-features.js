@@ -609,17 +609,25 @@ function makeGallerySortable() {
         animation: 200,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
+        handle: '.admin-item-card', // Ensure the whole card is draggable
         delay: 1000,
         delayOnTouchOnly: false,
         touchStartThreshold: 8,
         forceFallback: true,
         fallbackClass: 'sortable-drag',
         fallbackOnBody: true,
-        onEnd: async () => {
+        onEnd: async (evt) => {
+            // Only reorder if the item actually moved
+            if (evt.oldIndex === evt.newIndex) return;
+            
+            // Collect the new order of drive IDs from the DOM
             const newOrder = [...el.querySelectorAll('.admin-item-card')]
-                .map(card => card.dataset.driveId)
+                .map(card => card.getAttribute('data-drive-id'))
                 .filter(Boolean);
+                
             if (!newOrder.length) return;
+            
+            // Call the reorder function
             await reorderGallery(newOrder);
         }
     });
