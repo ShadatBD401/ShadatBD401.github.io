@@ -502,7 +502,7 @@ function renderAdminGallery() {
             const ia = savedOrder.indexOf(aKey);
             const ib = savedOrder.indexOf(bKey);
             if (ia === -1 && ib === -1) return 0;
-            if (ia === -1) return 1;
+            if (ia === -1) return 1;   // unseen items go to the end
             if (ib === -1) return -1;
             return ia - ib;
         });
