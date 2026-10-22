@@ -14,35 +14,6 @@ img, video, canvas, svg, iframe {
 }
 
 /* ============================================================
-   MOBILE MENU — force visible (issue #2)
-   ============================================================ */
-@media (max-width: 991px) {
-    .mobile-menu-btn { display: flex !important; }
-    .nav-menu {
-        position: fixed !important;
-        top: var(--nav-height);
-        left: 0; right: 0; bottom: 0;
-        background: var(--bg-primary);
-        flex-direction: column;
-        align-items: stretch;
-        padding: var(--space-xl);
-        gap: var(--space-sm);
-        transform: translateX(100%);
-        transition: transform var(--transition-base);
-        overflow-y: auto;
-        z-index: 999;
-    }
-    .nav-menu.open {
-        transform: translateX(0) !important;
-    }
-    .nav-link {
-        padding: var(--space-md) var(--space-lg);
-        font-size: 1rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-}
-
-/* ============================================================
    CONTACT FORM — mobile fix (issue #3)
    ============================================================ */
 @media (max-width: 767px) {
