@@ -581,11 +581,9 @@ window.readGalleryItem = function(id) {
 
     content.querySelector('.gallery-modal-title').textContent = item.title || item.caption || 'Untitled';
     if (item.description) {
-        // Use innerHTML with <br> so line breaks are kept
-        content.querySelector('.gallery-modal-description').innerHTML =
-            Utils.esc(item.description).replace(/\n/g, '<br>');
-    } 
-
+        content.querySelector('.gallery-modal-description').textContent = item.description.replace(/\\n/g, '\n');
+    }
+   
     Utils.openModal('', content.outerHTML);
 
     const modal = document.getElementById('modal');
