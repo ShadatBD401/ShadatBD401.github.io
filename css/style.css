@@ -833,5 +833,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .gallery-modal-content {
     max-height: 85vh !important;
     overflow-y: auto !important;
-    padding-right: 8px; /* Prevent scrollbar from covering text */
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gallery-modal-media {
+    flex-shrink: 0;
 }
