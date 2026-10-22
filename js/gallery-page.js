@@ -280,3 +280,31 @@ function initModal() {
         if (e.key === 'Escape') Utils.closeModal();
     });
 }
+
+document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+
+    // Re-fetch order + hidden list from Supabase
+    try {
+        const client = await initSupabase();
+        const { data: orderData } = await client
+            .from('site_settings').select('value').eq('key', 'gallery_order').maybeSingle();
+        if (Array.isArray(orderData?.value)) {
+            Utils.setStorage('sh_gallery_order', orderData.value);
+        }
+        const { data: hiddenData } = await client
+            .from('site_settings').select('value').eq('key', 'hidden_gallery').maybeSingle();
+        if (Array.isArray(hiddenData?.value)) {
+            Utils.setStorage('sh_hidden_gallery', hiddenData.value);
+        }
+    } catch (e) {
+        console.warn('Refresh: could not reload settings', e);
+    }
+
+    await loadGalleryPage();
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+    Utils.showToast('Gallery refreshed', 'success');
+});
