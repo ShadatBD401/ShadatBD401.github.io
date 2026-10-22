@@ -135,7 +135,7 @@ async function renderGalleryPage() {
 
     grid.innerHTML = displayItems.map(item => {
         const title = item.title || item.caption || 'Untitled';
-        const desc  = item.description || '';
+        const desc  = (item.description || '').replace(/\\n/g, '\n');
         const date  = Utils.formatDate(item.createdAt);
 
         if (item.type === 'video') {
@@ -147,7 +147,7 @@ async function renderGalleryPage() {
                     </div>
                     <div class="gallery-caption-block">
                         <h3 class="gallery-caption-title">${Utils.esc(title)}</h3>
-                        ${desc ? `<p class="gallery-caption-desc">${Utils.esc(desc)}</p>` : ''}
+                        ${desc ? `<p class="gallery-caption-desc">${Utils.esc(Utils.truncate(desc, 120))}</p>` : ''}
                         <div class="gallery-caption-meta">
                             <i class="fas fa-calendar"></i>
                             <span>${date}</span>
@@ -162,7 +162,7 @@ async function renderGalleryPage() {
                 </div>
                 <div class="gallery-caption-block">
                     <h3 class="gallery-caption-title">${Utils.esc(title)}</h3>
-                    ${desc ? `<p class="gallery-caption-desc">${Utils.esc(desc)}</p>` : ''}
+                    ${desc ? `<p class="gallery-caption-desc">${Utils.esc(Utils.truncate(desc, 120))}</p>` : ''}
                     <div class="gallery-caption-meta">
                         <i class="fas fa-calendar"></i>
                         <span>${date}</span>
