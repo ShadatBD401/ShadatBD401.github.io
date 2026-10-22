@@ -1,1 +1,6 @@
-[]
+[
+  { "id": "hs1", "value": 100, "suffix": "+", "label": "Vulnerabilities Discovered", "order": 0 },
+  { "id": "hs2", "value": 788, "suffix": "", "label": "Hours Training", "order": 1 },
+  { "id": "hs3", "value": 5, "suffix": "", "label": "Projects Completed", "order": 2 },
+  { "id": "hs4", "value": 3, "suffix": "", "label": "MikroTik Certifications", "order": 3 }
+]
