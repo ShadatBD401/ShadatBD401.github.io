@@ -101,7 +101,10 @@ async function renderGalleryPage() {
     }
 
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
-    let items = galleryPageState.items.filter(i => !hiddenIds.includes(i.id));
+    let items = galleryPageState.items.filter(i => {
+        const key = i.driveId || i.id;
+        return !hiddenIds.includes(key);
+    });
 
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     if (savedOrder.length) {
