@@ -882,13 +882,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     overflow: hidden;
     border: 1px solid var(--border-color);
     min-height: 250px;
+    max-height: 70vh; /* Added to prevent it from getting too tall */
 }
 
-/* Creates the blurred background frame to fill empty gaps */
+/* Keeps the blurred background feature for empty gaps */
 .gallery-modal-media::before {
     content: '';
     position: absolute;
-    inset: -20px; /* expand slightly to hide blur edges */
+    inset: -20px;
     background-image: var(--bg-img);
     background-size: cover;
     background-position: center;
@@ -899,11 +900,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .gallery-modal-media img {
     position: relative;
     z-index: 1;
-    max-width: 100%;
-    max-height: 65vh; /* Increased from 55vh for a bigger presence */
-    object-fit: contain;
+    width: 100%;           /* Makes image fill modal width */
+    max-height: 65vh;      /* Prevents image from being cut off vertically */
+    object-fit: contain;   /* Keeps aspect ratio perfect without stretching */
     display: block;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* Gives the image depth */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); /* Kept the shadow feature */
 }
 
 .gallery-modal-media iframe {
