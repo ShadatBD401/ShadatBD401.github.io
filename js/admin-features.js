@@ -722,6 +722,15 @@ window.saveGalleryItem = async function(id) {
     let src = url;
     let driveId = null;
 
+    // If editing, preserve existing media unless a new file or URL is provided
+    if (id) {
+        const existingItem = Utils.getItems(GALLERY_KEY).find(i => i.id === id);
+        if (existingItem) {
+            src = url || existingItem.src;  // Keep old src if url is empty
+            driveId = existingItem.driveId;
+        }
+    }
+
     if (file) {
         const maxBytes = type === 'video' ? 50 * 1024 * 1024 : 8 * 1024 * 1024;
         if (file.size > maxBytes) {
