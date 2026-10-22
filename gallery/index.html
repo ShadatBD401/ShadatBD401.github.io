@@ -44,12 +44,15 @@
                 <p class="section-subtitle">Memories, moments, and milestones</p>
             </div>
 
-            <div class="gallery-filters" id="galleryFilters">
+            <div class="gallery-filters" id="galleryFilters" style="justify-content:center;position:relative;">
                 <button class="filter-btn active" data-gallery-filter="all"><i class="fas fa-th-large"></i> All</button>
                 <button class="filter-btn" data-gallery-filter="image"><i class="fas fa-image"></i> Photos</button>
                 <button class="filter-btn" data-gallery-filter="video"><i class="fas fa-video"></i> Videos</button>
+                <button class="filter-btn" id="galleryRefreshBtn" title="Reload from server" style="margin-left:auto;">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
-
+            
             <div class="gallery-grid" id="galleryGrid">
                 <div class="gallery-loading" style="grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--text-secondary);">
                     <i class="fas fa-spinner fa-spin" style="font-size:2.5rem;color:var(--accent-primary);"></i>
