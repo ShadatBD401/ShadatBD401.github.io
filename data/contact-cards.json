@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cc1",
+    "icon": "fa-envelope",
+    "label": "Email",
+    "value": "sahadat.bda35@gmail.com",
+    "href": "mailto:sahadat.bda35@gmail.com",
+    "order": 0
+  },
+  {
+    "id": "cc2",
+    "icon": "fa-phone",
+    "label": "Phone",
+    "value": "+880 1575 382663",
+    "href": "tel:+8801575382663",
+    "order": 1
+  },
+  {
+    "id": "cc3",
+    "icon": "fa-map-marker-alt",
+    "label": "Location",
+    "value": "Tejgaon, Dhaka 1215, Bangladesh",
+    "href": "",
+    "order": 2
+  }
+]
