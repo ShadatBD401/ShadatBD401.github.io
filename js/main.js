@@ -93,6 +93,40 @@ async function fetchPublicContent() {
         }
     }
 }
+   
+    const keyMap = {
+        posts: Utils.STORAGE_KEYS.POSTS,
+        projects: Utils.STORAGE_KEYS.PROJECTS,
+        certifications: Utils.STORAGE_KEYS.CERTS,
+        skills: Utils.STORAGE_KEYS.SKILLS,
+        'education': 'sh_education',
+        'experience': 'sh_experience',
+        'hero-stats': 'sh_hero_stats',
+        'about-domains': 'sh_domains',
+        'interests': 'sh_interests',
+        'contact-cards': 'sh_contact_cards',
+        'matrix': 'sh_matrix'
+    };
+
+    for (const s of sections) {
+        try {
+            const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/${s}.json?ref=${BRANCH}&t=${Date.now()}`;
+            const res = await fetch(url, {
+                cache: 'no-store',
+                headers: { 'Accept': 'application/vnd.github.v3.raw' }
+            });
+            if (!res.ok) continue;
+            const json = await res.json();
+            if (Array.isArray(json)) {
+                const key = keyMap[s];
+                if (key) Utils.setStorage(key, json);
+                console.log(`⬇️ public: loaded ${s}.json`);
+            }
+        } catch (e) {
+            console.warn(`public: could not load ${s}.json`, e);
+        }
+    }
+}
 
 // ── Theme Initialization ─────────────────────────────────────
 function initTheme() {
