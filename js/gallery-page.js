@@ -197,9 +197,12 @@ function openGalleryItem(item) {
         ? `<iframe src="${item.src}" allowfullscreen></iframe>`
         : `<img src="${item.src}" alt="${Utils.esc(title)}">`;
 
+    // If it's an image, pass the URL into a CSS variable for the blurred background
+    const mediaStyle = item.type === 'image' ? `style="--bg-img: url('${item.src}');"` : '';
+
     const content = `
         <div class="gallery-modal-content">
-            <div class="gallery-modal-media">${mediaHtml}</div>
+            <div class="gallery-modal-media" ${mediaStyle}>${mediaHtml}</div>
 
             <div class="gallery-modal-info">
                 <div class="gallery-modal-badges">
