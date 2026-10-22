@@ -154,7 +154,7 @@ async function renderGalleryPage() {
 /* ✅ Fixed: Public modal now shows the description perfectly */
 function openGalleryItem(item) {
     const title = item.title || item.caption || 'Untitled';
-    // Replace actual \n strings with real line breaks
+    // Replace literal \n strings with real line breaks
     const desc  = (item.description || '').replace(/\\n/g, '\n');
 
     const media = item.type === 'video'
@@ -163,55 +163,44 @@ function openGalleryItem(item) {
 
     const shareUrl = window.location.href;
 
-    const content = document.createElement('div');
-    content.className = 'gallery-modal-content';
-    content.innerHTML = `
-        <div class="gallery-modal-media">${media}</div>
-        <div class="gallery-modal-info">
-            <h2 class="gallery-modal-title"></h2>
-            ${desc ? `<div class="gallery-modal-description"></div>` : ''}
-            <div class="gallery-modal-meta">
-                <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
-                <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
-            </div>
-            <div class="gallery-modal-actions">
-                <a href="${item.src}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
-                    <i class="fas fa-expand"></i> Open Full Size
-                </a>
-                <button class="btn btn-outline btn-sm" id="galleryNativeShare">
-                    <i class="fas fa-share-alt"></i> Share
-                </button>
-                <button class="btn btn-outline btn-sm" id="galleryCopyLink">
-                    <i class="fas fa-link"></i> Copy Link
-                </button>
+    // Build the modal content directly in the string (this is what fixes the description)
+    const content = `
+        <div class="gallery-modal-content">
+            <div class="gallery-modal-media">${media}</div>
+            <div class="gallery-modal-info">
+                <h2 class="gallery-modal-title">${Utils.esc(title)}</h2>
+                ${desc ? `<div class="gallery-modal-description">${Utils.esc(desc).replace(/\n/g, '<br>')}</div>` : ''}
+                <div class="gallery-modal-meta">
+                    <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
+                    <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
+                </div>
+                <div class="gallery-modal-actions">
+                    <a href="${item.src}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                        <i class="fas fa-expand"></i> Open Full Size
+                    </a>
+                    <button class="btn btn-outline btn-sm" id="galleryNativeShare">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="galleryCopyLink">
+                        <i class="fas fa-link"></i> Copy Link
+                    </button>
+                </div>
             </div>
         </div>`;
 
-    // Force the title and description into the DOM safely
-    content.querySelector('.gallery-modal-title').textContent = title;
-    if (desc) {
-        content.querySelector('.gallery-modal-description').textContent = desc;
-    }
+    Utils.openModal('', content);
 
-    Utils.openModal('', content.outerHTML);
-
-    // Re-wire buttons inside the live modal
+    // Wire up the buttons that are now inside the live modal
     const modalBody = document.getElementById('modalBody');
     if (modalBody) {
         const liveNative = modalBody.querySelector('#galleryNativeShare');
         const liveCopy   = modalBody.querySelector('#galleryCopyLink');
-        const liveTitle  = modalBody.querySelector('.gallery-modal-title');
-        const liveDesc   = modalBody.querySelector('.gallery-modal-description');
 
         if (liveNative) liveNative.addEventListener('click', () => {
             if (navigator.share) navigator.share({ title, url: shareUrl }).catch(() => {});
             else window.copyGalleryLink(shareUrl);
         });
         if (liveCopy) liveCopy.addEventListener('click', () => window.copyGalleryLink(shareUrl));
-        
-        // Re-apply text to live modal just in case outerHTML stripped it
-        if (liveTitle) liveTitle.textContent = title;
-        if (liveDesc && desc) liveDesc.textContent = desc;
     }
 
     const modal = document.getElementById('modal');
@@ -221,7 +210,7 @@ function openGalleryItem(item) {
     }
     const modalTitle = document.getElementById('modalTitle');
     if (modalTitle) modalTitle.style.display = 'none';
-    
+
     const closeBtn = document.getElementById('modalClose');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
