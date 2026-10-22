@@ -811,3 +811,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     .hero-section { min-height:auto; padding:2rem 0; }
     a { color:#000; text-decoration:underline; }
 }
+
+/* ============================================================
+   FINAL GALLERY MODAL FIX
+   ============================================================ */
+
+/* 1. Ensure the text is visible and newlines are preserved */
+.gallery-modal-description {
+    font-size: 1rem !important;
+    color: var(--text-primary) !important; /* Force white text */
+    line-height: 1.8 !important;
+    white-space: pre-wrap !important;      /* Keeps line breaks */
+    max-height: none !important;           /* Remove the cut-off limit */
+    overflow-y: visible !important;        /* Let it expand fully */
+    word-wrap: break-word !important;
+    padding: 0 !important;
+    margin-top: 10px !important;
+}
+
+/* 2. Make the modal scrollable so long text doesn't break the screen */
+.gallery-modal-content {
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    padding-right: 8px; /* Prevent scrollbar from covering text */
+}
