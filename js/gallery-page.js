@@ -106,8 +106,10 @@ async function renderGalleryPage() {
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     if (savedOrder.length) {
         items.sort((a, b) => {
-            const idxA = savedOrder.indexOf(a.id);
-            const idxB = savedOrder.indexOf(b.id);
+            const aKey = a.driveId || a.id;
+            const bKey = b.driveId || b.id;
+            const idxA = savedOrder.indexOf(aKey);
+            const idxB = savedOrder.indexOf(bKey);
             if (idxA === -1 && idxB === -1) return 0;
             if (idxA === -1) return 1;
             if (idxB === -1) return -1;
