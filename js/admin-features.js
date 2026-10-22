@@ -614,25 +614,23 @@ function makeGallerySortable() {
         animation: 200,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
-        handle: '.admin-item-card', // Ensure the whole card is draggable
-        delay: 1000,
+        delay: 300,
         delayOnTouchOnly: false,
         touchStartThreshold: 8,
         forceFallback: true,
         fallbackClass: 'sortable-drag',
         fallbackOnBody: true,
         onEnd: async (evt) => {
-            // Only reorder if the item actually moved
             if (evt.oldIndex === evt.newIndex) return;
-            
-            // Collect the new order of drive IDs from the DOM
+
             const newOrder = [...el.querySelectorAll('.admin-item-card')]
                 .map(card => card.getAttribute('data-drive-id'))
                 .filter(Boolean);
-                
+
             if (!newOrder.length) return;
-            
-            // Call the reorder function
+
+            // Update in-memory order FIRST so any re-render during save stays consistent
+            Utils.setStorage('sh_gallery_order', newOrder);
             await reorderGallery(newOrder);
         }
     });
