@@ -182,26 +182,41 @@ async function renderGalleryPage() {
 /* ✅ Fixed: Public modal now shows the description perfectly */
 function openGalleryItem(item) {
     const title = item.title || item.caption || 'Untitled';
-    // Replace literal \n strings with real line breaks
-    const desc  = (item.description || '').replace(/\\n/g, '\n');
+    const desc  = (item.description || '').replace(/\\n/g, '\n').trim();
+    const shareUrl = window.location.href;
 
-    const media = item.type === 'video'
+    // Format description like the reference site: preserve paragraphs, links, line breaks
+    const descHtml = desc
+        ? desc
+            .split(/\n\s*\n/)                     // paragraph breaks
+            .map(para => `<p>${Utils.esc(para).replace(/\n/g, '<br>')}</p>`)
+            .join('')
+        : '';
+
+    const mediaHtml = item.type === 'video'
         ? `<iframe src="${item.src}" allowfullscreen></iframe>`
         : `<img src="${item.src}" alt="${Utils.esc(title)}">`;
 
-    const shareUrl = window.location.href;
-
-    // Build the modal content directly in the string (this is what fixes the description)
     const content = `
         <div class="gallery-modal-content">
-            <div class="gallery-modal-media">${media}</div>
+            <div class="gallery-modal-media">${mediaHtml}</div>
+
             <div class="gallery-modal-info">
-                <h2 class="gallery-modal-title">${Utils.esc(title)}</h2>
-                ${desc ? `<div class="gallery-modal-description">${Utils.esc(desc).replace(/\n/g, '<br>')}</div>` : ''}
-                <div class="gallery-modal-meta">
-                    <span><i class="fas fa-calendar"></i> ${Utils.formatDate(item.createdAt)}</span>
-                    <span><i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i> ${item.type}</span>
+                <div class="gallery-modal-badges">
+                    <span class="gallery-badge-type">
+                        <i class="fas fa-${item.type === 'video' ? 'video' : 'image'}"></i>
+                        ${item.type === 'video' ? 'Video' : 'Photo'}
+                    </span>
+                    <span class="gallery-badge-date">
+                        <i class="fas fa-calendar"></i>
+                        ${Utils.formatDate(item.createdAt)}
+                    </span>
                 </div>
+
+                <h2 class="gallery-modal-title">${Utils.esc(title)}</h2>
+
+                ${descHtml ? `<div class="gallery-modal-description">${descHtml}</div>` : ''}
+
                 <div class="gallery-modal-actions">
                     <a href="${item.src}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
                         <i class="fas fa-expand"></i> Open Full Size
@@ -218,7 +233,7 @@ function openGalleryItem(item) {
 
     Utils.openModal('', content);
 
-    // Wire up the buttons that are now inside the live modal
+    // Wire the buttons after the modal is rendered
     const modalBody = document.getElementById('modalBody');
     if (modalBody) {
         const liveNative = modalBody.querySelector('#galleryNativeShare');
