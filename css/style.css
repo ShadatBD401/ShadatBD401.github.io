@@ -652,6 +652,7 @@ input, textarea, select { font-family:inherit; font-size:inherit; color:var(--te
     z-index: 9999;
     filter: blur(15px);
     will-change: transform;
+    transition: opacity 0.35s ease;
 }
 
 @media (hover: none), (pointer: coarse) {
