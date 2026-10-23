@@ -545,6 +545,7 @@ function renderDomains() {
     const wrap = document.querySelector('.about-domains');
     if (!wrap) return;
     
+    // Fallback data if GitHub/localStorage fails
     let items = Utils.getItems('sh_domains');
     if (!items || !items.length) {
         items = [
