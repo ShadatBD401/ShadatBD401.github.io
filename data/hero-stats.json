@@ -1,6 +1,6 @@
 [
-  { "id": "d1", "label": "PRIMARY", "name": "Network Operations", "kind": "primary", "order": 0 },
-  { "id": "d2", "label": "SECONDARY", "name": "Systems Administration", "kind": "secondary", "order": 1 },
-  { "id": "d3", "label": "SECURITY", "name": "Web & API Security Research", "kind": "security", "order": 2 },
-  { "id": "d4", "label": "LABS", "name": "VMware • Hyper-V • Linux • Windows Server", "kind": "labs", "order": 3 }
+  { "id": "hs1", "value": 100, "suffix": "+", "label": "Vulnerabilities Discovered", "order": 0 },
+  { "id": "hs2", "value": 788, "suffix": "", "label": "Hours Training", "order": 1 },
+  { "id": "hs3", "value": 5, "suffix": "", "label": "Projects Completed", "order": 2 },
+  { "id": "hs4", "value": 3, "suffix": "", "label": "MikroTik Certifications", "order": 3 }
 ]
