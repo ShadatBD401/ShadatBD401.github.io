@@ -50,7 +50,8 @@
     --transition-base: 250ms ease;
     --transition-slow: 350ms ease;
 
-    --container-max: clamp(1200px, 92vw, 1800px);
+    --container-max: 100%;
+    --container-padding: clamp(1rem, 4vw, 4rem);
     --nav-height: 68px;
 }
 
