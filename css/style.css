@@ -261,7 +261,7 @@ input, textarea, select { font-family:inherit; font-size:inherit; color:var(--te
 
 /* Hero Section Layout Fixed */
 .hero-section { min-height:100vh; display:flex; align-items:center; padding:calc(var(--nav-height) + clamp(2rem,5vw,4rem)) clamp(1rem,3vw,2rem) clamp(2rem,5vw,4rem); position:relative; }
-.hero-container { max-width:var(--container-max); margin:0 auto; width:100%; display:grid; grid-template-columns: 1.15fr 1fr; gap:clamp(2rem,4vw,5rem); align-items:center; padding: 0 var(--space-xl); box-sizing: border-box; }
+.hero-container { max-width:var(--container-max); margin:0 auto; width:100%; display:grid; grid-template-columns: 1.15fr 1fr; gap:clamp(2rem,4vw,5rem); align-items:center; }
 .hero-content { max-width:650px; }
 .hero-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.25); border-radius:var(--radius-full); font-size:.8125rem; font-weight:500; color:var(--accent-success); margin-bottom:var(--space-xl); }
 .badge-dot { width:8px; height:8px; background:var(--accent-success); border-radius:50%; animation:pulse 2s ease-in-out infinite; }
