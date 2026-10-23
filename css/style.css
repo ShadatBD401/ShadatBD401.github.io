@@ -1007,14 +1007,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     content: '';
     position: absolute;
     top: 50%; left: 50%;
-    width: 250%; height: 250%; 
-    /* Low opacity colors so it's not bright */
+    width: 200%; height: 200%; 
+    /* Low opacity colors so it's not bright 
     background: conic-gradient(
         transparent 0deg, 
         transparent 60deg, 
         rgba(59, 130, 246, 0.15) 90deg, 
         transparent 120deg, 
-        transparent 360deg
+        transparent 360deg */
+
+    background: conic-gradient(from 0deg, transparent, var(--accent-primary), transparent 30%);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    animation: rotate 4s linear infinite;       
+
     );
     transform: translate(-50%, -50%) rotate(0deg);
     z-index: -1; 
