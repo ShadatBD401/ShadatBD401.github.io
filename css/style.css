@@ -108,7 +108,7 @@
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; scroll-padding-top:var(--nav-height);
-       font-size:16px; -webkit-font-smoothing:antialiased; background:var(--bg-primary); }
+       font-size: clamp(16px, 1.1vw, 18px); -webkit-font-smoothing:antialiased; background:var(--bg-primary); }
 body {
     font-family:var(--font-sans); background:var(--bg-primary); color:var(--text-primary);
     line-height:1.6; overflow-x:hidden; min-height:100vh;
