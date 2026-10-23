@@ -308,7 +308,7 @@ input, textarea, select { font-family:inherit; font-size:inherit; color:var(--te
 @keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(8px); } }
 
 /* Hero Avatar */
-#heroProfileImg { position:absolute; top:-30px; right:-20px; width:130px; height:130px; border-radius:20%; z-index:10; background:var(--bg-secondary); padding:5px; isolation:isolate; cursor:pointer; }
+#heroProfileImg { position:absolute; top:-30px; right:-20px; width:130px; height:130px; border-radius:50%; z-index:10; background:var(--bg-secondary); padding:5px; isolation:isolate; cursor:pointer; }
 #heroProfileImg::before { content:''; position:absolute; inset:-3px; border-radius:50%; padding:3px; background:conic-gradient(from 0deg, transparent 0deg, var(--accent-primary) 60deg, var(--accent-secondary) 140deg, var(--accent-tertiary) 220deg, var(--accent-primary) 300deg, transparent 360deg); -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; animation:heroRingSpin 4s linear infinite; z-index:2; pointer-events:none; }
 #heroProfileImg::after { content:''; position:absolute; inset:-14px; border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,.35) 0%, rgba(139,92,246,.18) 40%, transparent 70%); filter:blur(14px); z-index:0; pointer-events:none; animation:heroGlowPulse 3s ease-in-out infinite; }
 #heroProfileImg > img { position:absolute; inset:8px; width:calc(100% - 16px); height:calc(100% - 16px); border-radius:50%; object-fit:cover; object-position:center 20%; z-index:1; background:var(--bg-tertiary); border:2px solid var(--bg-secondary); image-rendering:-webkit-optimize-contrast; transform:translateZ(0); backface-visibility:hidden; }
