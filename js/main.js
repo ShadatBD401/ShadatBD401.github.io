@@ -544,12 +544,22 @@ function renderEducation() {
 function renderDomains() {
     const wrap = document.querySelector('.about-domains');
     if (!wrap) return;
-    const items = Utils.sortByOrder(Utils.getItems('sh_domains'));
-    if (!items.length) return;
+    
+    // Fallback defaults if data is missing or broken
+    let items = Utils.getItems('sh_domains');
+    if (!items || !items.length) {
+        items = [
+            { id: 'd1', label: 'PRIMARY', name: 'Network Operations', kind: 'primary', order: 0 },
+            { id: 'd2', label: 'SECONDARY', name: 'Systems Administration', kind: 'secondary', order: 1 },
+            { id: 'd3', label: 'SECURITY', name: 'Web & API Security Research', kind: 'security', order: 2 },
+            { id: 'd4', label: 'LABS', name: 'VMware • Hyper-V • Linux • Windows Server', kind: 'labs', order: 3 }
+        ];
+    }
+
     wrap.innerHTML = items.map(d => `
         <div class="domain-item ${Utils.esc(d.kind || 'primary')}">
-            <span class="domain-label">${Utils.esc(d.label)}</span>
-            <span class="domain-name">${Utils.esc(d.name)}</span>
+            <span class="domain-label">${Utils.esc(d.label || '')}</span>
+            <span class="domain-name">${Utils.esc(d.name || '')}</span>
         </div>
     `).join('');
 }
