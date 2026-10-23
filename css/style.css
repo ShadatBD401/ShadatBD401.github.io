@@ -767,8 +767,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     .learning-filters { justify-content:flex-start; overflow-x:auto; padding-bottom:var(--space-sm); }
     .filter-btn { white-space:nowrap; flex-shrink:0; }
     .contact-form-container { padding:var(--space-md) !important; max-width:100% !important; border-radius:var(--radius-lg); width:100%; }
-    .contact-grid { gap:var(--space-lg) !important; padding:0 !important; margin:0 auto !important; width:100%; max-width: var(--container-max); }
-    .contact-section .section-container { padding: var(--space-3xl) var(--container-padding) !important; }
+    .contact-grid { gap:var(--space-lg) !important; padding:0 !important; margin:0 !important; width:100%; }
+    .contact-section .section-container { padding:0 var(--space-md) !important; }
     .contact-form .form-row { grid-template-columns:1fr; gap:0; }
     .contact-form input, .contact-form textarea, .contact-form select { font-size:16px; width:100%; max-width:100%; }
     .contact-form { width:100%; }
