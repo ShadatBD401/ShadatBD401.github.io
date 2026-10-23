@@ -1008,18 +1008,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     position: absolute;
     top: 50%; left: 50%;
     width: 200%; height: 200%; 
-    /* Low opacity colors so it's not bright 
+    /* Low opacity colors so it's not bright */
     background: conic-gradient(
         transparent 0deg, 
         transparent 60deg, 
         rgba(59, 130, 246, 0.15) 90deg, 
         transparent 120deg, 
-        transparent 360deg */
-
-    background: conic-gradient(from 0deg, transparent, var(--accent-primary), transparent 30%);
-    opacity: 0;
-    transition: opacity var(--transition-base);
-    animation: rotate 4s linear infinite;       
+        transparent 360deg 
 
     );
     transform: translate(-50%, -50%) rotate(0deg);
@@ -1036,7 +1031,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .cert-card:hover::after, 
 .education-card:hover::after, 
 .learning-card:hover::after {
-    opacity: 0.1;
+    opacity: 1;
     animation: subtleMatrixSpin 6s linear infinite; /* Slow and elegant */
 }
 
