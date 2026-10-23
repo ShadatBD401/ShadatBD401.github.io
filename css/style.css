@@ -988,3 +988,64 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .gallery-modal-media {
     flex-shrink: 0;
 }
+
+
+
+/* ============================================================
+   SUBTLE SMOKEY MATRIX (Like testing3 site)
+   ============================================================ */
+
+/* 2. The Subtle Matrix Card Backgrounds */
+.skill-card, .project-card, .cert-card, .education-card, .learning-card {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* The rotating matrix glow - very low opacity */
+.skill-card::after, .project-card::after, .cert-card::after, .education-card::after, .learning-card::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 250%; height: 250%; 
+    /* Low opacity colors so it's not bright */
+    background: conic-gradient(
+        transparent 0deg, 
+        transparent 60deg, 
+        rgba(59, 130, 246, 0.15) 90deg, 
+        transparent 120deg, 
+        transparent 360deg
+    );
+    transform: translate(-50%, -50%) rotate(0deg);
+    z-index: -1; 
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    filter: blur(30px); /* Blur it so it looks like moving smoke */
+}
+
+/* On hover, fade it in and spin it slowly */
+.skill-card:hover::after, 
+.project-card:hover::after, 
+.cert-card:hover::after, 
+.education-card:hover::after, 
+.learning-card:hover::after {
+    opacity: 1;
+    animation: subtleMatrixSpin 6s linear infinite; /* Slow and elegant */
+}
+
+/* Dark inner mask to keep the card readable */
+.skill-card::before, .project-card::before, .cert-card::before, .education-card::before, .learning-card::before {
+    content: '';
+    position: absolute;
+    inset: 1px; /* Very thin edge */
+    background: var(--bg-card);
+    border-radius: inherit;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes subtleMatrixSpin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
