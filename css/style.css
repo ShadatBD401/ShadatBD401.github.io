@@ -135,7 +135,7 @@ input, textarea, select { font-family:inherit; font-size:inherit; color:var(--te
 ::-webkit-scrollbar-thumb:hover { background:var(--accent-primary); }
 
 .section { padding:clamp(3rem, 6vw, 6rem) clamp(1rem, 3vw, 2rem); position:relative; }
-.section-container { max-width:var(--container-max); margin:0 auto; width:100%; padding-left: var(--container-padding); padding-right: var(--container-padding); }
+.section-container { max-width:var(--container-max); margin:0 auto; width:100%; }
 .section-header { text-align:center; margin:0 auto var(--space-3xl); max-width:720px; }
 .section-number {
     display:inline-flex; align-items:center; gap:8px;
