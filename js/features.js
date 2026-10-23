@@ -173,6 +173,45 @@ function shInitSmokeCursor() {
         requestAnimationFrame(animate);
     }
     animate();
+
+    // ── Idle: hide after 3s of no activity, reappear instantly on activity ──
+    const IDLE_MS = 3000;
+    const idleElements = [dot, follower, smoke];
+
+    const originalOpacity = new Map();
+    idleElements.forEach(el => {
+        originalOpacity.set(el, el.style.opacity || '');
+    });
+
+    let idleTimer = null;
+
+    const hideCursor = () => {
+        idleElements.forEach(el => { el.style.opacity = '0'; });
+    };
+
+    const showCursor = () => {
+        idleElements.forEach(el => {
+            el.style.opacity = originalOpacity.get(el);
+        });
+    };
+
+    const startIdle = () => {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(hideCursor, IDLE_MS);
+    };
+
+    const onActivity = () => {
+        showCursor();
+        startIdle();
+    };
+
+    document.addEventListener('mousemove', onActivity, { passive: true });
+    document.addEventListener('mousedown', onActivity);
+    document.addEventListener('scroll', onActivity, { passive: true });
+    document.addEventListener('keydown', onActivity);
+    document.addEventListener('touchstart', onActivity, { passive: true });
+
+    startIdle();
 }
 
 // ── Ticket Tracking ──────────────────────────────────────────
