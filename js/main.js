@@ -864,14 +864,22 @@ function renderCertifications() {
             <span class="cert-status ${cert.status}">
                 ${cert.status === 'active' ? '✓ Active Certification' : 'Training Completed'}
             </span>
-            ${cert.link && cert.link !== '#' ? `
-                <a href="${Utils.esc(cert.link)}" class="cert-link" target="_blank" rel="noopener">
-                    <i class="fas fa-external-link-alt"></i> View Certificate
-                </a>
-            ` : ''}
+            <div class="cert-actions">
+                ${cert.link && cert.link !== '#' ? `
+                    <a href="${Utils.esc(cert.link)}" class="cert-link" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt"></i> View Certificate
+                    </a>
+                ` : ''}
+                <button type="button" class="cert-share-btn" onclick="shareCert('${cert.id}')">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+                <button type="button" class="cert-share-btn" onclick="copyCertLink('${cert.id}')">
+                    <i class="fas fa-link"></i> Copy Link
+                </button>
+            </div>
         </div>
     `).join('');
-    
+   
     initScrollReveal();
 }
 
