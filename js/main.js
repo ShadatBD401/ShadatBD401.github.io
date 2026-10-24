@@ -697,15 +697,24 @@ function renderProjects() {
                         ${project.tags.split('|').map(tag => `<span class="tag">${Utils.esc(tag.trim())}</span>`).join('')}
                     </div>
                 ` : ''}
-                ${project.link ? `
-                    <a href="${Utils.esc(project.link)}" class="project-link" target="_blank" rel="noopener">
-                        View Project <i class="fas fa-external-link-alt"></i>
-                    </a>
-                ` : ''}
+
+                <div class="project-actions">
+                    ${project.link ? `
+                        <a href="${Utils.esc(project.link)}" class="project-link" target="_blank" rel="noopener">
+                            <i class="fas fa-external-link-alt"></i> View Project
+                        </a>
+                    ` : ''}
+                    <button type="button" class="project-share-btn" onclick="shareProject('${project.id}')">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                    <button type="button" class="project-share-btn" onclick="copyProjectLink('${project.id}')">
+                        <i class="fas fa-link"></i> Copy Link
+                    </button>
+                </div>
             </div>
         </div>
     `).join('');
-    
+   
     // Add click handlers
     container.querySelectorAll('.project-card').forEach(card => {
         card.addEventListener('click', (e) => {
