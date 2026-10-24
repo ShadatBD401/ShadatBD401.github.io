@@ -141,3 +141,53 @@ img, video, canvas, svg, iframe {
         flex-wrap: wrap !important;
     }
 }
+
+/* MOBILE NAVBAR — ensure all buttons fit */
+@media (max-width: 767px) {
+    .nav-container {
+        padding: 0 8px !important;
+        gap: 4px !important;
+    }
+    .nav-logo {
+        min-width: 0;
+        flex-shrink: 1;
+        gap: 6px;
+    }
+    .logo-info {
+        display: none !important;
+    }
+    .nav-actions {
+        gap: 4px !important;
+        flex-shrink: 0;
+    }
+    .nav-social {
+        display: none !important;
+    }
+    .search-trigger,
+    .theme-toggle {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.75rem !important;
+    }
+    .admin-btn {
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+    }
+    .mobile-menu-btn {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    .nav-avatar {
+        width: 34px !important;
+        height: 34px !important;
+    }
+}
+
+/* MOBILE FOOTER — keep social icons in a row */
+@media (max-width: 991px) {
+    .footer-social {
+        flex-direction: row !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+}
