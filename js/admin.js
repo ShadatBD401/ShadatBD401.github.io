@@ -1377,8 +1377,21 @@ window.openCertForm = function(cert = null) {
                 </select>
             </div>
             <div class="form-group">
-                <label for="certLink">Certificate Link</label>
+                <label for="certLink">Certificate Link (external URL)</label>
                 <input type="url" id="certLink" value="${cert ? Utils.esc(cert.link || '') : ''}" placeholder="https://...">
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
+                    If set, "View Certificate" will open this link.
+                </p>
+            </div>
+            <div class="form-group">
+                <label for="certImageInput">Certificate Image (upload — overrides link)</label>
+                <input type="file" id="certImageInput" accept="image/*">
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
+                    If uploaded, "View Certificate" will show this image instead.
+                </p>
+                <div id="certImagePreview" style="margin-top:8px;">
+                    ${cert && cert.certImage ? `<img src="${Utils.esc(cert.certImage)}" style="max-width:200px;border-radius:6px;">` : ''}
+                </div>
             </div>
             <div class="admin-form-actions">
                 <button class="btn btn-outline" onclick="Utils.closeModal()">Cancel</button>
@@ -1388,6 +1401,21 @@ window.openCertForm = function(cert = null) {
             </div>
         </div>
     `);
+
+    // Live preview when an image is selected
+    const input = document.getElementById('certImageInput');
+    const preview = document.getElementById('certImagePreview');
+    if (input && preview) {
+        input.addEventListener('change', () => {
+            const f = input.files[0];
+            if (!f) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;border-radius:6px;">`;
+            };
+            reader.readAsDataURL(f);
+        });
+    }
 };
 
 window.saveCert = function(certId) {
