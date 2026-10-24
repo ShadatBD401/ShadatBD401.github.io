@@ -835,11 +835,11 @@ function initCertifications() {
     ];
     
     let certs = Utils.getItems(Utils.STORAGE_KEYS.CERTS);
-    if (certs.length === 0) {
+    if (!certs || certs.length === 0) {
         certs = defaultCerts;
         Utils.saveItems(Utils.STORAGE_KEYS.CERTS, certs);
     }
-    
+   
     state.certifications = certs;
     renderCertifications();
 }
