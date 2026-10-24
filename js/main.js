@@ -663,7 +663,8 @@ function initProjects() {
     ];
     
     let projects = Utils.getItems(Utils.STORAGE_KEYS.PROJECTS);
-    if (projects.length === 0) {
+    // If empty OR if GitHub returned an empty array, reseed defaults
+    if (!projects || projects.length === 0) {
         projects = defaultProjects;
         Utils.saveItems(Utils.STORAGE_KEYS.PROJECTS, projects);
     }
