@@ -865,10 +865,10 @@ function renderCertifications() {
                 ${cert.status === 'active' ? '✓ Active Certification' : 'Training Completed'}
             </span>
             <div class="cert-actions">
-                ${cert.link && cert.link !== '#' ? `
-                    <a href="${Utils.esc(cert.link)}" class="cert-link" target="_blank" rel="noopener">
-                        <i class="fas fa-external-link-alt"></i> View Certificate
-                    </a>
+                ${(cert.certImage || (cert.link && cert.link !== '#')) ? `
+                    <button type="button" class="cert-link" onclick="viewCertificate('${cert.id}')">
+                        <i class="fas fa-eye"></i> View Certificate
+                    </button>
                 ` : ''}
                 <button type="button" class="cert-share-btn" onclick="shareCert('${cert.id}')">
                     <i class="fas fa-share-alt"></i> Share
