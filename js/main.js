@@ -1312,3 +1312,70 @@ window.copyCertLink = function(id) {
     const url = `${window.location.origin}${window.location.pathname}#cert-${id}`;
     Utils.copyToClipboard(url);
 };
+
+/* ============================================================
+   CERTIFICATE VIEWER + SHARE + COPY
+   ============================================================ */
+
+// Opens the certificate: uploaded image → modal with image
+// otherwise → opens link in new tab
+window.viewCertificate = function(id) {
+    const cert = state.certifications.find(c => c.id === id);
+    if (!cert) return;
+
+    // Priority 1: uploaded image
+    if (cert.certImage) {
+        const content = `
+            <div style="text-align:center;">
+                <img src="${Utils.esc(cert.certImage)}"
+                     alt="${Utils.esc(cert.title)}"
+                     style="max-width:100%; max-height:75vh; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+                <div style="margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                    <a href="${Utils.esc(cert.certImage)}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                        <i class="fas fa-external-link-alt"></i> Open Full Size
+                    </a>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="copyCertLink('${cert.id}')">
+                        <i class="fas fa-link"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+        `;
+        Utils.openModal(cert.title, content);
+
+        const modal = document.getElementById('modal');
+        if (modal) { modal.style.maxWidth = '900px'; modal.style.width = '92vw'; }
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) modalTitle.style.display = '';
+        const closeBtn = document.getElementById('modalClose');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                if (modal) { modal.style.maxWidth = ''; modal.style.width = ''; }
+            }, { once: true });
+        }
+        return;
+    }
+
+    // Priority 2: external link
+    if (cert.link && cert.link !== '#') {
+        window.open(cert.link, '_blank', 'noopener');
+        return;
+    }
+
+    Utils.showToast('No certificate attached yet', 'warning');
+};
+
+window.shareCert = function(id) {
+    const cert = state.certifications.find(c => c.id === id);
+    if (!cert) return;
+    const url = `${window.location.origin}${window.location.pathname}#cert-${id}`;
+    if (navigator.share) {
+        navigator.share({ title: cert.title, text: cert.description, url }).catch(() => {});
+    } else {
+        Utils.copyToClipboard(url);
+    }
+};
+
+window.copyCertLink = function(id) {
+    const url = `${window.location.origin}${window.location.pathname}#cert-${id}`;
+    Utils.copyToClipboard(url);
+};
