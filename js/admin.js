@@ -1418,23 +1418,47 @@ window.openCertForm = function(cert = null) {
     }
 };
 
-window.saveCert = function(certId) {
+window.saveCert = async function(certId) {
     const title = document.getElementById('certTitle').value.trim();
     const description = document.getElementById('certDesc').value.trim();
     const status = document.getElementById('certStatus').value;
     const link = document.getElementById('certLink').value.trim();
-    
+    const imageInput = document.getElementById('certImageInput');
+    const imageFile = imageInput?.files[0];
+
     if (!title || !description) {
         Utils.showToast('Title and description are required', 'error');
         return;
     }
-    
+
     const certs = Utils.getItems(Utils.STORAGE_KEYS.CERTS);
-    
+    const existing = certId ? certs.find(c => c.id === certId) : null;
+
+    let certImage = existing?.certImage || '';
+    let certImageId = existing?.certImageId || '';
+
+    // Upload new image if provided
+    if (imageFile) {
+        if (imageFile.size > 5 * 1024 * 1024) {
+            Utils.showToast('Image must be under 5MB', 'error');
+            return;
+        }
+        try {
+            Utils.showToast('Uploading certificate image...', 'info');
+            const result = await window.GDrive.upload(imageFile, 'cv'); // reuse cv folder
+            certImage = result.previewUrl;   // lh3 URL — works in <img>
+            certImageId = result.id;
+        } catch (err) {
+            console.error(err);
+            Utils.showToast('Upload failed: ' + err.message, 'error');
+            return;
+        }
+    }
+
     if (certId) {
         const index = certs.findIndex(c => c.id === certId);
         if (index > -1) {
-            certs[index] = { ...certs[index], title, description, status, link };
+            certs[index] = { ...certs[index], title, description, status, link, certImage, certImageId };
         }
     } else {
         certs.unshift({
@@ -1443,10 +1467,12 @@ window.saveCert = function(certId) {
             description,
             status,
             link,
+            certImage,
+            certImageId,
             order: 0
         });
     }
-    
+
     certs.forEach((c, i) => c.order = i);
     Utils.saveItems(Utils.STORAGE_KEYS.CERTS, certs);
     saveContentToGitHub('certifications', certs, certId ? `Update cert: ${title}` : `New cert: ${title}`);
