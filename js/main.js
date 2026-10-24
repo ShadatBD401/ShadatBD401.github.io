@@ -1293,3 +1293,22 @@ window.copyProjectLink = function(id) {
     const url = `${window.location.origin}${window.location.pathname}#project-${id}`;
     Utils.copyToClipboard(url);
 };
+
+/* ============================================================
+   SHARE & COPY HELPERS FOR CERTIFICATIONS
+   ============================================================ */
+window.shareCert = function(id) {
+    const c = state.certifications.find(x => x.id === id);
+    if (!c) return;
+    const url = `${window.location.origin}${window.location.pathname}#cert-${id}`;
+    if (navigator.share) {
+        navigator.share({ title: c.title, url }).catch(() => {});
+    } else {
+        Utils.copyToClipboard(url);
+    }
+};
+
+window.copyCertLink = function(id) {
+    const url = `${window.location.origin}${window.location.pathname}#cert-${id}`;
+    Utils.copyToClipboard(url);
+};
