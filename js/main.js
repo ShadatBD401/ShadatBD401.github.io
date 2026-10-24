@@ -718,7 +718,7 @@ function renderProjects() {
     // Add click handlers
     container.querySelectorAll('.project-card').forEach(card => {
         card.addEventListener('click', (e) => {
-            if (e.target.closest('a')) return;
+            if (e.target.closest('a, button')) return;
             const id = card.dataset.id;
             const project = state.projects.find(p => p.id === id);
             if (project) openProjectModal(project);
