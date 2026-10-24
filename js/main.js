@@ -1266,3 +1266,22 @@ window.PortfolioApp = {
     renderCertifications,
     renderLearning
 };
+
+/* ============================================================
+   SHARE & COPY HELPERS FOR PROJECTS
+   ============================================================ */
+window.shareProject = function(id) {
+    const p = state.projects.find(x => x.id === id);
+    if (!p) return;
+    const url = `${window.location.origin}${window.location.pathname}#project-${id}`;
+    if (navigator.share) {
+        navigator.share({ title: p.title, url }).catch(() => {});
+    } else {
+        Utils.copyToClipboard(url);
+    }
+};
+
+window.copyProjectLink = function(id) {
+    const url = `${window.location.origin}${window.location.pathname}#project-${id}`;
+    Utils.copyToClipboard(url);
+};
