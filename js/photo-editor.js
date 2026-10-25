@@ -369,7 +369,9 @@ const PhotoEditor = (() => {
                 };
                 state.texts.push(t);
                 state.activeTextId = t.id;
-                saveHistory(); drawPreview(); renderPanel();
+                state.touched = true;
+                saveHistory(); drawPreview(); renderPanel();               
+               
             };
             panel.querySelectorAll('.pe-layer').forEach(el => {
                 el.onclick = (e) => {
