@@ -440,7 +440,7 @@ const PhotoEditor = (() => {
                     </div>
                 </div>`;
             panel.querySelectorAll('.pe-frame-btn').forEach(b => {
-                b.onclick = () => { state.frame = b.dataset.frame; saveHistory(); drawPreview(); renderPanel(); };
+                b.onclick = () => { state.frame = b.dataset.frame; state.touched = true; saveHistory(); drawPreview(); renderPanel(); };
             });
         }
         updateInfo();
