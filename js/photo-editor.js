@@ -577,12 +577,35 @@ const PhotoEditor = (() => {
             tctx.imageSmoothingQuality = 'high';
             tctx.drawImage(full, cx, cy, cw, ch, 0, 0, cw, ch);
 
-            const dataUrl = temp.toDataURL('image/png');
-            console.log('[applyCrop] dataUrl length =', dataUrl.length);
+            // Release the big full-res canvas from memory before encoding.
+            full.width = 1;
+            full.height = 1;
 
+            // Use a Blob + object URL instead of a giant base64 data URL.
+            // This avoids the 16 MB canvas-memory cap that silently blanks
+            // large crops on mobile Safari and low-memory browsers.
             const newImg = new Image();
+            const blobUrl = await new Promise((resolve) => {
+                temp.toBlob((blob) => {
+                    if (!blob) {
+                        console.error('[applyCrop] toBlob returned null');
+                        resolve(null);
+                        return;
+                    }
+                    resolve(URL.createObjectURL(blob));
+                }, 'image/png');
+            });
+
+            if (!blobUrl) {
+                Utils.showToast('Crop failed — image too large for this browser', 'error');
+                state.cropRect = null;
+                drawPreview();
+                return;
+            }
 
             newImg.onload = () => {
+                URL.revokeObjectURL(blobUrl);
+               
                 console.log('[applyCrop] newImg loaded:', newImg.naturalWidth + 'x' + newImg.naturalHeight);
 
                 state.img = newImg;
