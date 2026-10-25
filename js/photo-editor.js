@@ -462,6 +462,7 @@ const PhotoEditor = (() => {
         document.querySelectorAll('#pePanel input[type=checkbox][data-key]').forEach(inp => {
             inp.onchange = () => {
                 state[inp.dataset.key] = inp.checked;
+                state.touched = true;
                 saveHistory(); drawPreview();
             };
         });
