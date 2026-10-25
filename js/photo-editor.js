@@ -640,12 +640,14 @@ const PhotoEditor = (() => {
 
             newImg.onerror = (e) => {
                 console.error('[applyCrop] newImg.onerror:', e);
+                URL.revokeObjectURL(blobUrl);
                 Utils.showToast('Crop failed — image may be too large', 'error');
                 state.cropRect = null;
                 drawPreview();
             };
 
-            newImg.src = dataUrl;
+            newImg.src = blobUrl;
+           
         } catch (err) {
             console.error('[applyCrop] EXCEPTION:', err);
             Utils.showToast('Crop error: ' + (err.message || 'unknown'), 'error');
