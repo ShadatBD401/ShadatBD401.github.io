@@ -780,8 +780,11 @@ const PhotoEditor = (() => {
             if (state.activeTool === 'crop') {
                 state.dragging = 'crop';
                 state.dragStart = { x, y };
+                state.cropRect = null;   // start a fresh rectangle on every drag
+                drawPreview();
                 return;
             }
+           
             if (state.activeTool === 'draw') {
                 state.dragging = 'draw';
                 state.drawing = {
