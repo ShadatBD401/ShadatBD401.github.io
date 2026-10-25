@@ -686,13 +686,16 @@ const PhotoEditor = (() => {
             drawPreview();
         }, { passive: false });
 
-        document.getElementById('peCancel').onclick = () => close(null);
-        document.getElementById('peClose').onclick = () => close(null);
+        // Skip Editing = return the ORIGINAL file, byte-for-byte identical, no processing
+        document.getElementById('peCancel').onclick = () => close(state.originalFile);
+        document.getElementById('peClose').onclick  = () => close(state.originalFile);
         document.getElementById('peApply').onclick = async () => {
+            // If the user opened the editor but didn't change anything, also return the original
+            if (!state.touched) { close(state.originalFile); return; }
             const file = await exportFile();
             close(file);
         };
-
+       
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && overlay.classList.contains('open')) close(null);
             if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
