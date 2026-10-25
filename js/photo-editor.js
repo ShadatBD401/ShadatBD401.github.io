@@ -658,7 +658,8 @@ const PhotoEditor = (() => {
             if (state.dragging === 'pan') {
                 state.offsetX = state.dragStart.ox + (e.clientX - state.dragStart.x);
                 state.offsetY = state.dragStart.oy + (e.clientY - state.dragStart.y);
-                drawPreview();
+                state.touched = true;
+                drawPreview();              
             } else if (state.dragging === 'draw' && state.drawing) {
                 state.drawing.points.push({ x: x / canvas.width, y: y / canvas.height });
                 if (!state.drawings.includes(state.drawing)) state.drawings.push(state.drawing);
