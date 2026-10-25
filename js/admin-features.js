@@ -168,7 +168,9 @@ window.toggleGalleryVisibility = async function (idOrDriveId) {
 
 async function reorderGallery(newOrderIds) {
     Utils.setStorage('sh_gallery_order', newOrderIds);
-    Utils.setStorage('sh_gallery_dirty', true);
+    // NOTE: do NOT set 'sh_gallery_dirty' here — that flag is only used by
+    // the public gallery page as a "reload before render" hint, and setting
+    // it from admin caused the public page to recurse through loadGalleryPage.
     try {
         const client = await initSupabase();
         const { error } = await client.from('site_settings').upsert(
