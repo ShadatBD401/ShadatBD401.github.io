@@ -470,7 +470,10 @@ const PhotoEditor = (() => {
 
     function updateInfo() {
         const el = document.getElementById('peInfo');
-        if (el) el.textContent = `${state.previewW}×${state.previewH} preview · ${EXPORT_SIZE}px export`;
+        if (!el) return;
+        const origW = state.img?.naturalWidth || 0;
+        const origH = state.img?.naturalHeight || 0;
+        el.textContent = `${state.previewW}×${state.previewH} preview · ${origW}×${origH} original (full-res on export)`;
     }
 
     // ── Crop (CORRECT IMPLEMENTATION) ───────────────────────
