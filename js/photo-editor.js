@@ -492,10 +492,11 @@ const PhotoEditor = (() => {
             state.cropRect = null;
             state.rotation = 0; state.zoom = 1;
             state.offsetX = 0; state.offsetY = 0;
-            // Reset the preview canvas to fit new image aspect
+            state.touched = true;
             resizePreview(newImg);
             saveHistory(); drawPreview();
         };
+       
         newImg.src = temp.toDataURL('image/png');
     }
 
