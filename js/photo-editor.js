@@ -485,91 +485,135 @@ const PhotoEditor = (() => {
         el.textContent = `${state.previewW}×${state.previewH} preview · ${origW}×${origH} original (full-res on export)`;
     }
 
-    // ── Crop — FULL-RESOLUTION, transform-aware ─────────────
+    // ── Crop — FULL-RESOLUTION, defensive ───────────────────
     function applyCrop() {
-        if (!state.cropRect) return;
+        try {
+            if (!state.cropRect) {
+                Utils.showToast('Please drag a crop rectangle on the image first', 'warning');
+                return;
+            }
 
-        // 1) Render the CURRENT FULL-RES image (with rotation / flip / zoom / offset
-        //    applied) into an off-screen canvas at original resolution.
-        const src = state.img;
-        const OW = src.naturalWidth  || src.width;
-        const OH = src.naturalHeight || src.height;
+            const src = state.img;
+            if (!src) {
+                Utils.showToast('No image loaded', 'error');
+                return;
+            }
 
-        const full = document.createElement('canvas');
-        full.width = OW;
-        full.height = OH;
-        const fctx = full.getContext('2d');
-        fctx.imageSmoothingEnabled = true;
-        fctx.imageSmoothingQuality = 'high';
+            const OW = src.naturalWidth  || src.width;
+            const OH = src.naturalHeight || src.height;
+            if (!OW || !OH) {
+                Utils.showToast('Image not ready — try again', 'error');
+                return;
+            }
+            if (!state.previewW || !state.previewH) {
+                Utils.showToast('Preview not ready — try again', 'error');
+                return;
+            }
 
-        const offX = state.offsetX * (OW / state.previewW);
-        const offY = state.offsetY * (OH / state.previewH);
+            // Clamp crop rect to preview bounds
+            const r = state.cropRect;
+            const rx = Math.max(0, Math.min(state.previewW, r.x));
+            const ry = Math.max(0, Math.min(state.previewH, r.y));
+            const rw = Math.max(1, Math.min(state.previewW - rx, r.w));
+            const rh = Math.max(1, Math.min(state.previewH - ry, r.h));
 
-        fctx.save();
-        fctx.translate(OW / 2, OH / 2);
-        fctx.rotate(state.rotation * Math.PI / 180);
-        if (state.flipH) fctx.scale(-1, 1);
-        if (state.flipV) fctx.scale(1, -1);
-        fctx.scale(state.zoom, state.zoom);
-        fctx.translate(-OW / 2 + offX, -OH / 2 + offY);
-        fctx.filter = filterString();
-        fctx.drawImage(src, 0, 0, OW, OH);
-        fctx.filter = 'none';
-        fctx.restore();
+            if (rw < 2 || rh < 2) {
+                Utils.showToast('Crop area is too small — drag a bigger rectangle', 'warning');
+                return;
+            }
 
-        // 2) Map the crop rectangle from preview coordinates → full-res coordinates
-        const r = state.cropRect;
-        const scaleX = OW / state.previewW;
-        const scaleY = OH / state.previewH;
-        const cx = Math.round(r.x * scaleX);
-        const cy = Math.round(r.y * scaleY);
-        const cw = Math.round(r.w * scaleX);
-        const ch = Math.round(r.h * scaleY);
+            // 1) Flatten current full-res image with all transforms baked in
+            const full = document.createElement('canvas');
+            full.width = OW;
+            full.height = OH;
+            const fctx = full.getContext('2d');
+            fctx.imageSmoothingEnabled = true;
+            fctx.imageSmoothingQuality = 'high';
 
-        // 3) Extract that region at FULL resolution
-        const temp = document.createElement('canvas');
-        temp.width = cw;
-        temp.height = ch;
-        temp.getContext('2d').drawImage(full, cx, cy, cw, ch, 0, 0, cw, ch);
+            const offX = state.offsetX * (OW / state.previewW);
+            const offY = state.offsetY * (OH / state.previewH);
 
-        const newImg = new Image();
-        newImg.onload = () => {
-            state.img = newImg;
-            state.cropRect = null;
-            state.rotation = 0;
-            state.zoom = 1;
-            state.offsetX = 0;
-            state.offsetY = 0;
-            state.flipH = false;
-            state.flipV = false;
-            // Reset filters — they are already baked into the cropped image,
-            // so reset the sliders back to neutral to avoid double-application
-            state.brightness = 100;
-            state.contrast   = 100;
-            state.saturation = 100;
-            state.hue        = 0;
-            state.blur       = 0;
-            state.exposure   = 100;
-            state.grayscale  = false;
-            state.sepia      = false;
-            state.invert     = false;
-            state.vignette   = 0;
-            state.circle     = false;
-            state.frame      = 'none';
-            state.touched    = true;
-            resizePreview(newImg);
-            saveHistory();
-            drawPreview();
-            renderPanel();
-        };
-        newImg.onerror = () => {
-            Utils.showToast('Crop failed — image may be too large', 'error');
-            state.cropRect = null;
-            drawPreview();
-        };
-        newImg.src = temp.toDataURL('image/png');
+            fctx.save();
+            fctx.translate(OW / 2, OH / 2);
+            fctx.rotate(state.rotation * Math.PI / 180);
+            if (state.flipH) fctx.scale(-1, 1);
+            if (state.flipV) fctx.scale(1, -1);
+            fctx.scale(state.zoom, state.zoom);
+            fctx.translate(-OW / 2 + offX, -OH / 2 + offY);
+            fctx.filter = filterString();
+            fctx.drawImage(src, 0, 0, OW, OH);
+            fctx.filter = 'none';
+            fctx.restore();
+
+            // 2) Map crop rect from preview coords → full-res coords
+            const scaleX = OW / state.previewW;
+            const scaleY = OH / state.previewH;
+            const cx = Math.round(rx * scaleX);
+            const cy = Math.round(ry * scaleY);
+            const cw = Math.round(rw * scaleX);
+            const ch = Math.round(rh * scaleY);
+
+            if (cw < 1 || ch < 1) {
+                Utils.showToast('Crop area is too small — drag a bigger rectangle', 'warning');
+                return;
+            }
+
+            // 3) Extract the region at full resolution
+            const temp = document.createElement('canvas');
+            temp.width  = cw;
+            temp.height = ch;
+            const tctx = temp.getContext('2d');
+            tctx.imageSmoothingEnabled = true;
+            tctx.imageSmoothingQuality = 'high';
+            tctx.drawImage(full, cx, cy, cw, ch, 0, 0, cw, ch);
+
+            // 4) Build the new source image
+            const dataUrl = temp.toDataURL('image/png');
+            const newImg = new Image();
+
+            newImg.onload = () => {
+                state.img = newImg;
+                state.cropRect = null;
+                state.rotation = 0;
+                state.zoom = 1;
+                state.offsetX = 0;
+                state.offsetY = 0;
+                state.flipH = false;
+                state.flipV = false;
+                // Filters were baked into the crop — reset sliders
+                state.brightness = 100;
+                state.contrast   = 100;
+                state.saturation = 100;
+                state.hue        = 0;
+                state.blur       = 0;
+                state.exposure   = 100;
+                state.grayscale  = false;
+                state.sepia      = false;
+                state.invert     = false;
+                state.vignette   = 0;
+                state.circle     = false;
+                state.frame      = 'none';
+                state.touched    = true;
+
+                resizePreview(newImg);
+                try { saveHistory(); } catch (e) { /* ignore quota */ }
+                drawPreview();
+                renderPanel();
+            };
+
+            newImg.onerror = () => {
+                Utils.showToast('Crop failed — image may be too large', 'error');
+                state.cropRect = null;
+                drawPreview();
+            };
+
+            newImg.src = dataUrl;
+        } catch (err) {
+            console.error('applyCrop error:', err);
+            Utils.showToast('Crop error: ' + (err.message || 'unknown'), 'error');
+        }
     }
-   
+
     // ── History ─────────────────────────────────────────────
     function snapshot() {
         return {
