@@ -11,8 +11,9 @@ const GDrivePublic = {
         videos:  '1yQaFes32qV3bDHtHhVPBlpXXdMogpsPw'
     },
 
-    // CDN URL — most reliable for <img> tags
-    imgUrl(fid) { return `https://lh3.googleusercontent.com/d/${fid}=w1600`; },
+    // CDN URL — most reliable for <img> tags.
+    // =s0 returns the TRUE ORIGINAL (no resize, no re-encode).
+    imgUrl(fid) { return `https://lh3.googleusercontent.com/d/${fid}=s0`; },
     // Embed URL — for <iframe> video player
     embedUrl(fid) { return `https://drive.google.com/file/d/${fid}/preview`; },
 
