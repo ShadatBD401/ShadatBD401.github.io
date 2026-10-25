@@ -318,9 +318,11 @@ const PhotoEditor = (() => {
                     state.saturation = p.s; state.hue = p.h;
                     state.sepia = p.sep; state.grayscale = p.gr;
                     state.blur = p.bl;
+                    state.touched = true;
                     saveHistory(); drawPreview();
                 };
             });
+           
         } else if (t === 'text') {
             panel.innerHTML = `
                 <div class="pe-panel-section">
