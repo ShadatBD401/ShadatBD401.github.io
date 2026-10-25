@@ -542,7 +542,21 @@ const PhotoEditor = (() => {
             state.offsetY = 0;
             state.flipH = false;
             state.flipV = false;
-            state.touched = true;
+            // Reset filters — they are already baked into the cropped image,
+            // so reset the sliders back to neutral to avoid double-application
+            state.brightness = 100;
+            state.contrast   = 100;
+            state.saturation = 100;
+            state.hue        = 0;
+            state.blur       = 0;
+            state.exposure   = 100;
+            state.grayscale  = false;
+            state.sepia      = false;
+            state.invert     = false;
+            state.vignette   = 0;
+            state.circle     = false;
+            state.frame      = 'none';
+            state.touched    = true;
             resizePreview(newImg);
             saveHistory();
             drawPreview();
