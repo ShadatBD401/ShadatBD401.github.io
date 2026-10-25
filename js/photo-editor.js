@@ -485,10 +485,12 @@ const PhotoEditor = (() => {
         el.textContent = `${state.previewW}×${state.previewH} preview · ${origW}×${origH} original (full-res on export)`;
     }
 
-    // ── Crop — FULL-RESOLUTION, defensive ───────────────────
+    // ── Crop — debug-logged, guaranteed-visible ─────────────
     function applyCrop() {
+        console.log('[applyCrop] called. state.cropRect =', state.cropRect, 'previewW/H =', state.previewW, state.previewH, 'img =', state.img && state.img.naturalWidth + 'x' + state.img.naturalHeight);
         try {
             if (!state.cropRect) {
+                console.warn('[applyCrop] NO cropRect — user did not drag');
                 Utils.showToast('Please drag a crop rectangle on the image first', 'warning');
                 return;
             }
@@ -501,28 +503,25 @@ const PhotoEditor = (() => {
 
             const OW = src.naturalWidth  || src.width;
             const OH = src.naturalHeight || src.height;
-            if (!OW || !OH) {
+            if (!OW || !OH || !state.previewW || !state.previewH) {
                 Utils.showToast('Image not ready — try again', 'error');
                 return;
             }
-            if (!state.previewW || !state.previewH) {
-                Utils.showToast('Preview not ready — try again', 'error');
-                return;
-            }
 
-            // Clamp crop rect to preview bounds
             const r = state.cropRect;
             const rx = Math.max(0, Math.min(state.previewW, r.x));
             const ry = Math.max(0, Math.min(state.previewH, r.y));
             const rw = Math.max(1, Math.min(state.previewW - rx, r.w));
             const rh = Math.max(1, Math.min(state.previewH - ry, r.h));
 
+            console.log('[applyCrop] clamped rect =', { rx, ry, rw, rh });
+
             if (rw < 2 || rh < 2) {
+                console.warn('[applyCrop] rect too small');
                 Utils.showToast('Crop area is too small — drag a bigger rectangle', 'warning');
                 return;
             }
 
-            // 1) Flatten current full-res image with all transforms baked in
             const full = document.createElement('canvas');
             full.width = OW;
             full.height = OH;
@@ -545,7 +544,6 @@ const PhotoEditor = (() => {
             fctx.filter = 'none';
             fctx.restore();
 
-            // 2) Map crop rect from preview coords → full-res coords
             const scaleX = OW / state.previewW;
             const scaleY = OH / state.previewH;
             const cx = Math.round(rx * scaleX);
@@ -553,12 +551,13 @@ const PhotoEditor = (() => {
             const cw = Math.round(rw * scaleX);
             const ch = Math.round(rh * scaleY);
 
+            console.log('[applyCrop] full-res rect =', { cx, cy, cw, ch });
+
             if (cw < 1 || ch < 1) {
                 Utils.showToast('Crop area is too small — drag a bigger rectangle', 'warning');
                 return;
             }
 
-            // 3) Extract the region at full resolution
             const temp = document.createElement('canvas');
             temp.width  = cw;
             temp.height = ch;
@@ -567,11 +566,14 @@ const PhotoEditor = (() => {
             tctx.imageSmoothingQuality = 'high';
             tctx.drawImage(full, cx, cy, cw, ch, 0, 0, cw, ch);
 
-            // 4) Build the new source image
             const dataUrl = temp.toDataURL('image/png');
+            console.log('[applyCrop] dataUrl length =', dataUrl.length);
+
             const newImg = new Image();
 
             newImg.onload = () => {
+                console.log('[applyCrop] newImg loaded:', newImg.naturalWidth + 'x' + newImg.naturalHeight);
+
                 state.img = newImg;
                 state.cropRect = null;
                 state.rotation = 0;
@@ -580,7 +582,6 @@ const PhotoEditor = (() => {
                 state.offsetY = 0;
                 state.flipH = false;
                 state.flipV = false;
-                // Filters were baked into the crop — reset sliders
                 state.brightness = 100;
                 state.contrast   = 100;
                 state.saturation = 100;
@@ -599,9 +600,12 @@ const PhotoEditor = (() => {
                 try { saveHistory(); } catch (e) { /* ignore quota */ }
                 drawPreview();
                 renderPanel();
+
+                Utils.showToast('Crop applied ✓', 'success');
             };
 
-            newImg.onerror = () => {
+            newImg.onerror = (e) => {
+                console.error('[applyCrop] newImg.onerror:', e);
                 Utils.showToast('Crop failed — image may be too large', 'error');
                 state.cropRect = null;
                 drawPreview();
@@ -609,7 +613,7 @@ const PhotoEditor = (() => {
 
             newImg.src = dataUrl;
         } catch (err) {
-            console.error('applyCrop error:', err);
+            console.error('[applyCrop] EXCEPTION:', err);
             Utils.showToast('Crop error: ' + (err.message || 'unknown'), 'error');
         }
     }
