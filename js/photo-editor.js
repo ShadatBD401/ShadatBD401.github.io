@@ -452,6 +452,7 @@ const PhotoEditor = (() => {
             const key = inp.dataset.key;
             inp.oninput = () => {
                 state[key] = +inp.value;
+                state.touched = true;
                 const lbl = document.querySelector(`[data-val="${key}"]`);
                 if (lbl) lbl.textContent = inp.value;
                 drawPreview();
