@@ -712,16 +712,21 @@ const PhotoEditor = (() => {
         d.textContent = s;
         return d.innerHTML;
     }
-
+   
     // ── Export (full resolution, all effects baked) ─────────
     function exportFile() {
         return new Promise((resolve) => {
             const out = document.createElement('canvas');
-            const ratio = state.img.width / state.img.height;
-            let W = EXPORT_SIZE, H = Math.round(EXPORT_SIZE / ratio);
-            if (H > EXPORT_SIZE) { H = EXPORT_SIZE; W = Math.round(EXPORT_SIZE * ratio); }
-            out.width = W; out.height = H;
+            // ✅ Keep ORIGINAL pixel dimensions — no downscale
+            out.width  = state.img.naturalWidth  || state.img.width;
+            out.height = state.img.naturalHeight || state.img.height;
+            const W = out.width, H = out.height;
             const ctx = out.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            const offX = state.offsetX * (W / state.previewW);
+            const offY = state.offsetY * (H / state.previewH);
 
             ctx.save();
             ctx.translate(W / 2, H / 2);
@@ -729,14 +734,12 @@ const PhotoEditor = (() => {
             if (state.flipH) ctx.scale(-1, 1);
             if (state.flipV) ctx.scale(1, -1);
             ctx.scale(state.zoom, state.zoom);
-            ctx.translate(-W / 2 + state.offsetX * (W / state.previewW),
-                          -H / 2 + state.offsetY * (H / state.previewH));
+            ctx.translate(-W / 2 + offX, -H / 2 + offY);
             ctx.filter = filterString();
             ctx.drawImage(state.img, 0, 0, W, H);
             ctx.filter = 'none';
             ctx.restore();
 
-            // strokes
             state.drawings.forEach(s => {
                 if (s.points.length < 2) return;
                 ctx.save();
@@ -752,7 +755,6 @@ const PhotoEditor = (() => {
                 ctx.restore();
             });
 
-            // texts
             state.texts.forEach(t => {
                 ctx.save();
                 const x = t.x * W, y = t.y * H;
@@ -764,7 +766,6 @@ const PhotoEditor = (() => {
                 ctx.restore();
             });
 
-            // vignette
             if (state.vignette > 0) {
                 const g = ctx.createRadialGradient(W/2, H/2, W*.3, W/2, H/2, W*.75);
                 g.addColorStop(0, 'rgba(0,0,0,0)');
@@ -773,7 +774,6 @@ const PhotoEditor = (() => {
                 ctx.fillRect(0, 0, W, H);
             }
 
-            // circle mask
             if (state.circle) {
                 ctx.globalCompositeOperation = 'destination-in';
                 ctx.beginPath();
@@ -782,7 +782,6 @@ const PhotoEditor = (() => {
                 ctx.globalCompositeOperation = 'source-over';
             }
 
-            // frame
             if (state.frame !== 'none') {
                 if (state.frame === 'white' || state.frame === 'black') {
                     const bw = Math.min(W, H) * 0.04;
@@ -804,12 +803,11 @@ const PhotoEditor = (() => {
                 }
             }
 
-            const ext = (state.originalFile?.type || '').includes('png') ? 'png' : 'jpg';
-            const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
+            // ✅ Lossless PNG — no JPEG re-compression
             out.toBlob((blob) => {
-                const name = `edited_${Date.now()}.${ext}`;
-                resolve(new File([blob], name, { type: mime }));
-            }, mime, 0.95);
+                const name = `edited_${Date.now()}.png`;
+                resolve(new File([blob], name, { type: 'image/png' }));
+            }, 'image/png');
         });
     }
 
