@@ -44,6 +44,8 @@ const PhotoEditor = (() => {
             history: [],
             historyIndex: -1,
             originalFile: null,
+            touched: false,         
+           
         };
     }
 
