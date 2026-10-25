@@ -91,7 +91,7 @@ const PhotoEditor = (() => {
                         <span class="pe-info" id="peInfo"></span>
                     </div>
                     <div class="pe-footer-right">
-                        <button class="btn btn-outline" id="peCancel">Cancel</button>
+                        <button class="btn btn-outline" id="peCancel">Skip Editing</button>
                         <button class="btn btn-primary" id="peApply"><i class="fas fa-check"></i> Apply</button>
                     </div>
                 </div>
