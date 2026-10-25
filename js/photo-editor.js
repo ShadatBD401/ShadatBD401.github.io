@@ -402,8 +402,9 @@ const PhotoEditor = (() => {
                 <div class="pe-panel-section"><h4>Strokes (${state.drawings.length})</h4></div>`;
             bindPanel();
             document.getElementById('peClearDraw').onclick = () => {
-                state.drawings = []; saveHistory(); drawPreview(); renderPanel();
+                state.drawings = []; state.touched = true; saveHistory(); drawPreview(); renderPanel();
             };
+           
         } else if (t === 'sticker') {
             const stickers = ['😀','😎','🔥','❤️','⭐','✨','🎉','👍','💯','🚀','🌈','🎨','📷','💎','🌟','👑','🏆','🎯','💡','⚡','🌸','🍕','☕','🐱','🐶','🦄','🌊','🌙','☀️','🍀'];
             panel.innerHTML = `
