@@ -251,6 +251,7 @@ const PhotoEditor = (() => {
                         <label class="pe-checkbox"><input type="checkbox" data-key="circle" ${state.circle ? 'checked' : ''}> Circle</label>
                     </div>
                 </div>`;
+            bindPanel();
         } else if (t === 'crop') {
             panel.innerHTML = `
                 <div class="pe-panel-section">
@@ -484,30 +485,72 @@ const PhotoEditor = (() => {
         el.textContent = `${state.previewW}×${state.previewH} preview · ${origW}×${origH} original (full-res on export)`;
     }
 
-    // ── Crop (CORRECT IMPLEMENTATION) ───────────────────────
+    // ── Crop — FULL-RESOLUTION, transform-aware ─────────────
     function applyCrop() {
         if (!state.cropRect) return;
+
+        // 1) Render the CURRENT FULL-RES image (with rotation / flip / zoom / offset
+        //    applied) into an off-screen canvas at original resolution.
+        const src = state.img;
+        const OW = src.naturalWidth  || src.width;
+        const OH = src.naturalHeight || src.height;
+
+        const full = document.createElement('canvas');
+        full.width = OW;
+        full.height = OH;
+        const fctx = full.getContext('2d');
+        fctx.imageSmoothingEnabled = true;
+        fctx.imageSmoothingQuality = 'high';
+
+        const offX = state.offsetX * (OW / state.previewW);
+        const offY = state.offsetY * (OH / state.previewH);
+
+        fctx.save();
+        fctx.translate(OW / 2, OH / 2);
+        fctx.rotate(state.rotation * Math.PI / 180);
+        if (state.flipH) fctx.scale(-1, 1);
+        if (state.flipV) fctx.scale(1, -1);
+        fctx.scale(state.zoom, state.zoom);
+        fctx.translate(-OW / 2 + offX, -OH / 2 + offY);
+        fctx.filter = filterString();
+        fctx.drawImage(src, 0, 0, OW, OH);
+        fctx.filter = 'none';
+        fctx.restore();
+
+        // 2) Map the crop rectangle from preview coordinates → full-res coordinates
         const r = state.cropRect;
-        const c = state.previewCanvas;
-        // Capture the current preview into a temp canvas
+        const scaleX = OW / state.previewW;
+        const scaleY = OH / state.previewH;
+        const cx = Math.round(r.x * scaleX);
+        const cy = Math.round(r.y * scaleY);
+        const cw = Math.round(r.w * scaleX);
+        const ch = Math.round(r.h * scaleY);
+
+        // 3) Extract that region at FULL resolution
         const temp = document.createElement('canvas');
-        temp.width = r.w; temp.height = r.h;
-        temp.getContext('2d').drawImage(c, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
-        // Now this becomes the new source image
+        temp.width = cw;
+        temp.height = ch;
+        temp.getContext('2d').drawImage(full, cx, cy, cw, ch, 0, 0, cw, ch);
+
         const newImg = new Image();
         newImg.onload = () => {
             state.img = newImg;
             state.cropRect = null;
-            state.rotation = 0; state.zoom = 1;
-            state.offsetX = 0; state.offsetY = 0;
+            state.rotation = 0;
+            state.zoom = 1;
+            state.offsetX = 0;
+            state.offsetY = 0;
+            state.flipH = false;
+            state.flipV = false;
             state.touched = true;
             resizePreview(newImg);
-            saveHistory(); drawPreview();
+            saveHistory();
+            drawPreview();
+            renderPanel();
         };
-       
         newImg.src = temp.toDataURL('image/png');
     }
-
+   
     // ── History ─────────────────────────────────────────────
     function snapshot() {
         return {
