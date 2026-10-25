@@ -188,21 +188,27 @@ const PhotoEditor = (() => {
         // Crop overlay (preview only)
         if (state.cropRect && state.activeTool === 'crop') {
             const r = state.cropRect;
+
+            // 1) Dim the area outside the crop rectangle.
             ctx.save();
             ctx.fillStyle = 'rgba(0,0,0,0.55)';
             ctx.fillRect(0, 0, W, H);
             ctx.clearRect(r.x, r.y, r.w, r.h);
-            // Re-draw inside crop
             ctx.restore();
+
+            // 2) Redraw the image (with all filters) only inside the crop.
             ctx.save();
             ctx.beginPath();
             ctx.rect(r.x, r.y, r.w, r.h);
             ctx.clip();
             drawPreviewToCropClip();
             ctx.restore();
+
+            // 3) Dashed border.
             ctx.save();
             ctx.strokeStyle = '#3b82f6';
             ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
             ctx.strokeRect(r.x, r.y, r.w, r.h);
             ctx.restore();
         }
