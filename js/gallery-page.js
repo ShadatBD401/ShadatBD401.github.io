@@ -50,6 +50,17 @@ async function loadGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
+    // Clear the admin "dirty" hint up front. We handle reloading here;
+    // renderGalleryPage() must NOT recurse.
+    Utils.removeStorage('sh_gallery_dirty');
+
+    // Always show a loading state so the user sees something is happening.
+    grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+            <p style="margin-top:.75rem;">Loading gallery…</p>
+        </div>`;
+
     try {
         // ── PRIMARY: Supabase (has full title + description) ──
         let items = null;
@@ -76,6 +87,15 @@ async function loadGalleryPage() {
             console.log('⚠️ Gallery loaded from Drive (descriptions may be truncated)');
         }
 
+        if (!Array.isArray(items) || items.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+                    <i class="fas fa-images" style="font-size:3rem;opacity:.5;margin-bottom:1rem;"></i>
+                    <p>No gallery items found.</p>
+                </div>`;
+            return;
+        }
+
         galleryPageState.items = items;
         renderGalleryPage();
     } catch (err) {
@@ -87,7 +107,6 @@ async function loadGalleryPage() {
             </div>`;
     }
 }
-
 async function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
