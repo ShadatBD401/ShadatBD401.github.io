@@ -424,7 +424,9 @@ const PhotoEditor = (() => {
                     };
                     state.texts.push(t);
                     state.activeTextId = t.id;
+                    state.touched = true;
                     saveHistory(); drawPreview();
+                   
                 };
             });
         } else if (t === 'frame') {
