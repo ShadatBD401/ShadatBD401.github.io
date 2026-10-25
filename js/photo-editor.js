@@ -562,6 +562,11 @@ const PhotoEditor = (() => {
             drawPreview();
             renderPanel();
         };
+        newImg.onerror = () => {
+            Utils.showToast('Crop failed — image may be too large', 'error');
+            state.cropRect = null;
+            drawPreview();
+        };
         newImg.src = temp.toDataURL('image/png');
     }
    
