@@ -698,6 +698,7 @@ const PhotoEditor = (() => {
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             state.zoom = Math.max(0.3, Math.min(4, state.zoom - e.deltaY * 0.001));
+            state.touched = true;
             drawPreview();
         }, { passive: false });
 
