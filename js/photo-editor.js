@@ -721,15 +721,26 @@ const PhotoEditor = (() => {
 
         document.getElementById('peUndo').onclick = undo;
         document.getElementById('peRedo').onclick = redo;
-        document.getElementById('peReset').onclick = () => {
-            const orig = state.img;
-            const origFile = state.originalFile;
-            resetState(orig);
-            state.originalFile = origFile;
-            resizePreview(orig);
-            saveHistory(); drawPreview(); renderPanel();
-        };
 
+        document.getElementById('peReset').onclick = () => {
+            try {
+                const orig = state.img;
+                const origFile = state.originalFile;
+
+                resetState(orig);
+                state.originalFile = origFile;
+
+                resizePreview(orig);
+                saveHistory();
+                drawPreview();
+                renderPanel();
+            } catch (err) {
+                console.error('[peReset] failed:', err);
+                Utils.showToast('Reset failed: ' + err.message, 'error');
+            }
+        };       
+
+       
         canvas.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX - rect.left) * (canvas.width / rect.width);
