@@ -1245,3 +1245,75 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .learning-section   { background: var(--bg-secondary) !important; }
 .notes-section      { background: var(--bg-primary) !important;   }
 .contact-section    { background: var(--bg-secondary) !important; }
+
+/* ============================================================
+   MOBILE NAVBAR + FOOTER FIX  (added 2026)
+   Only ADDS rules — does not replace or delete anything above.
+   ============================================================ */
+
+/* ── Mobile: keep search / theme / admin / menu buttons visible ── */
+@media (max-width: 991px) {
+
+    /* Make the top bar a clean 3-part layout: logo | actions */
+    .nav-container {
+        justify-content: space-between;
+        gap: 6px;
+        padding: 0 8px;
+    }
+
+    /* Let the logo shrink instead of pushing actions off-screen */
+    .nav-logo {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 55%;
+    }
+    .logo-info { min-width: 0; overflow: hidden; }
+    .logo-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.85rem;
+    }
+    .logo-role { font-size: 0.6875rem; }
+
+    /* Action buttons must always be visible and never shrink */
+    .nav-actions {
+        flex: 0 0 auto;
+        gap: 4px;
+    }
+
+    /* Hide the tiny social icons row (they live in the footer anyway) */
+    .nav-social { display: none; }
+
+    /* Force the search + theme + admin buttons to show */
+    .search-trigger,
+    .theme-toggle {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .admin-btn {
+        display: inline-flex;
+        padding: 6px 9px;
+        font-size: 0.75rem;
+    }
+    .mobile-menu-btn { display: flex; }
+}
+
+/* ── Mobile: footer social icons stay in a horizontal row ── */
+@media (max-width: 767px) {
+    .footer-social {
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: var(--space-sm) !important;
+        flex-wrap: wrap;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
