@@ -107,17 +107,10 @@ async function loadGalleryPage() {
             </div>`;
     }
 }
+
 async function renderGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
-
-    if (Utils.getStorage('sh_gallery_dirty', false)) {
-        Utils.removeStorage('sh_gallery_dirty');
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
-            <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i></div>`;
-        await loadGalleryPage();
-        return;
-    }
 
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
     let items = galleryPageState.items.filter(i => {
