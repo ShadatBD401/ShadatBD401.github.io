@@ -284,10 +284,11 @@ const PhotoEditor = (() => {
                     renderPanel(); drawPreview();
                 };
             });
-            document.getElementById('peRotL').onclick = () => { state.rotation = (state.rotation - 90 + 360) % 360; saveHistory(); drawPreview(); };
-            document.getElementById('peRotR').onclick = () => { state.rotation = (state.rotation + 90) % 360; saveHistory(); drawPreview(); };
-            document.getElementById('peFlipH').onclick = () => { state.flipH = !state.flipH; saveHistory(); drawPreview(); };
-            document.getElementById('peFlipV').onclick = () => { state.flipV = !state.flipV; saveHistory(); drawPreview(); };
+            document.getElementById('peRotL').onclick = () => { state.rotation = (state.rotation - 90 + 360) % 360; state.touched = true; saveHistory(); drawPreview(); };
+            document.getElementById('peRotR').onclick = () => { state.rotation = (state.rotation + 90) % 360; state.touched = true; saveHistory(); drawPreview(); };
+            document.getElementById('peFlipH').onclick = () => { state.flipH = !state.flipH; state.touched = true; saveHistory(); drawPreview(); };
+            document.getElementById('peFlipV').onclick = () => { state.flipV = !state.flipV; state.touched = true; saveHistory(); drawPreview(); };
+           
             document.getElementById('peCropReset').onclick = () => { state.cropRect = null; drawPreview(); };
             document.getElementById('peCropApply').onclick = applyCrop;
         } else if (t === 'filter') {
