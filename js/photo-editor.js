@@ -3,10 +3,7 @@
    ============================================================ */
 const PhotoEditor = (() => {
     const MAX_HISTORY = 30;
-    const EXPORT_SIZE = 1200;
-
-    // Preview canvas dims — the fix for blur
-    const PREVIEW_MAX = 640;
+    const PREVIEW_MAX = 800;   // improved preview (was 640) — safe on all devices
 
     let state = {};
 
