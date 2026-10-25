@@ -836,7 +836,7 @@ const PhotoEditor = (() => {
             img.onload = () => {
                 resetState(img);
                 state.originalFile = file;
-                state.touched = true;
+                state.touched = false;
                 state.resolve = resolve;
                 state.previewCanvas = document.getElementById('peCanvas');
                 state.previewCtx = state.previewCanvas.getContext('2d');
