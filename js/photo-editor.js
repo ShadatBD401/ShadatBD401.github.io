@@ -6,12 +6,18 @@ const PhotoEditor = (() => {
     const PREVIEW_MAX = 800;   // improved preview (was 640) — safe on all devices
 
     let state = {};
-
+   
     function resetState(img) {
+        // Preserve the live canvas element and its 2D context.
+        // (open() sets these; without preserving them, the Reset button
+        //  and any subsequent drawPreview() would throw on null.width.)
+        const canvas = document.getElementById('peCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+
         state = {
-            img,                       // HTMLImageElement (source)
-            previewCanvas: null,
-            previewCtx: null,
+            img,
+            previewCanvas: canvas,
+            previewCtx: ctx,
             previewW: 0,
             previewH: 0,
             rotation: 0,
@@ -44,8 +50,7 @@ const PhotoEditor = (() => {
             history: [],
             historyIndex: -1,
             originalFile: null,
-            touched: false,         
-           
+            touched: false,
         };
     }
 
