@@ -497,7 +497,7 @@ const PhotoEditor = (() => {
     }
 
     // ── Crop — debug-logged, guaranteed-visible ─────────────
-    function applyCrop() {
+    async function applyCrop() {
         console.log('[applyCrop] called. state.cropRect =', state.cropRect, 'previewW/H =', state.previewW, state.previewH, 'img =', state.img && state.img.naturalWidth + 'x' + state.img.naturalHeight);
         try {
             if (!state.cropRect) {
