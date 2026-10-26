@@ -36,11 +36,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const box = document.getElementById('galleryFilters');
     box?.addEventListener('click', e => {
-        const btn = e.target.closest('.filter-btn');
+        // Only react to real filter buttons (ignore #galleryRefreshBtn and anything else)
+        const btn = e.target.closest('.filter-btn[data-gallery-filter]');
         if (!btn) return;
-        box.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+
+        const newFilter = btn.dataset.galleryFilter;
+        if (!newFilter) return;
+
+        box.querySelectorAll('.filter-btn[data-gallery-filter]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        galleryPageState.filter = btn.dataset.galleryFilter;
+        galleryPageState.filter = newFilter;
         renderGalleryPage();
     });
 
