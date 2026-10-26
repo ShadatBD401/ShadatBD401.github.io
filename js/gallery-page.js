@@ -326,10 +326,9 @@ document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
 
-    // Always clear the "dirty" hint; loadGalleryPage handles the reload.
     Utils.removeStorage('sh_gallery_dirty');
 
-    // Re-fetch order + hidden list from Supabase.
+    // Re-fetch order + hidden list from Supabase (best-effort)
     try {
         const client = await initSupabase();
 
@@ -352,5 +351,5 @@ document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-    Utils.showToast('Gallery refreshed', 'success');
+    Utils.showToast(`Gallery refreshed (${galleryPageState.items.length} items)`, 'success');
 });
