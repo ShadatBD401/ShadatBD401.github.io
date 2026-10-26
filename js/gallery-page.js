@@ -339,7 +339,7 @@ function initModal() {
     });
 }
 
-/* ✅ REFRESH — no toast, no grid wipe on failure, no double clicks */
+/* ✅ REFRESH — keeps the currently selected filter, no toast, no grid wipe */
 document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e) => {
     if (refreshInFlight) return;
     refreshInFlight = true;
@@ -369,11 +369,22 @@ document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e
         console.warn('Refresh: could not reload settings', err);
     }
 
+    // Preserve the currently selected filter across the reload
+    if (!galleryPageState.filter) {
+        galleryPageState.filter = 'all';
+    }
+
     await loadGalleryPage();
+
+    // Re-sync the active class on the filter buttons (so the right one stays highlighted)
+    const box = document.getElementById('galleryFilters');
+    if (box) {
+        box.querySelectorAll('.filter-btn[data-gallery-filter]').forEach(b => {
+            b.classList.toggle('active', b.dataset.galleryFilter === galleryPageState.filter);
+        });
+    }
 
     btn.disabled = false;
     btn.innerHTML = originalHTML;
     refreshInFlight = false;
-
-    // ❌ NO Utils.showToast() here — removed per requirement
 });
