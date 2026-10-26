@@ -50,62 +50,80 @@ async function loadGalleryPage() {
     const grid = document.getElementById('galleryGrid');
     if (!grid) return;
 
-    // Clear the admin "dirty" hint up front. We handle reloading here;
-    // renderGalleryPage() must NOT recurse.
     Utils.removeStorage('sh_gallery_dirty');
 
-    // Always show a loading state so the user sees something is happening.
     grid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
             <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
             <p style="margin-top:.75rem;">Loading gallery…</p>
         </div>`;
 
+    let items = null;
+    let source = 'none';
+
+    // 1) Supabase
     try {
-        // ── PRIMARY: Supabase (has full title + description) ──
-        let items = null;
+        const client = await initSupabase();
+        const { data, error } = await client
+            .from('site_settings')
+            .select('value')
+            .eq('key', 'gallery_items')
+            .maybeSingle();
+        if (error) throw error;
+        if (Array.isArray(data?.value) && data.value.length) {
+            items = data.value;
+            source = 'supabase';
+        }
+    } catch (e) {
+        console.warn('Supabase gallery failed:', e);
+    }
+
+    // 2) localStorage cache (populated after any successful load)
+    if (!items || !items.length) {
+        const cached = Utils.getItems('sh_gallery');
+        if (Array.isArray(cached) && cached.length) {
+            items = cached;
+            source = 'cache';
+        }
+    }
+
+    // 3) Google Drive live list
+    if (!items || !items.length) {
         try {
-            const client = await initSupabase();
-            const { data, error } = await client
-                .from('site_settings')
-                .select('value')
-                .eq('key', 'gallery_items')
-                .maybeSingle();
-            if (error) throw error;
-            if (Array.isArray(data?.value) && data.value.length) {
-                items = data.value;
-                console.log('✅ Gallery loaded from Supabase:', items.length);
+            if (window.GDrivePublic) {
+                const driveItems = await window.GDrivePublic.listGalleryItems();
+                if (Array.isArray(driveItems) && driveItems.length) {
+                    items = driveItems;
+                    source = 'drive';
+                }
             }
         } catch (e) {
-            console.warn('Supabase gallery failed, falling back to Drive:', e);
+            console.warn('Drive list failed:', e);
         }
+    }
 
-        // ── FALLBACK: Google Drive filenames ──
-        if (!items || !items.length) {
-            if (!window.GDrivePublic) throw new Error('GDrivePublic not loaded');
-            items = await window.GDrivePublic.listGalleryItems();
-            console.log('⚠️ Gallery loaded from Drive (descriptions may be truncated)');
-        }
-
-        if (!Array.isArray(items) || items.length === 0) {
-            grid.innerHTML = `
-                <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
-                    <i class="fas fa-images" style="font-size:3rem;opacity:.5;margin-bottom:1rem;"></i>
-                    <p>No gallery items found.</p>
-                </div>`;
-            return;
-        }
-
+    // 4) Success — persist and render
+    if (Array.isArray(items) && items.length) {
+        Utils.saveItems('sh_gallery', items);
         galleryPageState.items = items;
         renderGalleryPage();
-    } catch (err) {
-        console.error('Gallery load error:', err);
-        grid.innerHTML = `
-            <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
-                <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:1rem;"></i>
-                <p>Gallery unavailable. ${Utils.esc(err.message)}</p>
-            </div>`;
+        console.log(`Gallery rendered: ${items.length} items from ${source}`);
+        return;
     }
+
+    // 5) Everything failed — DO NOT blank the grid if we already have items
+    if (Array.isArray(galleryPageState.items) && galleryPageState.items.length) {
+        renderGalleryPage();
+        Utils.showToast('Could not reach server — showing current gallery', 'warning');
+        return;
+    }
+
+    // 6) Truly nothing to show
+    grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+            <i class="fas fa-images" style="font-size:3rem;opacity:.5;margin-bottom:1rem;"></i>
+            <p>No gallery items found.</p>
+        </div>`;
 }
 
 async function renderGalleryPage() {
