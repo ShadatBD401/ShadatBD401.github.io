@@ -1,8 +1,10 @@
 /* ============================================================
    GALLERY PAGE — Loads photos + videos from Google Drive
+   FIXED: refresh no longer blanks the grid, no toast spam
    ============================================================ */
 
 const galleryPageState = { items: [], filter: 'all' };
+let refreshInFlight = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', Utils.getStorage('sh_theme', 'dark'));
@@ -52,11 +54,15 @@ async function loadGalleryPage() {
 
     Utils.removeStorage('sh_gallery_dirty');
 
-    grid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
-            <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
-            <p style="margin-top:.75rem;">Loading gallery…</p>
-        </div>`;
+    // Only show the loading spinner if the grid is currently empty.
+    // Otherwise keep the existing items on screen while re-fetching.
+    if (!galleryPageState.items.length) {
+        grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+                <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+                <p style="margin-top:.75rem;">Loading gallery…</p>
+            </div>`;
+    }
 
     let items = null;
     let source = 'none';
@@ -78,7 +84,7 @@ async function loadGalleryPage() {
         console.warn('Supabase gallery failed:', e);
     }
 
-    // 2) localStorage cache (populated after any successful load)
+    // 2) localStorage cache
     if (!items || !items.length) {
         const cached = Utils.getItems('sh_gallery');
         if (Array.isArray(cached) && cached.length) {
@@ -111,10 +117,10 @@ async function loadGalleryPage() {
         return;
     }
 
-    // 5) Everything failed — DO NOT blank the grid if we already have items
+    // 5) Everything failed — keep showing whatever we already had
     if (Array.isArray(galleryPageState.items) && galleryPageState.items.length) {
         renderGalleryPage();
-        Utils.showToast('Could not reach server — showing current gallery', 'warning');
+        console.warn('Refresh could not reach server — keeping current gallery');
         return;
     }
 
@@ -131,14 +137,25 @@ async function renderGalleryPage() {
     if (!grid) return;
 
     const hiddenIds = Utils.getStorage('sh_hidden_gallery', []);
-    let items = galleryPageState.items.filter(i => {
-        const key = i.driveId || i.id;
-        return !hiddenIds.includes(key);
-    });
+    let items = galleryPageState.items;
+
+    // Apply hidden filter (safely — if it would blank everything, skip it)
+    if (hiddenIds.length) {
+        const filtered = items.filter(i => {
+            const key = i.driveId || i.id;
+            return !hiddenIds.includes(key);
+        });
+        // Guard: if filtering removed everything, the hidden list is stale — ignore it
+        if (filtered.length > 0 || items.length === 0) {
+            items = filtered;
+        } else {
+            console.warn('hidden_gallery would blank the grid — ignoring it');
+        }
+    }
 
     const savedOrder = Utils.getStorage('sh_gallery_order', []);
     if (savedOrder.length) {
-        items.sort((a, b) => {
+        items = [...items].sort((a, b) => {
             const aKey = a.driveId || a.id;
             const bKey = b.driveId || b.id;
             const idxA = savedOrder.indexOf(aKey);
@@ -215,10 +232,9 @@ function openGalleryItem(item) {
     const desc  = (item.description || '').replace(/\\n/g, '\n').trim();
     const shareUrl = window.location.href;
 
-    // Format description like the reference site: preserve paragraphs, links, line breaks
     const descHtml = desc
         ? desc
-            .split(/\n\s*\n/)                     // paragraph breaks
+            .split(/\n\s*\n/)
             .map(para => `<p>${Utils.esc(para).replace(/\n/g, '<br>')}</p>`)
             .join('')
         : '';
@@ -227,7 +243,6 @@ function openGalleryItem(item) {
         ? `<iframe src="${item.src}" allowfullscreen></iframe>`
         : `<img src="${item.src}" alt="${Utils.esc(title)}">`;
 
-    // If it's an image, pass the URL into a CSS variable for the blurred background
     const mediaStyle = item.type === 'image' ? `style="--bg-img: url('${item.src}');"` : '';
 
     const content = `
@@ -266,7 +281,6 @@ function openGalleryItem(item) {
 
     Utils.openModal('', content);
 
-    // Wire the buttons after the modal is rendered
     const modalBody = document.getElementById('modalBody');
     if (modalBody) {
         const liveNative = modalBody.querySelector('#galleryNativeShare');
@@ -281,12 +295,11 @@ function openGalleryItem(item) {
 
     const modal = document.getElementById('modal');
     if (modal) {
-        // Let the modal size dynamically based on the image width, up to 90vw
         modal.style.maxWidth = '90vw';
-        modal.style.width = 'auto'; 
+        modal.style.width = 'auto';
         modal.style.minWidth = '300px';
     }
-   
+
     const modalTitle = document.getElementById('modalTitle');
     if (modalTitle) modalTitle.style.display = 'none';
 
@@ -294,9 +307,9 @@ function openGalleryItem(item) {
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             if (modalTitle) modalTitle.style.display = '';
-            if (modal) { 
-                modal.style.maxWidth = ''; 
-                modal.style.width = ''; 
+            if (modal) {
+                modal.style.maxWidth = '';
+                modal.style.width = '';
                 modal.style.minWidth = '';
             }
         }, { once: true });
@@ -321,14 +334,18 @@ function initModal() {
     });
 }
 
+/* ✅ REFRESH — no toast, no grid wipe on failure, no double clicks */
 document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e) => {
+    if (refreshInFlight) return;
+    refreshInFlight = true;
+
     const btn = e.currentTarget;
+    const originalHTML = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
 
     Utils.removeStorage('sh_gallery_dirty');
 
-    // Re-fetch order + hidden list from Supabase (best-effort)
     try {
         const client = await initSupabase();
 
@@ -350,6 +367,8 @@ document.getElementById('galleryRefreshBtn')?.addEventListener('click', async (e
     await loadGalleryPage();
 
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-    Utils.showToast(`Gallery refreshed (${galleryPageState.items.length} items)`, 'success');
+    btn.innerHTML = originalHTML;
+    refreshInFlight = false;
+
+    // ❌ NO Utils.showToast() here — removed per requirement
 });
